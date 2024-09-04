@@ -10,9 +10,6 @@ router.use(authMiddleware)
 //Получение продуктов
 router.get('/', productsController.products)
 
-//Получение продукта
-router.get('/:id', productsController.product)
-
 //Получение моих продуктов
 router.get('/my', productsController.myProducts)
 
@@ -30,5 +27,8 @@ router.post('/add', productsController.addProduct)
 
 //Удаление продукта
 router.delete('/', productsController.deleteProduct)
+
+//Получение продукта
+router.get('/:id', productsController.product)
 
 module.exports = router

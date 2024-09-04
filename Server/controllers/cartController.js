@@ -42,14 +42,38 @@ class CartController {
             res.status(400).json({ error: `Quantity = ${quantity}` })
         }
 
-        try {
-            const post_time_json = JSON.stringify(post_time)
+        if (!Array.isArray(post_time) || post_time.length === 0) {
+            return res.status(400).json({ error: 'Invalid post_time format' })
+        }
 
-            const result = await db.query(
-                `SELECT add_to_cart($1, $2, $3, $4)`,
-                [user_id, product_id, quantity, post_time_json]
+        try {
+            // Ищем корзину пользователя
+            let result = await db.query(
+                `SELECT cart_id FROM cart WHERE user_id = $1 LIMIT 1`,
+                [user_id]
             )
-            // console.log(result)
+
+            let user_cart_id
+
+            if (result.rows.length === 0) {
+                // Если корзина не найдена, создаем новую
+                result = await db.query(
+                    `INSERT INTO cart (user_id, created_at) VALUES ($1, NOW()) RETURNING cart_id`,
+                    [user_id]
+                )
+                user_cart_id = result.rows[0].cart_id
+            } else {
+                // Если корзина найдена, получаем её ID
+                user_cart_id = result.rows[0].cart_id
+            }
+
+            for (const time of post_time) {
+                // Добавляем товар в корзину для каждого post_time
+                await db.query(
+                    `INSERT INTO cartitems (cart_id, product_id, quantity, post_time) VALUES ($1, $2, $3, $4)`,
+                    [user_cart_id, product_id, quantity, time]
+                )
+            }
 
             res.status(200).json({
                 message: 'Product added to cart successfully',

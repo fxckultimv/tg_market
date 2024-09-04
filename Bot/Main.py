@@ -3,8 +3,7 @@ import logging
 import os
 import re
 import threading
-from datetime import datetime
-
+from datetime import datetime, timedelta
 
 from aiogram import types
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -317,7 +316,7 @@ async def forward_message(message: types.Message, state: FSMContext):
 
             # Выполняем запрос к базе данных для получения информации о заказе
             async with db_pool.acquire() as connection:
-                order_info = await connection.fetchrow("""
+                order_info = await connection.fetch("""
                     SELECT oi.order_id, oi.post_time, p.product_id, vc.channel_name, vc.channel_url, (oi.quantity * oi.price) as total_price
                     FROM orderitems oi
                     JOIN products p ON oi.product_id = p.product_id
@@ -325,23 +324,23 @@ async def forward_message(message: types.Message, state: FSMContext):
                     WHERE oi.order_id = $1
                 """, order_id)
 
+
+
             if order_info:
-                # Формируем текст сообщения и отправляем продавцу
-                channel_name = order_info['channel_name']
-                channel_url = order_info['channel_url']
-                post_times = order_info['post_time']  # Это массив дат в формате JSONB
-                total_price = f"{order_info['total_price']:,.0f}".replace(",", " ")
+                # Обрабатываем все записи и собираем информацию о датах и общей стоимости
+                channel_name = order_info[0]['channel_name']
+                channel_url = order_info[0]['channel_url']
+                post_times = [record['post_time'].strftime("%d-%m-%Y %H:%M") for record in order_info]
+                total_prices = sum(record['total_price'] for record in order_info)
+                formatted_total_price = f"{total_prices:,.0f}".replace(",", " ")
 
-
-                post_times_list = json.loads(post_times)
-                formatted_dates = ', '.join(
-                    [f"<b>{datetime.fromisoformat(date).strftime('%d.%m.%Y %H:%M')}</b>" for date in post_times_list])
+                post_times_str = ", ".join(post_times)
 
                 message_text = (
                     f"Пользователь @{message.from_user.username} хочет купить у вас рекламу \n"
                     f"в канале <a href='{channel_url}'>{channel_name}</a> \n"
-                    f"на даты: {formatted_dates}. \n"
-                    f"По цене {total_price} руб. \n"
+                    f"на даты: {post_times_str}. \n"
+                    f"По общей цене {formatted_total_price} руб. \n"
                 )
 
                 keyboard = InlineKeyboardMarkup(row_width=2)
@@ -504,14 +503,19 @@ def handle_buy():
         channel_name = data.get('channel_name')
         channel_url = data.get('channel_url')
 
+        # Формирование строки с датами публикации
+        if isinstance(post_time, list):
+            formatted_post_times = "\n".join([f"• {time}" for time in post_time])
+        else:
+            formatted_post_times = post_time
 
         # Формирование сообщения для отправки
         if user_id and post_time and channel_name and channel_url:
             text_message = (
                 f"🎉 Ваша реклама была куплена!\n\n"
-                f"🕒 Время публикации: {post_time}\n"
+                f"🕒 Время публикации:\n{formatted_post_times}\n"
                 f"📢 Канал: {channel_name}\n"
-                f"🔗 Ссылка на канал: {channel_url}"
+                f"🔗 Ссылка на канал: {channel_url}\n"
                 "Напиши любое сообщение для просмотра рекламы "
             )
 
@@ -584,15 +588,243 @@ async def handle_order():
         return jsonify({"status": "failure", "message": str(e)}), 500
 
 
+async def send_survey(db_pool):
+    async with db_pool.acquire() as connection:
+        now = datetime.now()
+        last_day = now - timedelta(days=1)
+        print("Отправка запроса на подтверждение выполнения условий сделки:", now)
+
+        results_now = await connection.fetch("""
+            SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id AS seller_id, o.user_id AS buyer_id, vc.channel_name, vc.channel_url
+            FROM orderitems oi
+            JOIN orders o ON oi.order_id = o.order_id
+            JOIN products p ON oi.product_id = p.product_id
+            JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+            WHERE DATE_TRUNC('minute', oi.post_time::timestamp) = DATE_TRUNC('minute', $1::timestamp)
+              AND o.status = 'completed'
+        """, last_day)
+
+        # Отправка сообщений для подтверждения выполнения условий
+        for record in results_now:
+            # Сообщение для продавца (seller_id)
+            seller_message = (
+                f"📊 <b>Вы опубликовали рекламное объявление?</b>\n\n"
+                f"📢 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
+                f"🕒 <b>Время публикации:</b> {record['post_time']}\n\n"
+                f"Выполнили ли вы свои условия?"
+            )
+
+            # Создание клавиатуры с двумя кнопками для подтверждения продавцом
+            seller_keyboard = InlineKeyboardMarkup(row_width=2)
+            seller_keyboard.add(
+                InlineKeyboardButton("✅Выполнил", callback_data=f"completed_seller_{record['order_id']}"),
+                InlineKeyboardButton("❌Не выполнил", callback_data=f"not_completed_seller_{record['order_id']}")
+            )
+
+            # Отправка сообщения продавцу
+            await bot.send_message(
+                chat_id=record['seller_id'],
+                text=seller_message,
+                reply_markup=seller_keyboard,
+                parse_mode="HTML"  # Используем HTML форматирование
+            )
+
+            # Сообщение для покупателя (buyer_id)
+            buyer_message = (
+                f"📢 <b>Продавец опубликовал рекламу?</b>\n\n"
+                f"📊 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
+                f"🕒 <b>Время публикации:</b> {record['post_time']}\n\n"
+                f"Выполнил ли продавец свои условия?"
+            )
+
+            # Создание клавиатуры с двумя кнопками для подтверждения покупателем
+            buyer_keyboard = InlineKeyboardMarkup(row_width=2)
+            buyer_keyboard.add(
+                InlineKeyboardButton("✅Выполнил", callback_data=f"completed_buyer_{record['order_id']}"),
+                InlineKeyboardButton("❌Не выполнил", callback_data=f"not_completed_buyer_{record['order_id']}")
+            )
+
+            # Отправка сообщения покупателю
+            await bot.send_message(
+                chat_id=record['buyer_id'],
+                text=buyer_message,
+                reply_markup=buyer_keyboard,
+                parse_mode="HTML"  # Используем HTML форматирование
+            )
+
+
+# Обработчик для продавца
+@dp.callback_query_handler(lambda query: query.data.startswith('completed_seller_'))
+async def process_completion_seller(callback_query: types.CallbackQuery):
+    order_id = callback_query.data.split('_')[2]
+    # Изменение сообщения, если продавец подтвердил выполнение
+    await bot.edit_message_text(
+        chat_id=callback_query.message.chat.id,
+        message_id=callback_query.message.message_id,
+        text=f"✅ Вы подтвердили, что выполнили условия для заказа {order_id}.",
+        parse_mode="HTML"
+    )
+    await bot.answer_callback_query(callback_query.id)
+
+
+@dp.callback_query_handler(lambda query: query.data.startswith('not_completed_seller_'))
+async def process_not_completion_seller(callback_query: types.CallbackQuery):
+    order_id = callback_query.data.split('_')[2]
+    # Изменение сообщения, если продавец отказал
+    keyboard = InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        InlineKeyboardButton("Поддержка", callback_data=f"1"),
+    )
+    await bot.edit_message_text(
+        chat_id=callback_query.message.chat.id,
+        message_id=callback_query.message.message_id,
+        text=f"❌ Обратитесь в поддержку по заказу {order_id}.",
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
+    await bot.answer_callback_query(callback_query.id)
+
+
+# Обработчик для покупателя
+@dp.callback_query_handler(lambda query: query.data.startswith('completed_buyer_'))
+async def process_completion_buyer(callback_query: types.CallbackQuery):
+    order_id = callback_query.data.split('_')[2]
+    order_id = int(order_id)
+    # Получаем user_id продавца на основе order_id
+    async with db_pool.acquire() as connection:
+        seller_info = await connection.fetchrow("""
+            SELECT p.user_id AS seller_id
+            FROM orderitems oi
+            JOIN products p ON oi.product_id = p.product_id
+            WHERE oi.order_id = $1
+        """, order_id)
+
+        # Отправка сообщения продавцу
+        if seller_info:
+            seller_id = seller_info['seller_id']
+            await bot.send_message(
+                chat_id=seller_id,
+                text=f"✅ Покупатель подтвердил, что вы выполнили условия для заказа {order_id}.",
+                parse_mode="HTML"
+            )
+
+    # Изменение сообщения, если покупатель подтвердил выполнение
+    await bot.edit_message_text(
+        chat_id=callback_query.message.chat.id,
+        message_id=callback_query.message.message_id,
+        text=f"✅ Вы подтвердили, что продавец выполнил условия для заказа {order_id}.",
+        parse_mode="HTML"
+    )
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+
+@dp.callback_query_handler(lambda query: query.data.startswith('not_completed_buyer_'))
+async def process_not_completion_buyer(callback_query: types.CallbackQuery):
+    order_id = callback_query.data.split('_')[2]
+    # Изменение сообщения, если покупатель отказал
+    keyboard = InlineKeyboardMarkup(row_width=1)
+    keyboard.add(
+        InlineKeyboardButton("Поддержка", callback_data=f"2"),
+    )
+    await bot.edit_message_text(
+        chat_id=callback_query.message.chat.id,
+        message_id=callback_query.message.message_id,
+        text=f"❌ Обратитесь в поддержку по заказу {order_id}.",
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+async def check_orders_10min(db_pool):
+    async with db_pool.acquire() as connection:
+        now = datetime.now()
+        ten_minutes_later = now + timedelta(minutes=10)
+        print("10 минут до публикации:", now, ten_minutes_later)
+
+        results_10min = await connection.fetch("""
+            SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id, vc.channel_name, vc.channel_url
+            FROM orderitems oi
+            JOIN orders o ON oi.order_id = o.order_id
+            JOIN products p ON oi.product_id = p.product_id
+            JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+            WHERE oi.post_time BETWEEN $1 AND $2
+              AND o.status = 'completed'
+        """, now, ten_minutes_later)
+
+        # Оповещение за 10 минут до публикации
+        for record in results_10min:
+            await bot.send_message(
+                chat_id=record['user_id'],
+                text=(
+                    f"📢 <b>Через 10 минут нужно опубликовать рекламу!</b>\n\n"
+                    f"📊 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
+                    f"🕒 <b>Время публикации:</b> {record['post_time']}"
+                ),
+                parse_mode="HTML"  # Используем HTML форматирование
+            )
+
+
+async def check_orders_now(db_pool):
+    async with db_pool.acquire() as connection:
+        now = datetime.now()
+        print("Публикация прямо сейчас:", now)
+
+        results_now = await connection.fetch("""
+            SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id, vc.channel_name, vc.channel_url
+            FROM orderitems oi
+            JOIN orders o ON oi.order_id = o.order_id
+            JOIN products p ON oi.product_id = p.product_id
+            JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+            WHERE DATE_TRUNC('minute', oi.post_time::timestamp) = DATE_TRUNC('minute', $1::timestamp)
+              AND o.status = 'completed'
+        """, now)
+
+        # Оповещение о необходимости публикации прямо сейчас
+        for record in results_now:
+            await bot.send_message(
+                chat_id=record['user_id'],
+                text=(
+                    f"🚨 <b>Пора выкладывать рекламу!</b>\n\n"
+                    f"📊 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
+                    f"🕒 <b>Время публикации:</b> {record['post_time']}"
+                ),
+                parse_mode="HTML"  # Используем HTML форматирование
+            )
+
+
 async def on_startup(dp):
-    await create_db_pool()
+    await create_db_pool()  # Создаем пул при запуске
+
+    # Запускаем фоновые задачи для проверок
+    asyncio.create_task(check_orders_10min_loop())
+    asyncio.create_task(check_orders_now_loop())
+    asyncio.create_task(send_survey_loop())
+
+# Циклы для проверки заказов каждые 60 секунд
+async def check_orders_10min_loop():
+    while True:
+        await check_orders_10min(db_pool)
+        await asyncio.sleep(600)  # Проверяем каждые 60 секунд
+
+async def check_orders_now_loop():
+    while True:
+        await check_orders_now(db_pool)
+        await asyncio.sleep(60)  # Проверяем каждые 60 секунд
+
+async def send_survey_loop():
+    while True:
+        await send_survey(db_pool)
+        await asyncio.sleep(60)  # Проверяем каждые 60 секунд
 
 if __name__ == '__main__':
     from aiogram import executor
 
     if not os.path.exists('photos'):
         os.makedirs('photos')
-
     def start_aiogram():
         global event_loop
         event_loop = asyncio.new_event_loop()

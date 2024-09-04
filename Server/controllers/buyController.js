@@ -34,8 +34,20 @@ class buyController {
                         )
                     }
 
-                    // Получение первой строки из результата запроса
-                    const seller_info = buy_info.rows[0]
+                    // Формирование списка post_time и получение остальных данных из первой строки
+                    const post_time_list = buy_info.rows.map(
+                        (row) => row.post_time
+                    )
+                    const first_row = buy_info.rows[0]
+
+                    const requestBody = {
+                        user_id: first_row.user_id,
+                        order_id: first_row.order_id,
+                        message_id: first_row.message_id,
+                        post_time: post_time_list, // массив всех значений post_time
+                        channel_name: first_row.channel_name,
+                        channel_url: first_row.channel_url,
+                    }
 
                     // Отправка данных на внешний сервер
                     const response = await fetch('http://localhost:5001/buy', {
@@ -43,14 +55,7 @@ class buyController {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            user_id: seller_info.user_id,
-                            order_id: seller_info.order_id,
-                            message_id: seller_info.message_id,
-                            post_time: seller_info.post_time,
-                            channel_name: seller_info.channel_name,
-                            channel_url: seller_info.channel_url,
-                        }),
+                        body: JSON.stringify(requestBody),
                     })
 
                     if (!response.ok) {

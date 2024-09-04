@@ -1,3 +1,5 @@
+const db = require('../db')
+
 class ordersController {
     async orders(req, res) {
         const initData = res.locals.initData
@@ -82,16 +84,15 @@ class ordersController {
 
             // Добавление элементов заказа
             for (const item of cartItems) {
-                const post_time_json = JSON.stringify(item.post_time)
                 await db.query(
                     `INSERT INTO orderitems (order_id, product_id, quantity, price, post_time)
-                VALUES ($1, $2, $3, $4, $5)`,
+                    VALUES ($1, $2, $3, $4, $5)`,
                     [
                         order_id,
                         item.product_id,
                         item.quantity,
                         item.price,
-                        post_time_json,
+                        item.post_time,
                     ]
                 )
             }
