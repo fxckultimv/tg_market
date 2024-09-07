@@ -33,8 +33,6 @@ const ChannelDetails = () => {
         fetchBusyDay(initDataRaw, id)
     }, [fetchProductDetails, fetchBusyDay, initDataRaw, id])
 
-    console.log(busyDay)
-
     useEffect(() => {
         const handleBackClick = () => {
             window.history.back()
@@ -72,6 +70,8 @@ const ChannelDetails = () => {
 
             const handleMainButtonClick = async () => {
                 try {
+                    console.log(selectedDates)
+
                     await addToCart(initDataRaw, {
                         product_id: productDetails.product_id,
                         quantity: selectedDates.length,
@@ -177,33 +177,52 @@ const ChannelDetails = () => {
         )
     }
 
+    console.log(productDetails.channel_tg_id)
+
     return (
-        <div className="container mx-auto p-6 min-h-screen bg-gray-900 text-white">
-            <h2 className="text-4xl font-bold text-green-400 mb-8">
-                Детали Продукта
-            </h2>
-            <h3 className="text-2xl mb-4">{productDetails.title}</h3>
-            <p className="text-lg">Описание: {productDetails.description}</p>
-            <p className="text-lg">Цена: {productDetails.price} руб.</p>
-            <p className="text-lg">
-                Дата публикации:{' '}
-                {new Date(productDetails.post_time).toLocaleDateString()}
-            </p>
-            <p className="text-lg">Канал: {productDetails.channel_name}</p>
-            <p className="text-lg">
-                Верифицирован: {productDetails.is_verified ? 'Да' : 'Нет'}
-            </p>
-            <p className="text-lg">
-                URL Канала:{' '}
-                <a
-                    href={productDetails.channel_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 underline"
-                >
-                    {productDetails.channel_url}
-                </a>
-            </p>
+        <div className="container mx-auto p-6 min-h-screen bg-gray-900 text-white ">
+            <div className="flex justify-center items-center">
+                <div className="flex-1">
+                    <h3 className="text-2xl mb-4">
+                        {productDetails.channel_title}
+                    </h3>
+                    <p className="text-lg">
+                        Описание: {productDetails.description}
+                    </p>
+                    <p className="text-lg">Цена: {productDetails.price} руб.</p>
+                    <p className="text-lg">
+                        Дата публикации:{' '}
+                        {new Date(
+                            productDetails.post_time
+                        ).toLocaleDateString()}
+                    </p>
+                    <p className="text-lg">
+                        Канал: {productDetails.channel_name}
+                    </p>
+                    <p className="text-lg">
+                        Верифицирован:{' '}
+                        {productDetails.is_verified ? 'Да' : 'Нет'}
+                    </p>
+                    <p className="text-lg">
+                        URL Канала:{' '}
+                        <a
+                            href={productDetails.channel_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 underline"
+                        >
+                            {productDetails.channel_url}
+                        </a>
+                    </p>
+                </div>
+                <div>
+                    <img
+                        className="rounded-full w-32 h-32 object-cover border-green-400 border-2"
+                        src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
+                        alt={productDetails.channel_title}
+                    />
+                </div>
+            </div>
 
             <div className="mt-6">
                 <h3 className="text-2xl mb-4">Выберите даты</h3>

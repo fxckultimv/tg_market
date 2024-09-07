@@ -152,7 +152,7 @@ const CreateAd = () => {
                                     key={channel.channel_id}
                                     value={channel.channel_id}
                                 >
-                                    {channel.channel_name}
+                                    {channel.channel_title}
                                 </option>
                             ))}
                         </select>

@@ -1019,6 +1019,8 @@ export const useProductStore = create((set, get) => ({
         }
     },
     addToCart: async (initDataRaw, cartInfo) => {
+        console.log(cartInfo)
+
         set({ loading: true })
         try {
             const response = await fetch('http://localhost:5000/cart/add', {
@@ -1029,6 +1031,7 @@ export const useProductStore = create((set, get) => ({
                 },
                 body: JSON.stringify(cartInfo),
             })
+
             if (response.status === 204) {
                 // Если сервер вернул 204, устанавливаем пустой массив
                 set({ categories: [], loading: false })

@@ -9,13 +9,12 @@ class CartController {
             const result = await db.query(
                 `SELECT
                 ci.cart_item_id,
-                ci.cart_id,
                 ci.product_id,
                 ci.quantity,
                 p.title,
                 p.description,
                 p.price,
-                p.post_time
+                ci.post_time
             FROM
                 Cart c
             JOIN
@@ -26,7 +25,32 @@ class CartController {
                 c.user_id = $1`,
                 [user_id]
             )
-            res.json(result.rows)
+
+            let cart = {
+                products: {},
+            }
+
+            result.rows.forEach((row) => {
+                // Добавляем продукт в объект products, если его там еще нет
+                if (!cart.products[row.product_id]) {
+                    cart.products[row.product_id] = {
+                        title: row.title,
+                        description: row.description,
+                        price: row.price,
+                        items: [], // Создаем массив для хранения всех элементов корзины для данного продукта
+                    }
+                }
+
+                // Добавляем элемент корзины в соответствующий продукт
+                cart.products[row.product_id].items.push({
+                    cart_item_id: row.cart_item_id,
+                    product_id: row.product_id,
+                    quantity: row.quantity,
+                    post_time: row.post_time,
+                })
+            })
+
+            res.json(cart)
         } catch (err) {
             console.error(err)
             res.status(500).json({ error: 'Database error' })

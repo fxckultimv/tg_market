@@ -11,11 +11,14 @@ const checkAdminRouter = require('./routes/checkAdmin')
 const adminStatsRouter = require('./routes/adminStats')
 const ChannelsRouter = require('./routes/channels')
 const buyRouter = require('./routes/buy')
+const path = require('path')
 // const startScheduler = require('./scheduler/complited')
 
 app.use(cors())
 
 app.use(express.json())
+//Полчение картинки из папки Bot папки static
+app.use(express.static(path.join(__dirname, '../Bot/static')))
 app.use('/auth', initAuth)
 app.use('/categories', categoriesRouter)
 app.use('/products', productsRouter)

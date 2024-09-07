@@ -20,25 +20,42 @@ const ChannelsList = () => {
                 <Link to={`${product.product_id}`} key={product.product_id}>
                     <div
                         key={product.product_id}
-                        className="bg-gray-800 p-4 rounded-lg shadow-lg text-white"
+                        className="bg-gray-800 p-4 rounded-lg shadow-lg text-white flex justify-between items-center"
                     >
-                        <h3 className="text-xl font-bold mb-2">
-                            {product.title}
-                        </h3>
-                        <p className="text-gray-400 mb-2">
-                            {product.description}
-                        </p>
-                        <p className="font-semibold text-green-400 mb-2">
-                            Цена: {product.price} руб.
-                        </p>
-                        <p className="text-gray-500 mb-2">
-                            Дата публикации:{' '}
-                            {new Date(product.post_time).toLocaleDateString()}
-                        </p>
-                        <p className="text-gray-500">
-                            Дата создания:{' '}
-                            {new Date(product.created_at).toLocaleDateString()}
-                        </p>
+                        <div className="flex-1 mr-4">
+                            <h3 className="text-xl font-bold mb-2">
+                                {product.title}
+                            </h3>
+                            <p className="text-gray-400 mb-2">
+                                {product.description}
+                            </p>
+                            <p className="font-semibold text-green-400 mb-2">
+                                Цена: {product.price} руб.
+                            </p>
+                            <p className="font-semibold text-green-400 mb-2">
+                                Подписчики: {product.subscribers_count}
+                            </p>
+                            {/* <p className="text-gray-500 mb-2">
+                                Дата публикации:{' '}
+                                {new Date(
+                                    product.post_time
+                                ).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-500">
+                                Дата создания:{' '}
+                                {new Date(
+                                    product.created_at
+                                ).toLocaleDateString()}
+                            </p> */}
+                        </div>
+
+                        <div className="flex-shrink-0">
+                            <img
+                                className="rounded-full w-32 h-32 object-cover border-green-400 border-2"
+                                src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                                alt={product.title}
+                            />
+                        </div>
                     </div>
                 </Link>
             ))}

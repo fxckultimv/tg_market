@@ -112,7 +112,8 @@ class productController {
         // 1. Основной запрос для получения товаров с учетом пагинации
         // 2. Запрос для получения общего количества товаров
 
-        let baseQuery = 'FROM products WHERE 1=1'
+        let baseQuery =
+            'FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id WHERE 1=1'
         const params = []
 
         // Фильтрация по поисковому запросу
@@ -140,7 +141,7 @@ class productController {
         }
 
         // 1. Запрос для получения товаров с учетом лимита и смещения
-        let productQuery = `SELECT * ${baseQuery} ORDER BY price ${sort} LIMIT $${
+        let productQuery = `SELECT p.*, v.channel_tg_id, v.subscribers_count ${baseQuery} ORDER BY price ${sort} LIMIT $${
             params.length + 1
         } OFFSET $${params.length + 2}`
         params.push(limit)
@@ -179,7 +180,7 @@ class productController {
 
         try {
             const result = await db.query(
-                `SELECT p.*, v.channel_name, v.is_verified, v.channel_url 
+                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id
                  FROM products p
                  JOIN verifiedchannels v ON p.channel_id = v.channel_id
                  WHERE p.product_id = $1`,

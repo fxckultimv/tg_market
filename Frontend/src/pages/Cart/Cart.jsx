@@ -9,9 +9,8 @@ const Cart = () => {
     const { initDataRaw } = useLaunchParams()
     const mainButton = useMainButton()
     const navigate = useNavigate()
-    const { cart, fetchCart, createOrder, deleteCartItem, loading, error } =
-        useUserStore()
-    const [selectedItems, setSelectedItems] = useState([])
+    const { cart, fetchCart, createOrder, loading, error } = useUserStore()
+    const [selectedProductIds, setSelectedProductIds] = useState([])
     const [totalPrice, setTotalPrice] = useState(0)
 
     useEffect(() => {
@@ -20,7 +19,7 @@ const Cart = () => {
 
     useEffect(() => {
         if (mainButton) {
-            if (selectedItems.length > 0) {
+            if (selectedProductIds.length > 0) {
                 mainButton.setParams({
                     text: `Заказать ${totalPrice} руб.`,
                     isVisible: true,
@@ -37,19 +36,22 @@ const Cart = () => {
 
             const handleMainButtonClick = async () => {
                 try {
-                    // Создание заказа
+                    // Получаем все элементы корзины по выбранным product_id
+                    const selectedItems = Object.entries(cart.products)
+                        .filter(([productId]) =>
+                            selectedProductIds.includes(productId)
+                        )
+                        .flatMap(([, product]) => product.items)
+
                     const cartItemIds = selectedItems.map(
                         (item) => item.cart_item_id
                     )
                     await createOrder(initDataRaw, cartItemIds)
 
-                    // Очистка состояния выбранных товаров
-                    setSelectedItems([])
+                    setSelectedProductIds([])
 
-                    // Обновление корзины после создания заказа
                     await fetchCart(initDataRaw)
 
-                    // Перенаправление на страницу "/basket"
                     navigate('/basket')
                 } catch (error) {
                     console.error('Ошибка при создании заказа:', error)
@@ -64,7 +66,7 @@ const Cart = () => {
         }
     }, [
         mainButton,
-        selectedItems,
+        selectedProductIds,
         totalPrice,
         createOrder,
         initDataRaw,
@@ -72,24 +74,33 @@ const Cart = () => {
         navigate,
     ])
 
-    const handleSelectItem = (item) => {
-        const isSelected = selectedItems.find(
-            (selectedItem) => selectedItem.cart_item_id === item.cart_item_id
-        )
-        let updatedItems
+    const handleSelectProduct = (productId) => {
+        const isSelected = selectedProductIds.includes(productId)
+        let updatedProductIds
+        let updatedTotalPrice = totalPrice
+
         if (isSelected) {
-            // Удаляем товар из выбранных
-            updatedItems = selectedItems.filter(
-                (selectedItem) =>
-                    selectedItem.cart_item_id !== item.cart_item_id
+            // Убираем товар и его элементы из выбранных
+            updatedProductIds = selectedProductIds.filter(
+                (id) => id !== productId
             )
-            setTotalPrice(totalPrice - item.price * item.quantity)
+            // Уменьшаем итоговую цену
+            cart.products[productId].items.forEach((item) => {
+                updatedTotalPrice -=
+                    item.quantity * cart.products[productId].price
+            })
         } else {
-            // Добавляем товар в выбранные
-            updatedItems = [...selectedItems, item]
-            setTotalPrice(totalPrice + item.price * item.quantity)
+            // Добавляем товар и его элементы в выбранные
+            updatedProductIds = [...selectedProductIds, productId]
+            // Увеличиваем итоговую цену
+            cart.products[productId].items.forEach((item) => {
+                updatedTotalPrice +=
+                    item.quantity * cart.products[productId].price
+            })
         }
-        setSelectedItems(updatedItems)
+
+        setSelectedProductIds(updatedProductIds)
+        setTotalPrice(updatedTotalPrice)
     }
 
     if (loading) {
@@ -108,7 +119,7 @@ const Cart = () => {
         )
     }
 
-    if (cart.length === 0) {
+    if (!cart || !cart.products || Object.keys(cart.products).length === 0) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
                 <div className="text-2xl font-bold mb-4">
@@ -131,16 +142,50 @@ const Cart = () => {
                 Ваша корзина
             </h2>
             <ul className="space-y-4">
-                {cart.map((item) => (
-                    <CartItem
-                        key={item.cart_item_id}
-                        item={item}
-                        onSelect={handleSelectItem}
-                        isSelected={selectedItems.some(
-                            (selectedItem) =>
-                                selectedItem.cart_item_id === item.cart_item_id
-                        )}
-                    />
+                {Object.entries(cart.products).map(([productId, product]) => (
+                    <div
+                        key={productId}
+                        onClick={() => handleSelectProduct(productId)}
+                        className={`bg-gray-800 rounded-lg p-4 shadow-md cursor-pointer transition duration-300 ${
+                            selectedProductIds.includes(productId)
+                                ? 'border-2 border-green-400'
+                                : 'hover:shadow-lg'
+                        }`}
+                    >
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-xl font-bold text-white">
+                                {product.title}
+                            </h3>
+                            <p className="text-gray-400">
+                                ID товара: {productId}
+                            </p>
+                        </div>
+                        <p className="text-gray-400 mb-2">
+                            {product.description}
+                        </p>
+                        <div className="flex justify-between items-center">
+                            <p className="text-gray-400">
+                                Цена:{' '}
+                                <span className="font-semibold">
+                                    {product.price} руб.
+                                </span>
+                            </p>
+                            <p className="text-gray-400">
+                                Общее количество:{' '}
+                                <span className="font-semibold">
+                                    {product.items.reduce(
+                                        (total, item) => total + item.quantity,
+                                        0
+                                    )}
+                                </span>
+                            </p>
+                        </div>
+                        <ul>
+                            {product.items.map((item) => (
+                                <CartItem key={item.cart_item_id} item={item} />
+                            ))}
+                        </ul>
+                    </div>
                 ))}
             </ul>
         </div>

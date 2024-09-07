@@ -138,6 +138,19 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             # Получаем информацию о канале
             chat_info = await bot.get_chat(my_chat_member.chat.id)
 
+            # Проверяем, есть ли канал уже в базе данных
+            async with db_pool.acquire() as connection:
+                channel_exists = await connection.fetchval("""
+                    SELECT EXISTS(SELECT 1 FROM verifiedchannels WHERE channel_tg_id = $1)
+                """, chat_info.id)
+
+            # if channel_exists:
+            #     await bot.send_message(
+            #         chat_id=my_chat_member.from_user.id,
+            #         text="Этот канал уже добавлен в базу данных."
+            #     )
+            #     return
+
             # Получаем количество подписчиков канала
             subscribers_count = await bot.get_chat_members_count(my_chat_member.chat.id)
 
@@ -145,7 +158,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             file_path = "Аватарка отсутствует"
             if chat_info.photo:
                 file = await bot.get_file(chat_info.photo.big_file_id)
-                file_path = f'photos/channel_{my_chat_member.chat.id}.png'
+                file_path = f'static/channel_{my_chat_member.chat.id}.png'
 
                 # Скачиваем файл
                 await bot.download_file(file.file_path, file_path)
@@ -170,26 +183,25 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
                 # Отправляем сообщение владельцу канала с информацией о канале и количестве подписчиков
                 await bot.send_message(
                     chat_id=owner_id,
-                    text=(
-                        f"Бот был добавлен в канал:\n"
-                        f"Название канала: {channel_title}\n"
-                        f"ID канала: {channel_id}\n"
-                        f"Имя пользователя канала: {channel_username}\n"
-                        f"Описание канала: {channel_description}\n"
-                        f"Количество подписчиков: {subscribers_count}\n"
-                        # f"Аватарка сохранена в: {file_path}\n"
-                        f"Ваш user_id: {owner_id}\n"
-                    )
+                    text=(f"Бот был добавлен в канал:\n"
+                          f"Название канала: {channel_title}\n"
+                          f"ID канала: {channel_id}\n"
+                          f"Имя пользователя канала: {channel_username}\n"
+                          f"Описание канала: {channel_description}\n"
+                          f"Количество подписчиков: {subscribers_count}\n"
+                          # f"Аватарка сохранена в: {file_path}\n"
+                          f"Ваш user_id: {owner_id}\n")
                 )
 
                 channel_url = f"https://t.me/{channel_username}"
+
                 # Добавляем информацию о канале в базу данных
                 async with db_pool.acquire() as connection:
                     await connection.execute("""
-                                        INSERT INTO verifiedchannels(user_id, channel_name, channel_title, channel_url, subscribers_count, channel_tg_id)
-                                        VALUES ($1, $2, $3, $4, $5, $6)
-                                        ON CONFLICT (channel_id) DO NOTHING
-                                    """, owner_id, channel_username, channel_title, channel_url, subscribers_count, channel_id)
+                        INSERT INTO verifiedchannels(user_id, channel_name, channel_title, channel_url, subscribers_count, channel_tg_id)
+                        VALUES ($1, $2, $3, $4, $5, $6)
+                        ON CONFLICT (channel_tg_id) DO NOTHING
+                    """, owner_id, channel_username, channel_title, channel_url, subscribers_count, channel_id)
 
                 await bot.send_message(
                     chat_id=owner_id,
@@ -206,6 +218,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
                 chat_id=my_chat_member.from_user.id,
                 text="Произошла ошибка при получении информации о канале."
             )
+
 
 @dp.message_handler(lambda message: message.text == "Мои каналы")
 async def my_channels(message: types.Message):
@@ -502,6 +515,7 @@ def handle_buy():
         post_time = data.get('post_time')
         channel_name = data.get('channel_name')
         channel_url = data.get('channel_url')
+        print(data)
 
         # Формирование строки с датами публикации
         if isinstance(post_time, list):
@@ -823,8 +837,8 @@ async def send_survey_loop():
 if __name__ == '__main__':
     from aiogram import executor
 
-    if not os.path.exists('photos'):
-        os.makedirs('photos')
+    if not os.path.exists('static'):
+        os.makedirs('static')
     def start_aiogram():
         global event_loop
         event_loop = asyncio.new_event_loop()
