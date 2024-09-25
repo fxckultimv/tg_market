@@ -8,9 +8,11 @@ const CreateAd = () => {
     const mainButton = useMainButton()
     const {
         categories,
+        formats,
         verifiedChannels,
         fetchVerifiedChannels,
         fetchCategories,
+        fetchFormats,
         addProduct,
         loading,
         error,
@@ -18,8 +20,8 @@ const CreateAd = () => {
 
     const [selectedChannel, setSelectedChannel] = useState(null)
     const [selectedCategories, setSelectedCategories] = useState(null)
-    const [adFormat, setAdFormat] = useState('')
-    const [publicationTime, setPublicationTime] = useState('')
+    const [selectedFormat, setSelectedFormat] = useState([])
+    const [publicationTime, setPublicationTime] = useState('12:00')
     const [price, setPrice] = useState('')
     const [description, setDescription] = useState('')
     const [timeError, setTimeError] = useState('')
@@ -27,7 +29,8 @@ const CreateAd = () => {
     useEffect(() => {
         fetchVerifiedChannels(initDataRaw)
         fetchCategories(initDataRaw)
-    }, [initDataRaw, fetchVerifiedChannels, fetchCategories])
+        fetchFormats(initDataRaw)
+    }, [initDataRaw, fetchVerifiedChannels, fetchCategories, fetchFormats])
 
     // Обновление MainButton при изменении состояния полей
     useEffect(() => {
@@ -35,7 +38,7 @@ const CreateAd = () => {
             const isFormFilled =
                 selectedChannel &&
                 selectedCategories &&
-                adFormat &&
+                selectedFormat &&
                 publicationTime &&
                 price &&
                 description &&
@@ -56,6 +59,7 @@ const CreateAd = () => {
                         category_id: selectedCategories,
                         description: description,
                         price: price,
+                        format: selectedFormat,
                         post_time: publicationTime,
                     })
                     alert('Рекламное предложение успешно создано!')
@@ -63,6 +67,7 @@ const CreateAd = () => {
                     // Очистка формы после успешного создания
                     setSelectedChannel(null)
                     setSelectedCategories(null)
+                    setSelectedFormat([])
                     setAdFormat('')
                     setPublicationTime('')
                     setPrice('')
@@ -87,7 +92,7 @@ const CreateAd = () => {
         mainButton,
         selectedChannel,
         selectedCategories,
-        adFormat,
+        selectedFormat,
         publicationTime,
         price,
         description,
@@ -104,6 +109,22 @@ const CreateAd = () => {
             )
         } else {
             setTimeError('')
+        }
+    }
+
+    // Функция для обработки изменений чекбоксов
+    const handleCheckboxChange = (event) => {
+        const { value, checked } = event.target
+        const formatId = parseInt(value) // Преобразование value в число
+
+        if (checked) {
+            // Если чекбокс выбран, добавляем его в состояние
+            setSelectedFormat([...selectedFormat, formatId])
+        } else {
+            // Если чекбокс снят, удаляем его из состояния
+            setSelectedFormat(
+                selectedFormat.filter((format) => format !== formatId)
+            )
         }
     }
 
@@ -192,31 +213,42 @@ const CreateAd = () => {
                             </div>
 
                             {/* Выбор формата размещения */}
-                            <div className="mb-6">
-                                <label
-                                    htmlFor="ad-format"
-                                    className="block text-xl font-semibold mb-2"
-                                >
-                                    Выберите формат размещения:
-                                </label>
-                                <select
-                                    id="ad-format"
-                                    className="w-full p-3 bg-gray-800 text-white rounded"
-                                    value={adFormat}
-                                    onChange={(e) =>
-                                        setAdFormat(e.target.value)
-                                    }
-                                >
-                                    <option value="" disabled>
-                                        -- Выберите формат --
-                                    </option>
-                                    <option value="1/24">
-                                        1/24 (1 публикация в течение 24 часов)
-                                    </option>
-                                    <option value="2/72">
-                                        2/72 (2 публикации в течение 72 часов)
-                                    </option>
-                                </select>
+                            <div>
+                                <h3>Выберите типы публикации:</h3>
+                                {formats.map((format) => (
+                                    <div key={format.format_id}>
+                                        <label>
+                                            <input
+                                                type="checkbox"
+                                                value={format.format_id}
+                                                checked={selectedFormat.includes(
+                                                    format.format_id
+                                                )}
+                                                onChange={handleCheckboxChange}
+                                            />
+                                            {format.format_name}
+                                        </label>
+                                    </div>
+                                ))}
+
+                                {/* Отображение выбранных типов публикации
+                                <div>
+                                    <h4>Выбранные типы публикации:</h4>
+                                    <ul>
+                                        {selectedFormat.map((formatId) => {
+                                            const format = formats.find(
+                                                (f) => f.format_id === formatId
+                                            )
+                                            return (
+                                                <li key={formatId}>
+                                                    {format
+                                                        ? format.format_name
+                                                        : 'Неизвестный формат'}
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </div> */}
                             </div>
 
                             {/* Описание */}
@@ -248,7 +280,7 @@ const CreateAd = () => {
                                     Выберите время публикации:
                                 </label>
                                 <input
-                                    type="datetime-local"
+                                    type="time"
                                     id="publication-time"
                                     className="w-full p-3 bg-gray-800 text-white rounded"
                                     value={publicationTime}

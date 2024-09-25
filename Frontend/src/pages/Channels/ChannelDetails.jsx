@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const ChannelDetails = () => {
     const backButton = useBackButton()
@@ -27,11 +28,29 @@ const ChannelDetails = () => {
     const { id } = useParams() // Получаем product_id из параметров URL
 
     const [selectedDates, setSelectedDates] = useState([]) // Хранит выбранные даты
+    const [format, setFormat] = useState()
 
     useEffect(() => {
         fetchProductDetails(initDataRaw, id) // Загружаем данные при первом рендере
         fetchBusyDay(initDataRaw, id)
     }, [fetchProductDetails, fetchBusyDay, initDataRaw, id])
+
+    const formatNames = {
+        1: '1/24',
+        2: '2/48',
+        3: '3/72',
+        4: 'Indefinite',
+        5: 'Repost',
+        6: 'Response',
+        // Добавьте другие форматы по мере необходимости
+    }
+
+    const formatList = productDetails?.format_ids || []
+
+    const handleFormatChange = (e) => {
+        setFormat(e.target.value)
+        // Устанавливаем выбранный формат
+    }
 
     useEffect(() => {
         const handleBackClick = () => {
@@ -51,7 +70,7 @@ const ChannelDetails = () => {
 
     useEffect(() => {
         if (mainButton) {
-            if (selectedDates.length > 0) {
+            if (selectedDates.length > 0 || format) {
                 mainButton.setParams({
                     text: `Купить за ${
                         productDetails.price * selectedDates.length
@@ -75,7 +94,9 @@ const ChannelDetails = () => {
                     await addToCart(initDataRaw, {
                         product_id: productDetails.product_id,
                         quantity: selectedDates.length,
-                        post_time: selectedDates,
+                        date: selectedDates,
+                        post_time: productDetails.post_time,
+                        format: format,
                     })
                     // После успешного добавления товара в корзину перенаправляем на /basket
                     navigate('/basket')
@@ -177,7 +198,7 @@ const ChannelDetails = () => {
         )
     }
 
-    console.log(productDetails.channel_tg_id)
+    const er = (100 / productDetails.subscribers_count) * productDetails.views
 
     return (
         <div className="container mx-auto p-6 min-h-screen bg-gray-900 text-white ">
@@ -186,16 +207,60 @@ const ChannelDetails = () => {
                     <h3 className="text-2xl mb-4">
                         {productDetails.channel_title}
                     </h3>
+
+                    <Link to={`/user/${productDetails.user_uuid}`}>
+                        <p>⭐️{productDetails.rating}</p>
+                    </Link>
                     <p className="text-lg">
                         Описание: {productDetails.description}
                     </p>
                     <p className="text-lg">Цена: {productDetails.price} руб.</p>
                     <p className="text-lg">
-                        Дата публикации:{' '}
-                        {new Date(
-                            productDetails.post_time
-                        ).toLocaleDateString()}
+                        Время публикации:{productDetails.post_time}
                     </p>
+                    <p>Подписчики: {productDetails.subscribers_count}</p>
+                    <p>Просмотров за 24ч: {Math.round(productDetails.views)}</p>
+                    <p>
+                        ER:{' '}
+                        {(
+                            (100 / productDetails.subscribers_count) *
+                            productDetails.views
+                        ).toFixed(1)}
+                        %
+                    </p>
+                    <p>
+                        CPV:{' '}
+                        {Math.round(
+                            productDetails.price / productDetails.views
+                        )}
+                        р
+                    </p>
+
+                    {/* Выпадающий список для выбора формата */}
+                    <label htmlFor="format" className="block text-lg mb-2">
+                        Выберите формат:
+                    </label>
+                    <select
+                        id="format"
+                        value={format} // Значение выбранного формата
+                        onChange={handleFormatChange} // Обработчик изменения формата
+                        className="w-full p-2 bg-gray-700 rounded text-white outline-none"
+                    >
+                        <option value="">Выбрать формат</option>
+                        {formatList.map((formatId) => (
+                            <option key={formatId} value={formatId}>
+                                {formatNames[formatId] || 'Unknown format'}
+                            </option>
+                        ))}
+                    </select>
+
+                    {/* Отображение выбранного формата
+                    {format && (
+                        <p className="text-lg mt-4">
+                            Выбранный формат: {formatNames[format]}
+                        </p>
+                    )} */}
+
                     <p className="text-lg">
                         Канал: {productDetails.channel_name}
                     </p>

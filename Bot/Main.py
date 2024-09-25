@@ -1,14 +1,9 @@
-import json
+
 import logging
 import os
-import re
 import threading
-from datetime import datetime, timedelta
-
-from aiogram import types
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ChatType, UserProfilePhotos
-from aiogram.dispatcher.filters import Text
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, KeyboardButton, \
     ReplyKeyboardMarkup, WebAppInfo
 from aiogram.dispatcher import FSMContext
@@ -18,9 +13,12 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ParseMode, ContentType
 from aiogram.utils import executor
 import asyncpg
-import asyncio
-
 from flask import Flask, jsonify, request
+from datetime import datetime, timedelta, timezone
+from telethon import TelegramClient
+from telethon.tl.functions.messages import GetHistoryRequest
+
+import asyncio
 
 API_TOKEN = '7248552375:AAFU11syb9Xi6ii3TLarCkwUB3tG8fYnquQ'
 
@@ -39,6 +37,15 @@ db_pool = None
 
 # Инициализация Flask приложения
 app = Flask(__name__)
+
+
+# Вставьте свои данные
+api_id = '24463380'
+api_hash = '2d943e94d362db2be40612c00019e381'
+phone_number = '+8562057532284'
+
+# Создание клиента Telethon
+client = TelegramClient('session_name', api_id, api_hash)
 
 class OrderState(StatesGroup):
     waiting_for_advertisement = State()
@@ -62,6 +69,42 @@ async def create_db_pool():
 # Обработчик команды start
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
+    user_id = message.from_user.id
+
+    # Проверка на наличие пользователя в базе данных
+    async with db_pool.acquire() as connection:
+        user = await connection.fetchrow("""
+            SELECT user_uuid FROM users WHERE user_id = $1
+        """, user_id)
+
+        if user:
+            # Если пользователь найден, получаем его user_uuid
+            user_uuid = user['user_uuid']
+
+            # Получаем фото профиля
+            photos = await bot.get_user_profile_photos(user_id)
+
+            if photos.total_count > 0:
+                file_id = photos.photos[0][0].file_id  # Получаем файл ID самого большого фото
+                file = await bot.get_file(file_id)
+                file_path = file.file_path
+
+                # Формируем путь для сохранения фото
+                save_path = f'static/user_{user_uuid}.png'
+
+                # Проверяем существование папки static, если её нет, создаем
+                if not os.path.exists('static'):
+                    os.makedirs('static')
+
+                # Скачиваем фото
+                await bot.download_file(file_path, save_path)
+
+
+
+        else:
+            # Если пользователь не найден, вы можете добавить логику для регистрации нового пользователя.
+            await message.answer("Вы не зарегистрированы в системе.")
+
     # Создаем кнопки
     button_orders = KeyboardButton('Мои заказы')
     button_ads = KeyboardButton('Мои рекламы')
@@ -75,7 +118,6 @@ async def send_welcome(message: types.Message):
 
     # Отправляем сообщение с клавиатурой
     await message.answer("Добро пожаловать! Выберите нужный пункт меню:", reply_markup=keyboard)
-
 
 @dp.message_handler(lambda message: message.text == "Мои заказы")
 async def my_orders(message: types.Message):
@@ -97,7 +139,6 @@ async def my_orders(message: types.Message):
                     formatted_price = f"{order['total_price']:,.0f}".replace(",", " ")
                     button_text = f"Заказ №{order['order_id']} - {formatted_price} руб."
                     callback_data = f"order_{order['order_id']}"
-                    logging.info(f"Создана кнопка с данными: {callback_data}")
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
                 await message.answer(response, reply_markup=keyboard)
@@ -130,6 +171,7 @@ async def add_channel(message: types.Message):
         await message.answer("Произошла ошибка при добавлении канала.")
 
 
+
 @dp.my_chat_member_handler()
 async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
     # Проверяем, что бот был добавлен в канал
@@ -144,12 +186,12 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
                     SELECT EXISTS(SELECT 1 FROM verifiedchannels WHERE channel_tg_id = $1)
                 """, chat_info.id)
 
-            # if channel_exists:
-            #     await bot.send_message(
-            #         chat_id=my_chat_member.from_user.id,
-            #         text="Этот канал уже добавлен в базу данных."
-            #     )
-            #     return
+            if channel_exists:
+                await bot.send_message(
+                    chat_id=my_chat_member.from_user.id,
+                    text="Этот канал уже добавлен в базу данных."
+                )
+                return
 
             # Получаем количество подписчиков канала
             subscribers_count = await bot.get_chat_members_count(my_chat_member.chat.id)
@@ -512,6 +554,7 @@ def handle_buy():
         user_id = data.get('user_id')
         order_id = data.get('order_id')
         message_id = data.get('message_id')
+        format = data.get('format')
         post_time = data.get('post_time')
         channel_name = data.get('channel_name')
         channel_url = data.get('channel_url')
@@ -528,6 +571,7 @@ def handle_buy():
             text_message = (
                 f"🎉 Ваша реклама была куплена!\n\n"
                 f"🕒 Время публикации:\n{formatted_post_times}\n"
+                f"🕒 Формат:\n{format}\n"
                 f"📢 Канал: {channel_name}\n"
                 f"🔗 Ссылка на канал: {channel_url}\n"
                 "Напиши любое сообщение для просмотра рекламы "
@@ -722,16 +766,114 @@ async def process_completion_buyer(callback_query: types.CallbackQuery):
                 parse_mode="HTML"
             )
 
+    # Создание клавиатуры с оценками
+    rating_keyboard = InlineKeyboardMarkup(row_width=5)
+    rating_keyboard.add(
+        InlineKeyboardButton(text="⭐", callback_data=f'rating_1_{order_id}'),
+        InlineKeyboardButton(text="2⭐", callback_data=f'rating_2_{order_id}'),
+        InlineKeyboardButton(text="3⭐", callback_data=f'rating_3_{order_id}'),
+        InlineKeyboardButton(text="4⭐", callback_data=f'rating_4_{order_id}'),
+        InlineKeyboardButton(text="5⭐", callback_data=f'rating_5_{order_id}')
+    )
+
     # Изменение сообщения, если покупатель подтвердил выполнение
     await bot.edit_message_text(
         chat_id=callback_query.message.chat.id,
         message_id=callback_query.message.message_id,
-        text=f"✅ Вы подтвердили, что продавец выполнил условия для заказа {order_id}.",
-        parse_mode="HTML"
+        text=f"✅ Вы подтвердили, что продавец выполнил условия для заказа {order_id}."
+             f"Поставте отзыв продавцу",
+        parse_mode="HTML",
+        reply_markup=rating_keyboard
     )
+
     await bot.answer_callback_query(callback_query.id)
 
 
+@dp.callback_query_handler(lambda query: query.data.startswith('rating_'))
+async def process_rating(callback_query: types.CallbackQuery):
+    data = callback_query.data.split('_')
+    rating = int(data[1])  # Извлечение рейтинга (от 1 до 5)
+    order_id = int(data[2])  # Извлечение order_id
+    user_id = callback_query.from_user.id  # Извлечение user_id покупателя
+
+    # Получаем seller_id на основе order_id
+    async with db_pool.acquire() as connection:
+        seller_info = await connection.fetchrow("""
+            SELECT p.user_id AS seller_id
+            FROM orderitems oi
+            JOIN products p ON oi.product_id = p.product_id
+            WHERE oi.order_id = $1
+        """, order_id)
+
+    if seller_info:
+        seller_id = seller_info['seller_id']
+
+        # Вставляем рейтинг в таблицу reviews
+        async with db_pool.acquire() as connection:
+            await connection.execute("""
+                INSERT INTO reviews (seller_id, user_id, rating, order_id)
+                VALUES ($1, $2, $3, $4)
+            """, seller_id, user_id, rating, order_id)
+
+    # Создаем клавиатуру с кнопкой "Написать отзыв"
+    feedback_keyboard = InlineKeyboardMarkup(row_width=1)
+    feedback_keyboard.add(
+        InlineKeyboardButton(text="Написать отзыв", callback_data=f'feedback_{order_id}')
+    )
+
+    # Отправка сообщения пользователю с благодарностью за оценку и кнопкой "Написать отзыв"
+    await bot.send_message(
+        chat_id=callback_query.message.chat.id,
+        text=f"Спасибо за вашу оценку {rating}⭐ для заказа {order_id}.",
+        parse_mode="HTML",
+        reply_markup=feedback_keyboard
+    )
+
+    await bot.answer_callback_query(callback_query.id)
+
+
+# @dp.callback_query_handler(lambda query: query.data.startswith('feedback_'))
+# async def process_feedback(callback_query: types.CallbackQuery):
+#     order_id = int(callback_query.data.split('_')[1])
+#
+#     # Спрашиваем пользователя, чтобы он отправил свой комментарий (отзыв)
+#     await bot.send_message(
+#         chat_id=callback_query.message.chat.id,
+#         text=f"Пожалуйста, напишите ваш отзыв для заказа {order_id}.",
+#         parse_mode="HTML"
+#     )
+#
+#     @dp.message_handler()
+#     async def get_feedback(message: types.Message):
+#         comment = message.text  # Получаем текст отзыва
+#         user_id = message.from_user.id  # Получаем user_id покупателя
+#
+#         # Получаем seller_id на основе order_id
+#         async with db_pool.acquire() as connection:
+#             seller_info = await connection.fetchrow("""
+#                 SELECT p.user_id AS seller_id
+#                 FROM orderitems oi
+#                 JOIN products p ON oi.product_id = p.product_id
+#                 WHERE oi.order_id = $1
+#             """, order_id)
+#
+#         if seller_info:
+#             seller_id = seller_info['seller_id']
+#
+#             # Обновляем запись в таблице reviews с добавлением комментария
+#             async with db_pool.acquire() as connection:
+#                 await connection.execute("""
+#                     UPDATE reviews
+#                     SET comment = $1
+#                     WHERE order_id = $2 AND user_id = $3
+#                 """, comment, order_id, user_id)
+#
+#         # Отправляем пользователю подтверждение
+#         await bot.send_message(
+#             chat_id=message.chat.id,
+#             text=f"Ваш отзыв для заказа {order_id} был успешно сохранен. Спасибо!",
+#             parse_mode="HTML"
+#         )
 
 
 @dp.callback_query_handler(lambda query: query.data.startswith('not_completed_buyer_'))
@@ -760,11 +902,12 @@ async def check_orders_10min(db_pool):
         print("10 минут до публикации:", now, ten_minutes_later)
 
         results_10min = await connection.fetch("""
-            SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id, vc.channel_name, vc.channel_url
+            SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id, vc.channel_name, vc.channel_url, pf.format_name
             FROM orderitems oi
             JOIN orders o ON oi.order_id = o.order_id
             JOIN products p ON oi.product_id = p.product_id
             JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+            JOIN publication_formats pf ON pf.format_id = oi.format
             WHERE oi.post_time BETWEEN $1 AND $2
               AND o.status = 'completed'
         """, now, ten_minutes_later)
@@ -775,6 +918,7 @@ async def check_orders_10min(db_pool):
                 chat_id=record['user_id'],
                 text=(
                     f"📢 <b>Через 10 минут нужно опубликовать рекламу!</b>\n\n"
+                    f"📢 <b>Формат{record['format_name']}</b>\n\n"
                     f"📊 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
                     f"🕒 <b>Время публикации:</b> {record['post_time']}"
                 ),
@@ -788,11 +932,12 @@ async def check_orders_now(db_pool):
         print("Публикация прямо сейчас:", now)
 
         results_now = await connection.fetch("""
-            SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id, vc.channel_name, vc.channel_url
+            SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id, vc.channel_name, vc.channel_url, pf.format_name
             FROM orderitems oi
             JOIN orders o ON oi.order_id = o.order_id
             JOIN products p ON oi.product_id = p.product_id
             JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+            JOIN publication_formats pf ON pf.format_id = oi.format
             WHERE DATE_TRUNC('minute', oi.post_time::timestamp) = DATE_TRUNC('minute', $1::timestamp)
               AND o.status = 'completed'
         """, now)
@@ -803,6 +948,7 @@ async def check_orders_now(db_pool):
                 chat_id=record['user_id'],
                 text=(
                     f"🚨 <b>Пора выкладывать рекламу!</b>\n\n"
+                    f"🚨 <b>Формат:{record['format_name']}</b>\n\n"
                     f"📊 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
                     f"🕒 <b>Время публикации:</b> {record['post_time']}"
                 ),
@@ -810,15 +956,19 @@ async def check_orders_now(db_pool):
             )
 
 
+
 async def on_startup(dp):
     await create_db_pool()  # Создаем пул при запуске
+    logging.info("Пул соединений с базой данных создан")
 
     # Запускаем фоновые задачи для проверок
     asyncio.create_task(check_orders_10min_loop())
     asyncio.create_task(check_orders_now_loop())
     asyncio.create_task(send_survey_loop())
+    # asyncio.create_task(daily_update())
 
-# Циклы для проверки заказов каждые 60 секунд
+
+
 async def check_orders_10min_loop():
     while True:
         await check_orders_10min(db_pool)
@@ -834,16 +984,26 @@ async def send_survey_loop():
         await send_survey(db_pool)
         await asyncio.sleep(60)  # Проверяем каждые 60 секунд
 
-if __name__ == '__main__':
-    from aiogram import executor
 
-    if not os.path.exists('static'):
-        os.makedirs('static')
+# async def daily_update():
+#     while True:
+#         await update_channel_views(db_pool)
+#         await asyncio.sleep(86400)  # Ожидаем 24 часа перед следующим запуском
+
+
+
+if __name__ == '__main__':
     def start_aiogram():
         global event_loop
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
         executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
 
+    # Запуск aiogram в отдельном потоке
     threading.Thread(target=start_aiogram).start()
+
+    # Запуск обновления просмотров в основном потоке
+    # with client:
+    #     client.loop.run_until_complete(daily_update())
+
     app.run(host='0.0.0.0', port=5001)

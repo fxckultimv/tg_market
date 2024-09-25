@@ -16,7 +16,6 @@ export const useAdminStore = create((set) => ({
 
     checkAdmin: async (initDataRaw) => {
         set({ loading: true, error: null })
-        console.log('initDateRow ', initDataRaw)
 
         try {
             const response = await fetch('http://localhost:5000/check_admin', {
@@ -27,7 +26,6 @@ export const useAdminStore = create((set) => ({
                 },
             })
             const data = await response.json()
-            console.log(data)
 
             if (data.isAdmin) {
                 set({ isAdmin: true, loading: false })
@@ -597,8 +595,12 @@ export const useAdminStore = create((set) => ({
 
 export const useUserStore = create((set) => ({
     cart: [],
+    user: [],
     verifiedChannels: [],
     categories: [],
+    formats: [],
+    history: [],
+    reviews: [],
     status: false,
     fetchAuth: async (initDataRaw) => {
         set({ loading: true, error: null })
@@ -631,7 +633,6 @@ export const useUserStore = create((set) => ({
     },
     fetchCart: async (initDataRaw) => {
         set({ loading: true, error: null })
-        console.log('initDateRaw ', initDataRaw)
 
         try {
             const response = await fetch('http://localhost:5000/cart', {
@@ -685,6 +686,31 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
+    fetchFormats: async (initDataRaw) => {
+        set({ loading: true })
+        try {
+            const response = await fetch('http://localhost:5000/formats', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `tma ${initDataRaw}`,
+                },
+            })
+            if (response.status === 204) {
+                // Если сервер вернул 204, устанавливаем пустой массив
+                set({ formats: [], loading: false })
+                return []
+            }
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+            const data = await response.json()
+            set({ formats: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+        }
+    },
     fetchVerifiedChannels: async (initDataRaw) => {
         set({ loading: true, error: null })
         console.log('initDateRaw ', initDataRaw)
@@ -716,12 +742,43 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    addProduct: async (
-        initDataRaw,
-        { channel_id, category_id, description, price, post_time }
-    ) => {
+    fetchHistory: async (initDataRaw) => {
         set({ loading: true, error: null })
         console.log('initDateRaw ', initDataRaw)
+
+        try {
+            const response = await fetch('http://localhost:5000/history', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `tma ${initDataRaw}`,
+                },
+            })
+            if (response.status === 204) {
+                // Если сервер вернул 204, устанавливаем пустой массив
+                set({ history: [], loading: false })
+                return []
+            }
+            // Проверяем, был ли запрос успешным
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const data = await response.json()
+            set({ history: data, loading: false })
+            return data
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+            return null
+        }
+    },
+    addProduct: async (
+        initDataRaw,
+        { channel_id, category_id, description, price, post_time, format }
+    ) => {
+        set({ loading: true, error: null })
+        console.log(format)
 
         try {
             const response = await fetch('http://localhost:5000/products/add', {
@@ -736,6 +793,7 @@ export const useUserStore = create((set) => ({
                     description,
                     price,
                     post_time,
+                    format,
                 }),
             })
 
@@ -865,10 +923,56 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
+    fetchUser: async (initDataRaw, id) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(`http://localhost:5000/user/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `tma ${initDataRaw}`,
+                },
+            })
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+            const data = await response.json()
+            set({ user: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+        }
+    },
+    fetchReviews: async (initDataRaw, id) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                `http://localhost:5000/user/reviews/${id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+            const data = await response.json()
+            set({ reviews: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+        }
+    },
 }))
 
 export const useProductStore = create((set, get) => ({
     categories: [],
+    reviews: [],
     cart: [],
     products: [],
     productDetails: null,
@@ -899,6 +1003,7 @@ export const useProductStore = create((set, get) => ({
             const queryParams = new URLSearchParams({
                 q: searchQuery || '',
                 category: filters.category || '',
+                format: filters.format || '',
                 minPrice: filters.priceRange
                     ? filters.priceRange[0].toString()
                     : '',
@@ -955,6 +1060,52 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Error fetching product details:', error)
             set({ error: error.message, loading: false })
+        }
+    },
+    fetchUserProducts: async (initDataRaw, user_uuid) => {
+        set({ isLoading: true })
+        const { searchQuery, filters, page } = get()
+
+        const limit = 10
+        const skip = (page - 1) * limit
+
+        try {
+            const queryParams = new URLSearchParams({
+                q: searchQuery || '',
+                user_uuid: user_uuid,
+                category: filters.category || '',
+                format: filters.format || '',
+                minPrice: filters.priceRange
+                    ? filters.priceRange[0].toString()
+                    : '',
+                maxPrice: filters.priceRange
+                    ? filters.priceRange[1].toString()
+                    : '',
+                skip: skip.toString(),
+                limit: limit.toString(),
+            }).toString()
+
+            const response = await fetch(
+                `http://localhost:5000/products/user?${queryParams}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+
+            const data = await response.json()
+
+            set({
+                products: data.products,
+                totalPages: data.totalPages || 1,
+                isLoading: false,
+            })
+        } catch (error) {
+            console.error('Error fetching products:', error)
+            set({ products: [], isLoading: false })
         }
     },
     fetchBusyDay: async (initDataRaw, productId) => {
@@ -1019,8 +1170,6 @@ export const useProductStore = create((set, get) => ({
         }
     },
     addToCart: async (initDataRaw, cartInfo) => {
-        console.log(cartInfo)
-
         set({ loading: true })
         try {
             const response = await fetch('http://localhost:5000/cart/add', {
@@ -1068,6 +1217,30 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Error creating order:', error)
             throw error
+        }
+    },
+    fetchReviews: async (initDataRaw, id) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                `http://localhost:5000/user/reviews/${id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+            const data = await response.json()
+            set({ reviews: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
         }
     },
 }))

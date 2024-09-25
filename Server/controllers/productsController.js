@@ -102,18 +102,20 @@ class productController {
     async searchProducts(req, res) {
         const searchQuery = req.query.q || ''
         const category = req.query.category || ''
+        const format = req.query.format ? req.query.format.split(',') : []
+        const post_time = req.query.post_time || ''
         const minPrice = parseFloat(req.query.minPrice) || null
         const maxPrice = parseFloat(req.query.maxPrice) || null
         const sort = req.query.sort === 'asc' ? 'ASC' : 'DESC'
         const skip = parseInt(req.query.skip) || 0
         const limit = parseInt(req.query.limit) || 10
 
-        // Для пагинации нам нужны два запроса:
+        // Для пагинации нужны два запроса:
         // 1. Основной запрос для получения товаров с учетом пагинации
         // 2. Запрос для получения общего количества товаров
 
         let baseQuery =
-            'FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id WHERE 1=1'
+            'FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id WHERE 1=1'
         const params = []
 
         // Фильтрация по поисковому запросу
@@ -126,6 +128,21 @@ class productController {
         if (category) {
             baseQuery += ` AND category_id = $${params.length + 1}`
             params.push(category)
+        }
+
+        // Фильтрация по формату
+        if (format.length > 0) {
+            const formatPlaceholders = format
+                .map((_, index) => `$${params.length + index + 1}`)
+                .join(', ')
+            baseQuery += ` AND ppf.format_id IN (${formatPlaceholders})`
+            params.push(...format)
+        }
+
+        // Фильтрация по времени публикации
+        if (post_time) {
+            baseQuery += ` AND post_time = $${params.length + 1}`
+            params.push(post_time)
         }
 
         // Фильтрация по минимальной цене
@@ -141,9 +158,112 @@ class productController {
         }
 
         // 1. Запрос для получения товаров с учетом лимита и смещения
-        let productQuery = `SELECT p.*, v.channel_tg_id, v.subscribers_count ${baseQuery} ORDER BY price ${sort} LIMIT $${
-            params.length + 1
-        } OFFSET $${params.length + 2}`
+        let productQuery = `SELECT p.*, ARRAY_AGG(ppf.format_id) AS format_ids, v.channel_tg_id, v.subscribers_count, v.views, v.subscribers_count, u.rating ${baseQuery} GROUP BY 
+    p.product_id, 
+    v.channel_tg_id, 
+    v.subscribers_count, 
+    v.views, 
+    v.subscribers_count,
+    u.rating  ORDER BY price ${sort}  LIMIT $${params.length + 1} OFFSET $${
+            params.length + 2
+        }`
+        params.push(limit)
+        params.push(skip)
+
+        // 2. Запрос для получения общего количества товаров (без лимита и смещения)
+        let countQuery = `SELECT COUNT(*) ${baseQuery}`
+
+        try {
+            // Выполняем оба запроса параллельно
+            const [productResult, countResult] = await Promise.all([
+                db.query(productQuery, params),
+                db.query(countQuery, params.slice(0, -2)), // Параметры для запроса без лимита и смещения
+            ])
+
+            const totalProducts = parseInt(countResult.rows[0].count, 10)
+
+            if (productResult.rows.length > 0) {
+                res.json({
+                    products: productResult.rows,
+                    totalProducts, // Общее количество товаров
+                    totalPages: Math.ceil(totalProducts / limit), // Количество страниц
+                    currentPage: Math.floor(skip / limit) + 1, // Текущая страница
+                })
+            } else {
+                res.status(404).json({ error: 'Products not found' })
+            }
+        } catch (err) {
+            console.error('Error fetching products from database:', err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async userProducts(req, res) {
+        const searchQuery = req.query.q || ''
+        const user_uuid = req.query.user_uuid
+        const category = req.query.category || ''
+        const format = req.query.format ? req.query.format.split(',') : []
+        const post_time = req.query.post_time || ''
+        const minPrice = parseFloat(req.query.minPrice) || null
+        const maxPrice = parseFloat(req.query.maxPrice) || null
+        const sort = req.query.sort === 'asc' ? 'ASC' : 'DESC'
+        const skip = parseInt(req.query.skip) || 0
+        const limit = parseInt(req.query.limit) || 10
+
+        // Для пагинации нужны два запроса:
+        // 1. Основной запрос для получения товаров с учетом пагинации
+        // 2. Запрос для получения общего количества товаров
+
+        let baseQuery = `FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id WHERE u.user_uuid = $1`
+        const params = [user_uuid]
+
+        // Фильтрация по поисковому запросу
+        if (searchQuery) {
+            baseQuery += ` AND title ILIKE $${params.length + 1}`
+            params.push(`%${searchQuery}%`)
+        }
+
+        // Фильтрация по категории
+        if (category) {
+            baseQuery += ` AND category_id = $${params.length + 1}`
+            params.push(category)
+        }
+
+        // Фильтрация по формату
+        if (format.length > 0) {
+            const formatPlaceholders = format
+                .map((_, index) => `$${params.length + index + 1}`)
+                .join(', ')
+            baseQuery += ` AND ppf.format_id IN (${formatPlaceholders})`
+            params.push(...format)
+        }
+
+        // Фильтрация по времени публикации
+        if (post_time) {
+            baseQuery += ` AND post_time = $${params.length + 1}`
+            params.push(post_time)
+        }
+
+        // Фильтрация по минимальной цене
+        if (minPrice !== null) {
+            baseQuery += ` AND price >= $${params.length + 1}`
+            params.push(minPrice)
+        }
+
+        // Фильтрация по максимальной цене
+        if (maxPrice !== null) {
+            baseQuery += ` AND price <= $${params.length + 1}`
+            params.push(maxPrice)
+        }
+
+        // 1. Запрос для получения товаров с учетом лимита и смещения
+        let productQuery = `SELECT p.*, ARRAY_AGG(ppf.format_id) AS format_ids, v.channel_tg_id, v.subscribers_count, u.rating ${baseQuery} GROUP BY 
+    p.product_id, 
+    v.channel_tg_id, 
+    v.subscribers_count, 
+    u.rating  ORDER BY price ${sort}  LIMIT $${params.length + 1} OFFSET $${
+            params.length + 2
+        }`
         params.push(limit)
         params.push(skip)
 
@@ -180,10 +300,13 @@ class productController {
 
         try {
             const result = await db.query(
-                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id
+                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, ARRAY_AGG(ppf.format_id) AS format_ids
                  FROM products p
                  JOIN verifiedchannels v ON p.channel_id = v.channel_id
-                 WHERE p.product_id = $1`,
+                 JOIN users u ON p.user_id = u.user_id
+                 JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
+                 WHERE p.product_id = $1
+                 GROUP BY p.product_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, u.rating, u.user_uuid, v.views, v.subscribers_count `,
                 [id]
             )
 
@@ -202,8 +325,14 @@ class productController {
         const initData = res.locals.initData
         const user_id = initData.user.id
 
-        const { channel_id, category_id, description, price, post_time } =
-            req.body
+        const {
+            channel_id,
+            category_id,
+            description,
+            price,
+            post_time,
+            format,
+        } = req.body
 
         try {
             // Проверка, верифицирован ли канал и получение channel_name
@@ -236,8 +365,18 @@ class productController {
                 ]
             )
 
+            const product_id = result.rows[0].product_id
+
+            // Добавление каждого элемента массива format в таблицу product_publication_formats
+            for (let i = 0; i < format.length; i++) {
+                await db.query(
+                    `INSERT INTO product_publication_formats (product_id, format_id) VALUES ($1, $2)`,
+                    [product_id, format[i]]
+                )
+            }
+
             // Возвращаем добавленный продукт
-            res.status(201).json(result.rows[0])
+            res.status(201).json({ message: 'Product added successfully' })
         } catch (err) {
             console.error(err)
             res.status(500).json({ error: 'Database error' })

@@ -12,7 +12,7 @@ const UserCart = () => {
 
     useEffect(() => {
         fetchCartForUser(initDataRaw, id)
-    }, [])
+    }, [fetchCartForUser, initDataRaw])
 
     if (loading) {
         return (

@@ -1,10 +1,43 @@
+import { useLaunchParams } from '@tma.js/sdk-react'
 import React from 'react'
 import { useProductStore } from '../../store'
+import { useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
-const ChannelsList = () => {
-    const { products, page, totalPages, plusPage, minusPage } =
-        useProductStore()
+const UserProducts = () => {
+    const { initDataRaw } = useLaunchParams()
+    const { id } = useParams()
+    const {
+        products,
+        fetchUserProducts,
+        page,
+        totalPages,
+        plusPage,
+        minusPage,
+        error,
+        loading,
+    } = useProductStore()
+
+    useEffect(() => {
+        fetchUserProducts(initDataRaw, id)
+    }, [fetchUserProducts, initDataRaw])
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+                <div className="text-xl font-semibold">Загрузка...</div>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+                <div className="text-xl text-red-500">{error}</div>
+            </div>
+        )
+    }
 
     if (!products || products.length === 0) {
         return (
@@ -33,32 +66,21 @@ const ChannelsList = () => {
                             <p className="font-semibold text-green-400 mb-2">
                                 Цена: {product.price} руб.
                             </p>
-                            <p>Подписчики: {product.subscribers_count}</p>
-                            <p>Просмотров: {Math.round(product.views)}</p>
-                            <p>
-                                ER:{' '}
-                                {(
-                                    (100 / product.subscribers_count) *
-                                    product.views
-                                ).toFixed(1)}
-                                %
-                            </p>
-                            <p>
-                                CPV: {Math.round(product.price / product.views)}
-                                р
+                            <p className="font-semibold text-green-400 mb-2">
+                                Подписчики: {product.subscribers_count}
                             </p>
                             {/* <p className="text-gray-500 mb-2">
-                                Дата публикации:{' '}
-                                {new Date(
-                                    product.post_time
-                                ).toLocaleDateString()}
-                            </p>
-                            <p className="text-gray-500">
-                                Дата создания:{' '}
-                                {new Date(
-                                    product.created_at
-                                ).toLocaleDateString()}
-                            </p> */}
+                        Дата публикации:{' '}
+                        {new Date(
+                            product.post_time
+                        ).toLocaleDateString()}
+                    </p>
+                    <p className="text-gray-500">
+                        Дата создания:{' '}
+                        {new Date(
+                            product.created_at
+                        ).toLocaleDateString()}
+                    </p> */}
                         </div>
 
                         <div className="flex-shrink-0">
@@ -96,4 +118,4 @@ const ChannelsList = () => {
     )
 }
 
-export default ChannelsList
+export default UserProducts

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Form from './components/Form'
-import List from './components/List'
 import {
     retrieveLaunchParams,
     useLaunchParams,
@@ -14,7 +12,7 @@ import Layout from './components/Layout'
 import Home from './pages/Home/Home'
 import Channels from './pages/Channels/Channels'
 import ChannelDetails from './pages/Channels/ChannelDetails'
-import Settings from './pages/Settings'
+import Settings from './pages/Setting/Settings'
 import CreateAd from './pages/CreateAd/CreateAd'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { useNavigate } from 'react-router-dom'
@@ -33,6 +31,8 @@ import OrderDetails from './pages/adminDashboard/OrderDetails/OrderDetails'
 import ProductDetails from './pages/adminDashboard/ProductDetails/ProductDetails'
 import Buy from './pages/Buy/Buy'
 import BuyOrder from './pages/Buy/BuyOrder'
+import MyChannels from './pages/MyChannels/MyChannels'
+import User from './pages/User/User'
 // import { useStore } from '../store'
 
 const App = () => {
@@ -95,10 +95,14 @@ const App = () => {
                     <Route path="history" element={<History />} />
                     <Route path="history/:id" element={<SingleHistory />} />
 
+                    <Route path="my_channels" element={<MyChannels />} />
+
                     <Route path="basket" element={<Cart />} />
 
                     <Route path="buy" element={<Buy />} />
                     <Route path="buy/:id" element={<BuyOrder />} />
+
+                    <Route path="user/:id" element={<User />} />
 
                     {isAdmin && (
                         <Route path="admin" element={<AdminLayout />}>

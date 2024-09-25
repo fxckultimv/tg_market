@@ -60,17 +60,27 @@ class CartController {
     async addToCart(req, res) {
         const initData = res.locals.initData
         const user_id = initData.user.id
-        const { product_id, quantity, post_time } = req.body
+        const { product_id, quantity, date, post_time, format } = req.body
 
         if (quantity == null) {
             res.status(400).json({ error: `Quantity = ${quantity}` })
         }
 
-        if (!Array.isArray(post_time) || post_time.length === 0) {
-            return res.status(400).json({ error: 'Invalid post_time format' })
+        if (!Array.isArray(date) || date.length === 0) {
+            return res.status(400).json({ error: 'Invalid date format' })
         }
 
         try {
+            let date_product = await db.query(
+                `SELECT EXISTS (SELECT 1 FROM products WHERE product_id = $1 AND post_time = $2) AS exists;`,
+                [product_id, post_time]
+            )
+
+            if (!date_product.rows[0].exists) {
+                return res
+                    .status(404)
+                    .json({ error: 'Post_time is not valide' })
+            }
             // Ищем корзину пользователя
             let result = await db.query(
                 `SELECT cart_id FROM cart WHERE user_id = $1 LIMIT 1`,
@@ -91,11 +101,14 @@ class CartController {
                 user_cart_id = result.rows[0].cart_id
             }
 
-            for (const time of post_time) {
-                // Добавляем товар в корзину для каждого post_time
+            for (const time of date) {
+                // Добавляем товар в корзину для каждого date
+                const datePart = new Date(time).toISOString().split('T')[0] // Получаем только дату
+                const dateTime = `${datePart}T${post_time}` // Объединяем с временем
+
                 await db.query(
-                    `INSERT INTO cartitems (cart_id, product_id, quantity, post_time) VALUES ($1, $2, $3, $4)`,
-                    [user_cart_id, product_id, quantity, time]
+                    `INSERT INTO cartitems (cart_id, product_id, quantity, post_time, format) VALUES ($1, $2, $3, $4, $5)`,
+                    [user_cart_id, product_id, quantity, dateTime, format]
                 )
             }
 

@@ -4,12 +4,14 @@ const db = require('../db')
 require('dotenv').config()
 const { validate, sign, parse } = require('@telegram-apps/init-data-node')
 const authMiddleware = require('../middleware/authMiddleware')
+const { v4: uuidv4 } = require('uuid')
 
 const token = process.env.BOT_TOKEN
 
 router.use(authMiddleware)
 
 router.get('/', async (req, res) => {
+    const userUuid = uuidv4()
     const initData = res.locals.initData
 
     // Создание и подписание данных
@@ -62,8 +64,8 @@ router.get('/', async (req, res) => {
 
     try {
         const result = await db.query(
-            'INSERT INTO users (user_id, username) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING RETURNING *',
-            [user_id, user_name]
+            'INSERT INTO users (user_id, username, user_uuid) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO NOTHING RETURNING *',
+            [user_id, user_name, userUuid]
         )
         if (result.rows.length > 0) {
             // Новый пользователь добавлен

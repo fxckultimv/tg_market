@@ -53,7 +53,7 @@ class ordersController {
 
             // Получение элементов корзины
             const cartItemsResult = await db.query(
-                `SELECT ci.product_id, ci.quantity, ci.post_time, p.price
+                `SELECT ci.product_id, ci.quantity, ci.format, ci.post_time, p.price
             FROM cartitems ci
             JOIN products p ON ci.product_id = p.product_id
             WHERE ci.cart_item_id = ANY($1) AND ci.cart_id = (SELECT cart_id FROM cart WHERE user_id = $2)`,
@@ -85,14 +85,15 @@ class ordersController {
             // Добавление элементов заказа
             for (const item of cartItems) {
                 await db.query(
-                    `INSERT INTO orderitems (order_id, product_id, quantity, price, post_time)
-                    VALUES ($1, $2, $3, $4, $5)`,
+                    `INSERT INTO orderitems (order_id, product_id, quantity, price, post_time, format)
+                    VALUES ($1, $2, $3, $4, $5, $6)`,
                     [
                         order_id,
                         item.product_id,
                         item.quantity,
                         item.price,
                         item.post_time,
+                        item.format,
                     ]
                 )
             }
@@ -128,8 +129,6 @@ class ordersController {
                 // console.log('Order ID:', order_id)
                 console.log(parseInt(order_id))
 
-                // console.log('Target User ID:', seller_info.user_id) // Возможно здесь ошибка
-
                 // Отправка данных на внешний сервер
                 const response = await fetch('http://localhost:5001/order', {
                     method: 'POST',
@@ -139,11 +138,9 @@ class ordersController {
                     body: JSON.stringify({
                         user_id: user_id,
                         order_id: parseInt(order_id),
-                        target_user_id: seller_info.user_id, // Убедитесь, что это правильное значение
+                        target_user_id: seller_info.user_id,
                     }),
                 })
-
-                // console.log(response)
 
                 if (!response.ok) {
                     throw new Error(

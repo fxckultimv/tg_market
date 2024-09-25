@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useLaunchParams } from '@tma.js/sdk-react'
 import { useUserStore } from '../../store'
+import { TonConnectButton } from '@tonconnect/ui-react'
 
 const BuyOrder = () => {
     const { id } = useParams() // Получаем ID заказа из URL
@@ -48,7 +49,11 @@ const BuyOrder = () => {
     }
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-4 flex-row ">
+            <div>
+                <TonConnectButton></TonConnectButton>
+            </div>
+
             <h1 className="text-2xl font-bold mb-4">Заказ с ID: {id}</h1>
             <p className="mb-4">
                 Для подтверждения покупки нажмите на кнопку ниже.

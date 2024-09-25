@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useAdminStore } from '../store'
+import { useAdminStore } from '../../store'
 
 const Setting = () => {
     const { isAdmin } = useAdminStore()
@@ -33,17 +33,17 @@ const Setting = () => {
                 История
             </Link>
             <Link
-                to="/channels"
+                to="/my_channels"
                 className="bg-indigo-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-indigo-600 w-full"
             >
                 Мои каналы
             </Link>
-            <Link
-                to="/support"
+            <a
                 className="bg-red-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-red-600 w-full"
+                href="https://t.me/Stepanusik"
             >
                 Поддержка
-            </Link>
+            </a>
             {isAdmin && (
                 <Link
                     to="/admin"

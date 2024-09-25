@@ -16,6 +16,9 @@ router.get('/my', productsController.myProducts)
 //Поиск продуктов
 router.get('/search', productsController.searchProducts)
 
+//Поиск продуктов
+router.get('/user', productsController.userProducts)
+
 //Получение продукта
 router.get('/details/:id', productsController.productDetails)
 

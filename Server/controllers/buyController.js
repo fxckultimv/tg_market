@@ -14,15 +14,15 @@ class buyController {
 
             // Проверяем, были ли обновлены строки
             if (result.rowCount > 0) {
-                // Если обновление успешно, отправляем GET-запрос на локальный сервер
+                // Если обновление успешно, отправляем POST-запрос на локальный сервер
 
                 try {
-                    // Выполнение запроса к базе данных
                     const buy_info = await db.query(
-                        `SELECT p.user_id, oi.post_time, vc.channel_name, vc.channel_url, oi.order_id, oi.message_id
+                        `SELECT p.user_id, oi.post_time, vc.channel_name, vc.channel_url, oi.order_id, oi.message_id, pf.format_name
                         FROM orderitems AS oi
                         JOIN products p ON oi.product_id = p.product_id 
                         JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+                        JOIN publication_formats pf ON pf.format_id = oi.format
                         WHERE oi.order_id = $1`,
                         [order_id]
                     )
@@ -47,6 +47,7 @@ class buyController {
                         post_time: post_time_list, // массив всех значений post_time
                         channel_name: first_row.channel_name,
                         channel_url: first_row.channel_url,
+                        format: first_row.format_name,
                     }
 
                     // Отправка данных на внешний сервер
