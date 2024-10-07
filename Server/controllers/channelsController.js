@@ -7,7 +7,7 @@ class channelController {
 
         try {
             const result = await db.query(
-                `SELECT * FROM verifiedchannels WHERE user_id = $1`,
+                `SELECT channel_id, channel_name, channel_url, subscribers_count, views, channel_tg_id FROM verifiedchannels WHERE user_id = $1`,
                 [user_id]
             )
             res.json(result.rows)

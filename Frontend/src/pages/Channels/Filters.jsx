@@ -62,17 +62,6 @@ const Filters = () => {
         setPage(1) // Сброс на первую страницу при изменении цены
     }
 
-    // const handleMinPriceChange = (e) => {
-    //     setMinPrice({ ...filters, priceRange: e.target.value })
-    //     setPage(1) // Сброс на первую страницу при изменении цены
-    // }
-    // console.log('handleMinPriceChange = ', handleMinPriceChange)
-
-    // const handleMaxPriceChange = (e) => {
-    //     setMaxPrice(e.target.value)
-    //     setPage(1) // Сброс на первую страницу при изменении цены
-    // }
-
     const toggleFilters = () => {
         setIsExpanded(!isExpanded)
     }
@@ -90,7 +79,7 @@ const Filters = () => {
     }
 
     return (
-        <div className="p-4 bg-gray-800 text-white rounded-lg shadow-lg">
+        <div className="p-4 bg-gray-800 text-white rounded-b-lg shadow-lg">
             <div className="flex items-center justify-between mb-4">
                 <input
                     type="search"
@@ -168,58 +157,35 @@ const Filters = () => {
                     <div className="flex items-center justify-between">
                         <div className="w-full mr-2">
                             <label htmlFor="min-price" className="block mb-2">
-                                Мин. цена: {minPrice}
+                                Мин. цена
                             </label>
                             <input
                                 id="min-price"
-                                type="range"
-                                step="10"
+                                type="number"
                                 min="0"
                                 max="1000000"
                                 value={minPrice}
                                 onChange={handleMinPriceChange}
-                                className="w-full"
+                                className="w-full p-2 bg-gray-700 rounded text-white outline-none"
                             />
                         </div>
                         <div className="w-full">
                             <label htmlFor="max-price" className="block mb-2">
-                                Макс. цена: {maxPrice}
+                                Макс. цена
                             </label>
                             <input
                                 id="max-price"
-                                type="range"
-                                step="10"
+                                type="number"
                                 min="0"
                                 max="1000000"
                                 value={maxPrice}
                                 onChange={handleMaxPriceChange}
-                                className="w-full"
+                                className="w-full p-2 bg-gray-700 rounded text-white outline-none"
                             />
                         </div>
                     </div>
                 </div>
             )}
-
-            {/* Pagination Controls
-            <div className="flex justify-between items-center mt-4">
-                <button
-                    onClick={goToPreviousPage}
-                    disabled={page === 1}
-                    className="px-4 py-2 bg-gray-700 rounded text-white disabled:opacity-50"
-                >
-                    Предыдущая
-                </button>
-                <span>
-                    Страница {page} из {totalPages}
-                </span>
-                <button
-                    onClick={goToNextPage}
-                    disabled={page === totalPages}
-                    className="px-4 py-2 bg-gray-700 rounded text-white disabled:opacity-50"
-                >
-                    Следующая
-                </button>
-            </div> */}
         </div>
     )
 }

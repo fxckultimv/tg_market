@@ -59,38 +59,46 @@ const MyChannels = () => {
                 <Link to={`${channel.channel_id}`} key={channel.channel_id}>
                     <div
                         key={channel.channel_id}
-                        className="bg-gray-800 p-4 rounded-lg shadow-lg text-white flex justify-between items-center"
+                        className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out"
                     >
-                        <div className="flex-1 mr-4">
-                            <h3 className="text-xl font-bold mb-2">
+                        <div className="flex-1">
+                            <h3 className="text-xl font-extrabold mb-2 text-green-400">
                                 {channel.channel_name}
                             </h3>
-                            <p className="text-gray-400 mb-2">
-                                {channel.channel_url}
-                            </p>
-                            {/* <p>⭐️{channel.rating}</p> */}
-                            <p className="font-semibold text-green-400 mb-2">
-                                Подписчики: {channel.subscribers_count}
-                            </p>
-                            {/* <p className="text-gray-500 mb-2">
-                            Дата публикации:{' '}
-                            {new Date(
-                                product.post_time
-                            ).toLocaleDateString()}
-                        </p>
-                        <p className="text-gray-500">
-                            Дата создания:{' '}
-                            {new Date(
-                                product.created_at
-                            ).toLocaleDateString()}
-                        </p> */}
+                            <div className="mb-2">
+                                <div className="border border-gray-600 rounded-lg p-3 bg-gray-800">
+                                    <p className="text-sm text-gray-300">
+                                        Подписчики:{' '}
+                                        <span className="text-green-400">
+                                            {channel.subscribers_count}
+                                        </span>
+                                    </p>
+                                    <p className="text-sm text-gray-300">
+                                        Просмотров:{' '}
+                                        <span className="text-green-400">
+                                            {Math.round(channel.views)}
+                                        </span>
+                                    </p>
+                                    <p className="text-sm text-gray-300">
+                                        ER:{' '}
+                                        <span className="text-green-400">
+                                            {(
+                                                (100 /
+                                                    channel.subscribers_count) *
+                                                channel.views
+                                            ).toFixed(1)}
+                                            %
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="flex-shrink-0">
                             <img
-                                className="rounded-full w-32 h-32 object-cover border-green-400 border-2"
+                                className="rounded-full w-28 h-28 object-cover border-2 border-green-500 shadow-lg"
                                 src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
-                                alt={channel.channel_name}
+                                alt={channel.title}
                             />
                         </div>
                     </div>

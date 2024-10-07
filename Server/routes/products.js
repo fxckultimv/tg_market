@@ -34,4 +34,7 @@ router.delete('/', productsController.deleteProduct)
 //Получение продукта
 router.get('/:id', productsController.product)
 
+//Получение похожих товаров
+router.post('/similar', productsController.similarProduct)
+
 module.exports = router

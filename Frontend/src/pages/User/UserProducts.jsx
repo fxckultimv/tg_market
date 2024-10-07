@@ -48,44 +48,67 @@ const UserProducts = () => {
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
             {products.map((product) => (
-                <Link to={`${product.product_id}`} key={product.product_id}>
+                <Link
+                    to={`/channels/${product.product_id}`}
+                    key={product.product_id}
+                >
                     <div
                         key={product.product_id}
-                        className="bg-gray-800 p-4 rounded-lg shadow-lg text-white flex justify-between items-center"
+                        className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out"
                     >
-                        <div className="flex-1 mr-4">
-                            <h3 className="text-xl font-bold mb-2">
+                        <div className="flex-1">
+                            <h3 className="text-xl font-extrabold mb-2 text-green-400">
                                 {product.title}
                             </h3>
-                            <p className="text-gray-400 mb-2">
-                                {product.description}
+                            <div className="mb-2">
+                                <p className="text-sm text-gray-400">
+                                    ⭐️ {product.rating}
+                                </p>
+                                <div className="border border-gray-600 rounded-lg p-3 bg-gray-800">
+                                    <p className="text-sm text-gray-300">
+                                        Подписчики:{' '}
+                                        <span className="text-green-400">
+                                            {product.subscribers_count}
+                                        </span>
+                                    </p>
+                                    <p className="text-sm text-gray-300">
+                                        Просмотров:{' '}
+                                        <span className="text-green-400">
+                                            {Math.round(product.views)}
+                                        </span>
+                                    </p>
+                                    <p className="text-sm text-gray-300">
+                                        ER:{' '}
+                                        <span className="text-green-400">
+                                            {(
+                                                (100 /
+                                                    product.subscribers_count) *
+                                                product.views
+                                            ).toFixed(1)}
+                                            %
+                                        </span>
+                                    </p>
+                                    <p className="text-sm text-gray-300">
+                                        CPV:{' '}
+                                        <span className="text-green-400">
+                                            {Math.round(
+                                                product.price / product.views
+                                            )}{' '}
+                                            р
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <p className="font-bold text-2xl text-green-500">
+                                {product.price}₽
                             </p>
-                            <p>⭐️{product.rating}</p>
-                            <p className="font-semibold text-green-400 mb-2">
-                                Цена: {product.price} руб.
-                            </p>
-                            <p className="font-semibold text-green-400 mb-2">
-                                Подписчики: {product.subscribers_count}
-                            </p>
-                            {/* <p className="text-gray-500 mb-2">
-                        Дата публикации:{' '}
-                        {new Date(
-                            product.post_time
-                        ).toLocaleDateString()}
-                    </p>
-                    <p className="text-gray-500">
-                        Дата создания:{' '}
-                        {new Date(
-                            product.created_at
-                        ).toLocaleDateString()}
-                    </p> */}
                         </div>
 
                         <div className="flex-shrink-0">
                             <img
-                                className="rounded-full w-32 h-32 object-cover border-green-400 border-2"
+                                className="rounded-full w-28 h-28 object-cover border-2 border-green-500 shadow-lg"
                                 src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                                 alt={product.title}
                             />

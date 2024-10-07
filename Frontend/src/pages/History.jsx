@@ -1,4 +1,4 @@
-import { useLaunchParams } from '@tma.js/sdk-react'
+import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import React from 'react'
 import { useEffect } from 'react'
 import { useUserStore } from '../store'
@@ -6,13 +6,28 @@ import { Link } from 'react-router-dom'
 
 const History = () => {
     const { initDataRaw } = useLaunchParams()
+    const backButton = useBackButton()
     const { history, fetchHistory, loading, error } = useUserStore()
 
     useEffect(() => {
         fetchHistory(initDataRaw)
     }, [initDataRaw, fetchHistory])
 
-    console.log(history)
+    useEffect(() => {
+        const handleBackClick = () => {
+            window.history.back()
+        }
+
+        if (backButton) {
+            backButton.show()
+            backButton.on('click', handleBackClick)
+
+            return () => {
+                backButton.hide()
+                backButton.off('click', handleBackClick)
+            }
+        }
+    }, [backButton])
 
     if (loading) {
         return (
