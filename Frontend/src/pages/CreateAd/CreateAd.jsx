@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useLaunchParams, useMainButton } from '@tma.js/sdk-react'
 import { Link } from 'react-router-dom'
+import Loading from '../../Loading'
+import Error from '../../Error'
 
 const CreateAd = () => {
     const { initDataRaw } = useLaunchParams()
@@ -25,6 +27,21 @@ const CreateAd = () => {
     const [price, setPrice] = useState('')
     const [description, setDescription] = useState('')
     const [timeError, setTimeError] = useState('')
+    const [publicationTimes, setPublicationTimes] = useState([])
+
+    const addPublicationTime = () => {
+        setPublicationTimes([...publicationTimes, '12:00']) // Добавление нового времени по умолчанию
+    }
+
+    const removePublicationTime = (index) => {
+        setPublicationTimes(publicationTimes.filter((_, i) => i !== index)) // Удаление времени по индексу
+    }
+
+    const handleTimeChange = (time, index) => {
+        let newTimes = [...publicationTimes]
+        newTimes[index] = time
+        setPublicationTimes(newTimes)
+    }
 
     useEffect(() => {
         fetchVerifiedChannels(initDataRaw)
@@ -60,7 +77,7 @@ const CreateAd = () => {
                         description: description,
                         price: price,
                         format: selectedFormat,
-                        post_time: publicationTime,
+                        post_time: publicationTimes,
                     })
                     alert('Рекламное предложение успешно создано!')
 
@@ -70,6 +87,7 @@ const CreateAd = () => {
                     setSelectedFormat([])
                     setAdFormat('')
                     setPublicationTime('')
+                    setPublicationTimes('')
                     setPrice('')
                     setDescription('')
                 } catch (error) {
@@ -129,24 +147,16 @@ const CreateAd = () => {
     }
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl font-semibold">Загрузка...</div>
-            </div>
-        )
+        return <Loading />
     }
 
     if (error) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl text-red-500">{error}</div>
-            </div>
-        )
+        return <Error error={error} />
     }
 
     return (
         <div className="container mx-auto p-6 min-h-screen bg-gray-900 text-white">
-            <h2 className="text-4xl font-bold text-green-400 mb-8">
+            <h2 className="text-2xl font-bold text-green-400 mb-8">
                 Создать рекламное предложение
             </h2>
 
@@ -173,7 +183,7 @@ const CreateAd = () => {
                                     key={channel.channel_id}
                                     value={channel.channel_id}
                                 >
-                                    {channel.channel_title}
+                                    {channel.channel_name}
                                 </option>
                             ))}
                         </select>
@@ -230,25 +240,6 @@ const CreateAd = () => {
                                         </label>
                                     </div>
                                 ))}
-
-                                {/* Отображение выбранных типов публикации
-                                <div>
-                                    <h4>Выбранные типы публикации:</h4>
-                                    <ul>
-                                        {selectedFormat.map((formatId) => {
-                                            const format = formats.find(
-                                                (f) => f.format_id === formatId
-                                            )
-                                            return (
-                                                <li key={formatId}>
-                                                    {format
-                                                        ? format.format_name
-                                                        : 'Неизвестный формат'}
-                                                </li>
-                                            )
-                                        })}
-                                    </ul>
-                                </div> */}
                             </div>
 
                             {/* Описание */}
@@ -270,6 +261,7 @@ const CreateAd = () => {
                                     rows="4"
                                 ></textarea>
                             </div>
+                            {console.log(publicationTimes)}
 
                             {/* Выбор времени публикации */}
                             <div className="mb-6">
@@ -279,16 +271,39 @@ const CreateAd = () => {
                                 >
                                     Выберите время публикации:
                                 </label>
-                                <input
-                                    type="time"
-                                    id="publication-time"
-                                    className="w-full p-3 bg-gray-800 text-white rounded"
-                                    value={publicationTime}
-                                    onChange={(e) =>
-                                        setPublicationTime(e.target.value)
-                                    }
-                                    onBlur={handleCheckAvailability}
-                                />
+                                {publicationTimes.map((time, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center mb-2"
+                                    >
+                                        <input
+                                            type="time"
+                                            className="w-full p-3 bg-gray-800 text-white rounded"
+                                            value={time}
+                                            onChange={(e) =>
+                                                handleTimeChange(
+                                                    e.target.value,
+                                                    index
+                                                )
+                                            }
+                                            onBlur={handleCheckAvailability}
+                                        />
+                                        <button
+                                            onClick={() =>
+                                                removePublicationTime(index)
+                                            }
+                                            className="ml-2 bg-red-500 text-white p-2 rounded"
+                                        >
+                                            Удалить
+                                        </button>
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={addPublicationTime}
+                                    className="mt-2 bg-green-500 text-white p-2 rounded"
+                                >
+                                    Добавить время
+                                </button>
                                 {timeError && (
                                     <p className="text-red-500 mt-2">
                                         {timeError}

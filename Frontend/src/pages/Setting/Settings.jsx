@@ -38,6 +38,12 @@ const Setting = () => {
             >
                 Мои каналы
             </Link>
+            <Link
+                to="/my_channels"
+                className="bg-indigo-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-indigo-600 w-full"
+            >
+                Мои продукты
+            </Link>
             <a
                 className="bg-red-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-red-600 w-full"
                 href="https://t.me/Stepanusik"

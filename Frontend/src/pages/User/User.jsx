@@ -52,8 +52,8 @@ const User = () => {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white">
-            <div className="container mx-auto px-4 py-4">
-                <div className="mb-6">
+            <div className="container mx-auto px-2 py-4">
+                <div className="mb-2">
                     <img
                         className="rounded-full w-32 h-32 object-cover border-green-400 border-2"
                         src={`http://localhost:5000/user_${id}.png`}
@@ -95,7 +95,7 @@ const User = () => {
                 </div>
 
                 {/* Display content based on the active tab */}
-                <div className="mt-8">
+                <div className="mt-4">
                     {activeTab === 'products' ? (
                         <UserProducts />
                     ) : (

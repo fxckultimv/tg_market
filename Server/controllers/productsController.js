@@ -115,7 +115,7 @@ class productController {
         // 2. Запрос для получения общего количества товаров
 
         let baseQuery =
-            'FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id WHERE 1=1'
+            'FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id JOIN publication_formats pf ON pf.format_id = ppf.format_id JOIN categories c ON p.category_id = c.category_id JOIN products_post_time ppt ON p.product_id = ppt.product_id  WHERE 1=1'
         const params = []
 
         // Фильтрация по поисковому запросу
@@ -158,12 +158,12 @@ class productController {
         }
 
         // 1. Запрос для получения товаров с учетом лимита и смещения
-        let productQuery = `SELECT p.*, ARRAY_AGG(ppf.format_id) AS format_ids, v.channel_tg_id, v.subscribers_count, v.views, v.subscribers_count, u.rating ${baseQuery} GROUP BY 
+        let productQuery = `SELECT p.product_id, p.category_id, p.title, p.price, p.channel_id, c.category_name, ARRAY_AGG(DISTINCT ppf.format_id) AS format_ids, ARRAY_AGG(DISTINCT pf.format_name) AS format_names, ARRAY_AGG(DISTINCT ppt.post_time) AS post_times, v.channel_tg_id, v.subscribers_count, v.views, v.subscribers_count, u.rating ${baseQuery} GROUP BY 
     p.product_id, 
     v.channel_tg_id, 
     v.subscribers_count, 
     v.views, 
-    v.subscribers_count,
+    c.category_name,
     u.rating  ORDER BY price ${sort}  LIMIT $${params.length + 1} OFFSET $${
             params.length + 2
         }`
@@ -257,10 +257,11 @@ class productController {
         }
 
         // 1. Запрос для получения товаров с учетом лимита и смещения
-        let productQuery = `SELECT p.*, ARRAY_AGG(ppf.format_id) AS format_ids, v.channel_tg_id, v.subscribers_count, u.rating ${baseQuery} GROUP BY 
+        let productQuery = `SELECT p.product_id, p.category_id, p.title, p.price, p.channel_id, ARRAY_AGG(ppf.format_id) AS format_ids, v.channel_tg_id, v.subscribers_count, v.views, u.rating ${baseQuery} GROUP BY 
     p.product_id, 
     v.channel_tg_id, 
     v.subscribers_count, 
+    v.views,
     u.rating  ORDER BY price ${sort}  LIMIT $${params.length + 1} OFFSET $${
             params.length + 2
         }`
@@ -300,13 +301,14 @@ class productController {
 
         try {
             const result = await db.query(
-                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, ARRAY_AGG(ppf.format_id) AS format_ids
-                 FROM products p
-                 JOIN verifiedchannels v ON p.channel_id = v.channel_id
-                 JOIN users u ON p.user_id = u.user_id
-                 JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
-                 WHERE p.product_id = $1
-                 GROUP BY p.product_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, u.rating, u.user_uuid, v.views, v.subscribers_count `,
+                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, ARRAY_AGG(DISTINCT ppf.format_id) AS format_ids, ARRAY_AGG(DISTINCT ppt.post_time) AS post_times
+                FROM products p
+                JOIN verifiedchannels v ON p.channel_id = v.channel_id
+                JOIN users u ON p.user_id = u.user_id
+                JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
+                JOIN products_post_time ppt ON p.product_id = ppt.product_id
+                WHERE p.product_id = $1
+                GROUP BY p.product_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, u.rating, u.user_uuid, v.views, v.subscribers_count `,
                 [id]
             )
 
@@ -360,7 +362,7 @@ class productController {
                     channel_name,
                     description,
                     price,
-                    post_time,
+                    post_time[0],
                     channel_id,
                 ]
             )
@@ -372,6 +374,14 @@ class productController {
                 await db.query(
                     `INSERT INTO product_publication_formats (product_id, format_id) VALUES ($1, $2)`,
                     [product_id, format[i]]
+                )
+            }
+
+            // Добавление каждого элемента массива post_time в таблицу product_post_time
+            for (let i = 0; i < post_time.length; i++) {
+                await db.query(
+                    `INSERT INTO products_post_time (product_id, post_time) VALUES ($1, $2)`,
+                    [product_id, post_time[i]]
                 )
             }
 
@@ -423,6 +433,33 @@ class productController {
             }
         } catch (err) {
             console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async similarProduct(req, res) {
+        const { price, format_id } = req.body
+
+        try {
+            const result = await db.query(
+                `SELECT p.*, ppf.format_id 
+                FROM products AS p
+                JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
+                WHERE p.category_id = p.category_id 
+                AND p.price BETWEEN $1 * 0.5 AND $1 * 2
+                AND ppf.format_id = $2
+                ORDER BY price DESC 
+                LIMIT 10`,
+                [price, format_id]
+            )
+
+            if (result.rows.length > 0) {
+                res.json(result.rows)
+            } else {
+                res.status(404).json({ error: 'Product not found' })
+            }
+        } catch (err) {
+            console.error('Error fetching product details from database:', err)
             res.status(500).json({ error: 'Database error' })
         }
     }

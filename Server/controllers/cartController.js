@@ -14,13 +14,19 @@ class CartController {
                 p.title,
                 p.description,
                 p.price,
-                ci.post_time
+                ci.post_time,
+                v.channel_tg_id,
+                u.rating
             FROM
                 Cart c
             JOIN
                 CartItems ci ON c.cart_id = ci.cart_id
             JOIN
                 Products p ON ci.product_id = p.product_id
+            JOIN 
+                verifiedchannels v ON p.channel_id = v.channel_id
+            JOIN 
+                users u ON u.user_id = c.user_id
             WHERE
                 c.user_id = $1`,
                 [user_id]
@@ -35,8 +41,10 @@ class CartController {
                 if (!cart.products[row.product_id]) {
                     cart.products[row.product_id] = {
                         title: row.title,
+                        rating: row.rating,
                         description: row.description,
                         price: row.price,
+                        channel_tg_id: row.channel_tg_id,
                         items: [], // Создаем массив для хранения всех элементов корзины для данного продукта
                     }
                 }
@@ -72,7 +80,11 @@ class CartController {
 
         try {
             let date_product = await db.query(
-                `SELECT EXISTS (SELECT 1 FROM products WHERE product_id = $1 AND post_time = $2) AS exists;`,
+                `SELECT EXISTS (
+                SELECT 1 
+                FROM products p
+                JOIN products_post_time ppt ON p.product_id = ppt.product_id
+                WHERE p.product_id = $1 AND ppt.post_time = $2) AS exists;`,
                 [product_id, post_time]
             )
 
@@ -130,8 +142,7 @@ class CartController {
             const result = await db.query(
                 `DELETE FROM cartitems
             USING cart
-            WHERE cartitems.cart_item_id = $2 
-            AND cart.cart_id = cartitems.cart_id
+            WHERE cartitems.product_id = $2 
             AND cart.user_id = $1; 
             `,
                 [user_id, cart_item_id]

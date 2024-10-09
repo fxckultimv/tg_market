@@ -62,17 +62,6 @@ const Filters = () => {
         setPage(1) // Сброс на первую страницу при изменении цены
     }
 
-    // const handleMinPriceChange = (e) => {
-    //     setMinPrice({ ...filters, priceRange: e.target.value })
-    //     setPage(1) // Сброс на первую страницу при изменении цены
-    // }
-    // console.log('handleMinPriceChange = ', handleMinPriceChange)
-
-    // const handleMaxPriceChange = (e) => {
-    //     setMaxPrice(e.target.value)
-    //     setPage(1) // Сброс на первую страницу при изменении цены
-    // }
-
     const toggleFilters = () => {
         setIsExpanded(!isExpanded)
     }
@@ -90,7 +79,7 @@ const Filters = () => {
     }
 
     return (
-        <div className="p-4 bg-gray-800 text-white rounded-lg shadow-lg">
+        <div className="p-4 bg-gray-800 text-white rounded-b-lg shadow-lg">
             <div className="flex items-center justify-between mb-4">
                 <input
                     type="search"
@@ -108,19 +97,16 @@ const Filters = () => {
             </div>
 
             {isExpanded && (
-                <div className="space-y-4">
+                <div className="space-y-2">
                     {/* Category Filter */}
                     <div>
-                        <label htmlFor="category" className="block mb-2">
-                            Категория
-                        </label>
                         <select
                             id="category"
                             value={filters.category || ''}
                             onChange={handleCategoryChange}
                             className="w-full p-2 bg-gray-700 rounded text-white outline-none"
                         >
-                            <option value="">Выбрать категорию</option>
+                            <option value="">Категория</option>
                             {categories.map((category) => (
                                 <option
                                     key={category.category_id}
@@ -132,16 +118,13 @@ const Filters = () => {
                         </select>
                     </div>
                     <div>
-                        <label htmlFor="format" className="block mb-2">
-                            Формат
-                        </label>
                         <select
                             id="ad-format"
                             className="w-full p-2 bg-gray-700 rounded text-white outline-none"
                             value={filters.format || ''}
                             onChange={handleFormat}
                         >
-                            <option value="">Выберите формат</option>
+                            <option value="">Формат</option>
                             <option value="1">
                                 1/24 (1 публикация в течение 24 часов)
                             </option>
@@ -168,58 +151,35 @@ const Filters = () => {
                     <div className="flex items-center justify-between">
                         <div className="w-full mr-2">
                             <label htmlFor="min-price" className="block mb-2">
-                                Мин. цена: {minPrice}
+                                Мин. цена
                             </label>
                             <input
                                 id="min-price"
-                                type="range"
-                                step="10"
+                                type="number"
                                 min="0"
                                 max="1000000"
                                 value={minPrice}
                                 onChange={handleMinPriceChange}
-                                className="w-full"
+                                className="w-full p-2 bg-gray-700 rounded text-white outline-none"
                             />
                         </div>
                         <div className="w-full">
                             <label htmlFor="max-price" className="block mb-2">
-                                Макс. цена: {maxPrice}
+                                Макс. цена
                             </label>
                             <input
                                 id="max-price"
-                                type="range"
-                                step="10"
+                                type="number"
                                 min="0"
                                 max="1000000"
                                 value={maxPrice}
                                 onChange={handleMaxPriceChange}
-                                className="w-full"
+                                className="w-full p-2 bg-gray-700 rounded text-white outline-none"
                             />
                         </div>
                     </div>
                 </div>
             )}
-
-            {/* Pagination Controls
-            <div className="flex justify-between items-center mt-4">
-                <button
-                    onClick={goToPreviousPage}
-                    disabled={page === 1}
-                    className="px-4 py-2 bg-gray-700 rounded text-white disabled:opacity-50"
-                >
-                    Предыдущая
-                </button>
-                <span>
-                    Страница {page} из {totalPages}
-                </span>
-                <button
-                    onClick={goToNextPage}
-                    disabled={page === totalPages}
-                    className="px-4 py-2 bg-gray-700 rounded text-white disabled:opacity-50"
-                >
-                    Следующая
-                </button>
-            </div> */}
         </div>
     )
 }

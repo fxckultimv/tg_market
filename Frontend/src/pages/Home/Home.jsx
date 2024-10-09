@@ -1,6 +1,8 @@
 import { useLaunchParams } from '@tma.js/sdk-react'
 import React, { useEffect } from 'react'
 import { useUserStore } from '../../store'
+import Error from '../../Error'
+import Loading from '../../Loading'
 
 const Home = () => {
     const { initDataRaw } = useLaunchParams()
@@ -11,19 +13,11 @@ const Home = () => {
     }, [initDataRaw, fetchAuth])
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl font-semibold">Загрузка...</div>
-            </div>
-        )
+        return <Loading />
     }
 
     if (error) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl text-red-500">{error}</div>
-            </div>
-        )
+        return <Error error={error} />
     }
 
     // Фейковая статистика

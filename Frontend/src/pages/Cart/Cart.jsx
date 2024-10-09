@@ -4,13 +4,16 @@ import { useUserStore } from '../../store'
 import CartItem from './CartItem'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import Delete from '../../assets/delete.svg'
+import Loading from '../../Loading'
 
 const Cart = () => {
     const { initDataRaw } = useLaunchParams()
     const mainButton = useMainButton()
     const navigate = useNavigate()
-    const { cart, fetchCart, createOrder, loading, error } = useUserStore()
-    const [selectedProductIds, setSelectedProductIds] = useState([])
+    const { cart, fetchCart, createOrder, deleteCartItem, loading, error } =
+        useUserStore()
+    const [selectedProductId, setSelectedProductId] = useState(null)
     const [totalPrice, setTotalPrice] = useState(0)
 
     useEffect(() => {
@@ -19,7 +22,7 @@ const Cart = () => {
 
     useEffect(() => {
         if (mainButton) {
-            if (selectedProductIds.length > 0) {
+            if (selectedProductId) {
                 mainButton.setParams({
                     text: `Заказать ${totalPrice} руб.`,
                     isVisible: true,
@@ -36,19 +39,15 @@ const Cart = () => {
 
             const handleMainButtonClick = async () => {
                 try {
-                    // Получаем все элементы корзины по выбранным product_id
-                    const selectedItems = Object.entries(cart.products)
-                        .filter(([productId]) =>
-                            selectedProductIds.includes(productId)
-                        )
-                        .flatMap(([, product]) => product.items)
+                    // Получаем все элементы корзины по выбранному product_id
+                    const selectedItems = cart.products[selectedProductId].items
 
                     const cartItemIds = selectedItems.map(
                         (item) => item.cart_item_id
                     )
                     await createOrder(initDataRaw, cartItemIds)
 
-                    setSelectedProductIds([])
+                    setSelectedProductId(null)
 
                     await fetchCart(initDataRaw)
 
@@ -66,7 +65,7 @@ const Cart = () => {
         }
     }, [
         mainButton,
-        selectedProductIds,
+        selectedProductId,
         totalPrice,
         createOrder,
         initDataRaw,
@@ -75,48 +74,38 @@ const Cart = () => {
     ])
 
     const handleSelectProduct = (productId) => {
-        const isSelected = selectedProductIds.includes(productId)
-        let updatedProductIds
-        let updatedTotalPrice = totalPrice
+        let updatedTotalPrice = 0
 
-        if (isSelected) {
-            // Убираем товар и его элементы из выбранных
-            updatedProductIds = selectedProductIds.filter(
-                (id) => id !== productId
-            )
-            // Уменьшаем итоговую цену
-            cart.products[productId].items.forEach((item) => {
-                updatedTotalPrice -=
-                    item.quantity * cart.products[productId].price
-            })
+        // Если товар уже выбран, снимаем выбор
+        if (selectedProductId === productId) {
+            setSelectedProductId(null)
         } else {
-            // Добавляем товар и его элементы в выбранные
-            updatedProductIds = [...selectedProductIds, productId]
-            // Увеличиваем итоговую цену
+            // Устанавливаем выбранный товар и пересчитываем цену
+            setSelectedProductId(productId)
             cart.products[productId].items.forEach((item) => {
                 updatedTotalPrice +=
                     item.quantity * cart.products[productId].price
             })
         }
 
-        setSelectedProductIds(updatedProductIds)
         setTotalPrice(updatedTotalPrice)
     }
 
+    const handleDeleteItem = (productId) => {
+        try {
+            deleteCartItem(initDataRaw, productId)
+            fetchCart(initDataRaw)
+        } catch (err) {
+            console.error('Ошибка при удалении:', err)
+        }
+    }
+
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl font-semibold">Загрузка...</div>
-            </div>
-        )
+        return <Loading />
     }
 
     if (error) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl text-red-500">{error}</div>
-            </div>
-        )
+        return <Error error={error} />
     }
 
     if (!cart || !cart.products || Object.keys(cart.products).length === 0) {
@@ -138,41 +127,80 @@ const Cart = () => {
 
     return (
         <div className="container mx-auto p-4">
-            <h2 className="text-3xl font-bold text-green-400 mb-6">
+            <h2 className="text-3xl font-extrabold text-green-400 mb-8">
                 Ваша корзина
             </h2>
-            <ul className="space-y-4">
+            <ul className="space-y-6">
                 {Object.entries(cart.products).map(([productId, product]) => (
                     <div
                         key={productId}
                         onClick={() => handleSelectProduct(productId)}
-                        className={`bg-gray-800 rounded-lg p-4 shadow-md cursor-pointer transition duration-300 ${
-                            selectedProductIds.includes(productId)
-                                ? 'border-2 border-green-400'
-                                : 'hover:shadow-lg'
+                        className={`bg-gradient-to-r from-gray-900 to-gray-800 p-2 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out ${
+                            selectedProductId === productId
+                                ? 'border-4 border-green-400 scale-105'
+                                : 'hover:shadow-2xl hover:scale-105'
                         }`}
                     >
-                        <div className="flex justify-between items-center mb-2">
-                            <h3 className="text-xl font-bold text-white">
+                        <div className="flex-none">
+                            <h3 className="text-xl font-extrabold mb-2 text-green-400">
+                                {product.title}
+                            </h3>{' '}
+                            <p className="text-sm text-gray-400">
+                                ⭐️ {product.rating}
+                            </p>
+                            {console.log(product.rating)}
+                            <div className="">
+                                <p>Время публикации: </p>
+                                <div className="border flex justify-evenly border-gray-600 rounded-lg p-3 bg-gray-800 gap-2">
+                                    <ul className=" space-y-2">
+                                        {product.items.map((item) => (
+                                            <CartItem
+                                                key={item.cart_item_id}
+                                                item={item}
+                                            />
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                            <p className="font-bold text-2xl text-green-500">
+                                {product.price}₽
+                            </p>
+                            <button onClick={() => handleDeleteItem(productId)}>
+                                <img src={Delete} alt="" />
+                            </button>
+                        </div>
+
+                        <div className="shrink">
+                            <img
+                                className="rounded-full object-cover border-2 border-green-500 shadow-lg"
+                                src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                                alt={product.title}
+                            />
+                        </div>
+
+                        {/* <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-extrabold mb-2 text-green-400">
                                 {product.title}
                             </h3>
-                            <p className="text-gray-400">
-                                ID товара: {productId}
-                            </p>
                         </div>
-                        <p className="text-gray-400 mb-2">
-                            {product.description}
-                        </p>
-                        <div className="flex justify-between items-center">
-                            <p className="text-gray-400">
+
+                        <div className="flex-shrink-0">
+                            <img
+                                className="rounded-full w-28 h-28 object-cover border-2 border-green-500 shadow-lg"
+                                src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                                alt={product.title}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center mb-4">
+                            <p className="text-gray-300">
                                 Цена:{' '}
-                                <span className="font-semibold">
+                                <span className="font-semibold text-green-400">
                                     {product.price} руб.
                                 </span>
                             </p>
-                            <p className="text-gray-400">
+                            <p className="text-gray-300">
                                 Общее количество:{' '}
-                                <span className="font-semibold">
+                                <span className="font-semibold text-green-400">
                                     {product.items.reduce(
                                         (total, item) => total + item.quantity,
                                         0
@@ -180,11 +208,12 @@ const Cart = () => {
                                 </span>
                             </p>
                         </div>
-                        <ul>
+
+                        <ul className="mt-4 space-y-2">
                             {product.items.map((item) => (
                                 <CartItem key={item.cart_item_id} item={item} />
                             ))}
-                        </ul>
+                        </ul> */}
                     </div>
                 ))}
             </ul>
