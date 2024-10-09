@@ -335,6 +335,7 @@ class productController {
             post_time,
             format,
         } = req.body
+        console.log(req.body)
 
         try {
             // Проверка, верифицирован ли канал и получение channel_name
