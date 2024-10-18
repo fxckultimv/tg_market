@@ -592,7 +592,6 @@ async def process_completion_seller(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda query: query.data.startswith('not_completed_seller_'))
 async def process_not_completion_seller(callback_query: types.CallbackQuery):
     order_id = callback_query.data.split('_')[2]
-    # Add your code for non-completion here.
     pass
 
 if __name__ == '__main__':
