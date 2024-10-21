@@ -17,7 +17,7 @@ from telethon import TelegramClient
 from telethon.tl.functions.messages import GetHistoryRequest
 import asyncio
 
-API_TOKEN = 'YOUR_API_TOKEN_HERE'
+API_TOKEN = '7741416101:AAERfPXfyjwvIQbIHqZQc5iKFHdHaRk4WWE'
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,9 +29,9 @@ db_pool = None
 
 app = Flask(__name__)
 
-api_id = 'YOUR_API_ID'
-api_hash = 'YOUR_API_HASH'
-phone_number = 'YOUR_PHONE_NUMBER'
+api_id = '24463380'
+api_hash = '2d943e94d362db2be40612c00019e381'
+phone_number = '+8562057532284'
 
 client = TelegramClient('session_name', api_id, api_hash)
 
