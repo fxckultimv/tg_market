@@ -1,4 +1,3 @@
-// Server/index.js
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -14,8 +13,7 @@ const adminStatsRouter = require('./routes/adminStats');
 const ChannelsRouter = require('./routes/channels');
 const buyRouter = require('./routes/buy');
 const userRouter = require('./routes/user');
-const balanceRouter = require('./routes/index'); // New router for balance endpoints
-const path = require('path');
+const balanceRouter = require('./routes/balance'); // New route for balance
 
 app.use(cors());
 app.use(express.json());

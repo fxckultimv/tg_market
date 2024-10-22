@@ -14,6 +14,7 @@ const ChannelsRouter = require('./routes/channels')
 const buyRouter = require('./routes/buy')
 const userRouter = require('./routes/user')
 const path = require('path')
+const balanceRouter = require('./routes/balance');
 // const startScheduler = require('./scheduler/complited')
 
 app.use(cors())
