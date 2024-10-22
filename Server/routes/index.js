@@ -1,8 +1,9 @@
-// routes/index.js
+// Server/routes/index.js
 const express = require('express');
 const router = express.Router();
-const balanceRouter = require('./balance');
+const BalanceController = require('../controllers/BalanceController');
 
-router.use('/balance', balanceRouter);
+router.get('/balance', BalanceController.getBalance);
+router.post('/balance/replenish', BalanceController.replenishBalance);
 
 module.exports = router;
