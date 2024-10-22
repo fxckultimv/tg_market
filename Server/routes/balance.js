@@ -5,6 +5,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.get('/balance', authMiddleware, balanceController.getBalance);
 router.post('/replenish-balance', authMiddleware, balanceController.replenishBalance);
-router.post('/handle-payment-notification', authMiddleware, balanceController.handlePaymentNotification);
+router.post('/handle-payment-notification', balanceController.handlePaymentNotification);
 
 module.exports = router;
