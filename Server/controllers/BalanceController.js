@@ -1,34 +1,40 @@
-// Server/controllers/BalanceController.js
 const express = require('express');
 const router = express.Router();
 const UserBalance = require('../models/UserBalance');
 const TelegramUser = require('../models/TelegramUser');
+const axios = require('axios');
 
-router.get('/balance', async (req, res) => {
-  const telegramUserId = req.telegramUser.id;
-  const userBalance = await UserBalance.findOne({ userId: telegramUserId });
-  if (!userBalance) {
-    userBalance = new UserBalance({ userId: telegramUserId });
-    await userBalance.save();
+class BalanceController {
+  async getBalance(req, res) {
+    const telegramUserId = req.telegramUser.id;
+    const userBalance = await UserBalance.findOne({ userId: telegramUserId });
+    if (!userBalance) {
+      userBalance = new UserBalance({ userId: telegramUserId });
+      await userBalance.save();
+    }
+    res.json({ balance: userBalance.balance });
   }
-  res.json({ balance: userBalance.balance });
-});
 
-router.post('/balance/replenish', async (req, res) => {
-  const telegramUserId = req.telegramUser.id;
-  const amount = req.body.amount;
-  const paymentId = await createPayment(amount);
-  res.redirect(`https://www.t-kassa.ru/pay/${paymentId}`);
-});
+  async replenishBalance(req, res) {
+    const telegramUserId = req.telegramUser.id;
+    const amount = req.body.amount;
+    const paymentId = await createPayment(amount);
+    res.redirect(`https://www.t-kassa.ru/pay/${paymentId}`);
+  }
+}
 
 async function createPayment(amount) {
-  const tKassaApi = require('t-kassa-api');
-  const payment = await tKassaApi.createPayment({
+  const url = 'https://www.t-kassa.ru/api/createPayment';
+  const data = {
     amount,
     currency: 'RUB',
     description: 'Balance replenishment',
-  });
-  return payment.id;
+  };
+
+  const response = await axios.post(url, data);
+  const paymentId = response.data.paymentId;
+
+  return paymentId;
 }
 
-module.exports = router;
+module.exports = new BalanceController();
