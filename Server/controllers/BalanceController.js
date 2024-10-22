@@ -1,9 +1,4 @@
-const express = require('express');
-const router = express.Router();
-const UserBalance = require('../models/UserBalance');
-const TelegramUser = require('../models/TelegramUser');
-const axios = require('axios');
-const logger = require('../logger');
+const logger = require('../config/logging');
 
 class BalanceController {
   async getBalance(req, res) {
@@ -17,8 +12,7 @@ class BalanceController {
       logger.info(`User balance retrieved for user ${telegramUserId}`);
       res.json({ balance: userBalance.balance });
     } catch (error) {
-      logger.error(`Error retrieving user balance: ${error.message}`);
-      res.status(500).json({ message: 'Internal Server Error' });
+      this.handleError(res, error);
     }
   }
 
@@ -30,8 +24,7 @@ class BalanceController {
       logger.info(`Payment created for user ${telegramUserId} with payment ID ${paymentId}`);
       res.redirect(`https://www.t-kassa.ru/pay/${paymentId}`);
     } catch (error) {
-      logger.error(`Error creating payment: ${error.message}`);
-      res.status(500).json({ message: 'Internal Server Error' });
+      this.handleError(res, error);
     }
   }
 
@@ -53,30 +46,19 @@ class BalanceController {
 
       res.json({ success: true });
     } catch (error) {
-      logger.error(`Error processing payment notification: ${error.message}`);
+      this.handleError(res, error);
+    }
+  }
+
+  handleError(res, error) {
+    if (error.name === 'ValidationError') {
+      res.status(400).json({ message: 'Invalid request' });
+    } else if (error.name === 'MongoError') {
+      res.status(500).json({ message: 'Internal Server Error' });
+    } else {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   }
 }
 
-async function createPayment(amount) {
-  try {
-    const url = 'https://www.t-kassa.ru/api/createPayment';
-    const data = {
-      amount,
-      currency: 'RUB',
-      description: 'Balance replenishment',
-    };
-
-    const response = await axios.post(url, data);
-    const paymentId = response.data.paymentId;
-
-    return paymentId;
-  } catch (error) {
-    logger.error(`Error creating payment: ${error.message}`);
-    throw error;
-  }
-}
-
-module.exports = new BalanceController();
-
+module.exports = BalanceController;
