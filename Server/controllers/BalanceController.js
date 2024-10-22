@@ -21,6 +21,23 @@ class BalanceController {
     const paymentId = await createPayment(amount);
     res.redirect(`https://www.t-kassa.ru/pay/${paymentId}`);
   }
+
+  async handlePaymentNotification(req, res) {
+    const notification = req.body;
+    const url = 'https://www.t-kassa.ru/api/verifyPayment';
+    const data = notification;
+
+    const response = await axios.post(url, data);
+    const paymentStatus = response.data.status;
+
+    if (paymentStatus === 'paid') {
+      const userBalance = await UserBalance.findOne({ userId: notification.userId });
+      userBalance.balance += notification.amount;
+      await userBalance.save();
+    }
+
+    res.json({ success: true });
+  }
 }
 
 async function createPayment(amount) {
