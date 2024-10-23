@@ -184,9 +184,9 @@ const ChannelDetails = () => {
 
         // Добавляем класс для выделения выбранных дней и занятых дней
         return isSelected
-            ? 'bg-green-500 text-white'
+            ? 'bg-accent-green text-white'
             : isBusy
-            ? 'bg-gray-400 text-white'
+            ? 'bg-light-gray text-white'
             : ''
     }
 
@@ -220,7 +220,7 @@ const ChannelDetails = () => {
 
     if (!productDetails) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-xl text-red-500">Данные не найдены</div>
             </div>
         )
@@ -229,16 +229,16 @@ const ChannelDetails = () => {
     const er = (100 / productDetails.subscribers_count) * productDetails.views
 
     return (
-        <div className="container mx-auto p-8 min-h-screen bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg shadow-2xl">
+        <div className="container mx-auto p-8 min-h-screen bg-gradient-to-r from-medium-gray to-dark-gray text-white rounded-lg shadow-2xl">
             <div className="flex flex-col md:flex-row justify-between items-center mb-8">
                 {/* Левая часть с информацией о продукте */}
                 <div className="flex-1 md:pr-8 mb-2 md:mb-0">
-                    <h3 className="text-3xl font-extrabold text-green-400 mb-4">
+                    <h3 className="text-3xl font-extrabold text-main-green mb-4">
                         {productDetails.channel_title}
                     </h3>
                     <div className="flex-shrink-0">
                         <img
-                            className="rounded-full w-40 h-40 object-cover border-4 border-green-500 shadow-lg"
+                            className="rounded-full w-40 h-40 object-cover border-4 border-accent-green shadow-lg"
                             src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
                             alt={productDetails.channel_title}
                             style={{ aspectRatio: '1/1' }} // Сохранение пропорций изображения
@@ -264,22 +264,22 @@ const ChannelDetails = () => {
                         <span className="font-bold">Время публикации:</span>{' '}
                         {productDetails.post_times}
                     </p> */}
-                    <div className="border border-gray-600 rounded-lg p-2 bg-gray-800">
+                    <div className="border border-main-gray rounded-lg p-2 bg-medium-gray">
                         <p className="text-sm text-gray-300">
                             Подписчики:{' '}
-                            <span className="text-green-400">
+                            <span className="text-main-green">
                                 {productDetails.subscribers_count}
                             </span>
                         </p>
                         <p className="text-sm text-gray-300">
                             Просмотров:{' '}
-                            <span className="text-green-400">
+                            <span className="text-main-green">
                                 {Math.round(productDetails.views)}
                             </span>
                         </p>
                         <p className="text-sm text-gray-300">
                             ER:{' '}
-                            <span className="text-green-400">
+                            <span className="text-main-green">
                                 {(
                                     (100 / productDetails.subscribers_count) *
                                     productDetails.views
@@ -289,7 +289,7 @@ const ChannelDetails = () => {
                         </p>
                         <p className="text-sm text-gray-300">
                             CPV:{' '}
-                            <span className="text-green-400">
+                            <span className="text-main-green">
                                 {Math.round(
                                     productDetails.price / productDetails.views
                                 )}{' '}
@@ -310,7 +310,7 @@ const ChannelDetails = () => {
                             id="format"
                             value={format} // Значение выбранного формата
                             onChange={handleFormatChange} // Обработчик изменения формата
-                            className="w-full p-3 bg-gray-700 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 transition ease-in-out duration-200"
+                            className="w-full p-3 bg-gray-700 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                         >
                             <option value="">Выбрать формат</option>
                             {formatList.map((formatId) => (
@@ -333,7 +333,7 @@ const ChannelDetails = () => {
                             id="post_time"
                             value={post_time} // Значение выбранного времени
                             onChange={handlePostTimeChange} // Обработчик изменения времени
-                            className="w-full p-3 bg-gray-700 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 transition ease-in-out duration-200"
+                            className="w-full p-3 bg-gray-700 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                         >
                             <option value="">Выбрать время</option>
                             {productDetails.post_times.map((time, index) => (
@@ -369,7 +369,7 @@ const ChannelDetails = () => {
 
             {/* Блок с календарем */}
             <div className="mt-2">
-                <h3 className="text-2xl font-bold text-green-400 mb-4">
+                <h3 className="text-2xl font-bold text-main-green mb-4">
                     Выберите даты
                 </h3>
                 <Calendar
@@ -377,7 +377,7 @@ const ChannelDetails = () => {
                     value={selectedDates} // Массив выбранных дат
                     tileDisabled={tileDisabled} // Делаем неактивными занятые дни
                     tileClassName={tileClassName} // Подсвечиваем выбранные и занятые дни
-                    className="bg-gray-900 text-white rounded-lg shadow-lg p-4"
+                    className="bg-dark-gray text-white rounded-lg shadow-lg p-4"
                 />
                 <p className="text-lg mt-6">
                     Выбранные даты:{' '}

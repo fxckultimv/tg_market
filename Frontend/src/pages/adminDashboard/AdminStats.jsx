@@ -15,7 +15,7 @@ const AdminStats = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -23,15 +23,15 @@ const AdminStats = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white p-4">
-            <h1 className="text-2xl font-bold mb-4 text-green-400">
+        <div className="min-h-screen bg-dark-gray text-white p-4">
+            <h1 className="text-2xl font-bold mb-4 text-main-green">
                 Административная статистика
             </h1>
             <div className="flex flex-wrap gap-4">
@@ -119,11 +119,11 @@ const AdminStats = () => {
 
 const StatCard = ({ title, value }) => {
     return (
-        <div className="flex flex-col items-start bg-gray-800 rounded-md p-4 shadow-md hover:bg-gray-700 transition duration-300 w-40">
+        <div className="flex flex-col items-start bg-medium-gray rounded-md p-4 shadow-md hover:bg-gray-700 transition duration-300 w-40">
             <div className="text-sm font-semibold mb-1 text-gray-300">
                 {title}
             </div>
-            <div className="text-2xl font-bold text-green-400">{value}</div>
+            <div className="text-2xl font-bold text-main-green">{value}</div>
         </div>
     )
 }

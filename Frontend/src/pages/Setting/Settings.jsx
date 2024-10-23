@@ -1,63 +1,58 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAdminStore } from '../../store'
 
 const Setting = () => {
-    const { isAdmin } = useAdminStore()
+    const [theme, setTheme] = useState('dark') // Тема по умолчанию - тёмная
+    const [language, setLanguage] = useState('ru') // Язык по умолчанию - русский
+
+    // Переключатель темы
+    const toggleTheme = () => {
+        setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'))
+        document.body.className =
+            theme === 'dark' ? 'bg-dark-gray text-white' : 'bg-white text-black'
+    }
+
+    // Изменение языка
+    const handleLanguageChange = (e) => {
+        setLanguage(e.target.value)
+        // Здесь можно добавить логику по изменению языка в приложении
+    }
 
     return (
-        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-900 text-white m-2">
+        <div
+            className={`flex flex-col  justify-start min-h-screen ${
+                theme === 'dark'
+                    ? 'bg-dark-gray text-white'
+                    : 'bg-white text-black'
+            } m-2`}
+        >
             <h2 className="text-3xl font-bold mb-6">Настройки</h2>
-            <Link
-                to="/orders/pending"
-                className="bg-purple-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-purple-600 w-full"
-            >
-                Мои заказы (в ожидании)
-            </Link>
-            <Link
-                to="/orders/paid"
-                className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-green-600 w-full"
-            >
-                Мои заказы (оплаченные)
-            </Link>
-            <Link
-                to="/orders/completed"
-                className="bg-yellow-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-yellow-600 w-full"
-            >
-                Мои заказы (выполненные)
-            </Link>
-            <Link
-                to="/history"
-                className="bg-blue-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-blue-600 w-full"
-            >
-                История
-            </Link>
-            <Link
-                to="/my_channels"
-                className="bg-indigo-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-indigo-600 w-full"
-            >
-                Мои каналы
-            </Link>
-            <Link
-                to="/my_channels"
-                className="bg-indigo-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-indigo-600 w-full"
-            >
-                Мои продукты
-            </Link>
-            <a
-                className="bg-red-500 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-red-600 w-full"
-                href="https://t.me/Stepanusik"
-            >
-                Поддержка
-            </a>
-            {isAdmin && (
-                <Link
-                    to="/admin"
-                    className="bg-gray-700 text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-gray-600 w-full"
+
+            {/* Переключатель темы */}
+            <div className="mb-4">
+                <label className="mr-2">Тема сайта:</label>
+                <button
+                    onClick={toggleTheme}
+                    className="bg-accent-green text-white px-4 py-2 rounded transition-transform transform hover:scale-105"
                 >
-                    Перейти в админ-панель
-                </Link>
-            )}{' '}
+                    {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+                </button>
+            </div>
+
+            {/* Выбор языка */}
+            <div className="mb-6">
+                <label className="mr-2">Язык сайта:</label>
+                <select
+                    value={language}
+                    onChange={handleLanguageChange}
+                    className="bg-medium-gray text-white px-4 py-2 rounded"
+                >
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                    {/* Добавь другие языки по мере необходимости */}
+                </select>
+            </div>
         </div>
     )
 }

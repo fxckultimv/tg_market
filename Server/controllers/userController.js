@@ -20,6 +20,26 @@ class userController {
         }
     }
 
+    async me(req, res) {
+        const initData = res.locals.initData
+        const user_id = initData.user.id
+
+        try {
+            const result = await db.query(
+                'SELECT username, rating, created_at, user_uuid  FROM users WHERE user_id = $1',
+                [user_id]
+            )
+            if (result.rows.length > 0) {
+                res.json(result.rows[0])
+            } else {
+                res.status(404).json({ error: 'User products not found' })
+            }
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
     async userReviews(req, res) {
         const { uuid } = req.params
 

@@ -6,8 +6,8 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import (
-    ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, 
-    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType
+    ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery,
+    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo
 )
 from aiogram.utils import executor
 import asyncpg
@@ -43,7 +43,7 @@ async def create_db_pool():
     try:
         db_pool = await asyncpg.create_pool(
             user=os.getenv('DB_USER', 'postgres'),
-            password=os.getenv('DB_PASSWORD', 'YOUR_PASSWORD'),
+            password=os.getenv('DB_PASSWORD', 'Stepan110104'),
             database=os.getenv('DB_NAME', 'TeleAdMarket'),
             host=os.getenv('DB_HOST', 'localhost'),
             port=os.getenv('DB_PORT', '5432'),
@@ -598,3 +598,4 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(create_db_pool())
     executor.start_polling(dp, skip_updates=True)
+

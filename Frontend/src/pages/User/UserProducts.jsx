@@ -25,7 +25,7 @@ const UserProducts = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -33,7 +33,7 @@ const UserProducts = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
@@ -56,32 +56,32 @@ const UserProducts = () => {
                 >
                     <div
                         key={product.product_id}
-                        className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out"
+                        className="bg-gradient-to-r from-dark-gray to-medium-gray p-6 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out"
                     >
                         <div className="flex-1">
-                            <h3 className="text-xl font-extrabold mb-2 text-green-400">
+                            <h3 className="text-xl font-extrabold mb-2 text-main-green">
                                 {product.title}
                             </h3>
                             <div className="mb-2">
-                                <p className="text-sm text-gray-400">
+                                <p className="text-sm text-light-gray">
                                     ⭐️ {product.rating}
                                 </p>
-                                <div className="border border-gray-600 rounded-lg p-3 bg-gray-800">
+                                <div className="border border-main-gray rounded-lg p-3 bg-medium-gray">
                                     <p className="text-sm text-gray-300">
                                         Подписчики:{' '}
-                                        <span className="text-green-400">
+                                        <span className="text-main-green">
                                             {product.subscribers_count}
                                         </span>
                                     </p>
                                     <p className="text-sm text-gray-300">
                                         Просмотров:{' '}
-                                        <span className="text-green-400">
+                                        <span className="text-main-green">
                                             {Math.round(product.views)}
                                         </span>
                                     </p>
                                     <p className="text-sm text-gray-300">
                                         ER:{' '}
-                                        <span className="text-green-400">
+                                        <span className="text-main-green">
                                             {(
                                                 (100 /
                                                     product.subscribers_count) *
@@ -92,7 +92,7 @@ const UserProducts = () => {
                                     </p>
                                     <p className="text-sm text-gray-300">
                                         CPV:{' '}
-                                        <span className="text-green-400">
+                                        <span className="text-main-green">
                                             {Math.round(
                                                 product.price / product.views
                                             )}{' '}
@@ -101,14 +101,14 @@ const UserProducts = () => {
                                     </p>
                                 </div>
                             </div>
-                            <p className="font-bold text-2xl text-green-500">
+                            <p className="font-bold text-2xl text-accent-green">
                                 {product.price}₽
                             </p>
                         </div>
 
                         <div className="flex-shrink-0">
                             <img
-                                className="rounded-full w-28 h-28 object-cover border-2 border-green-500 shadow-lg"
+                                className="rounded-full w-28 h-28 object-cover border-2 border-accent-green shadow-lg"
                                 src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                                 alt={product.title}
                             />
@@ -121,7 +121,7 @@ const UserProducts = () => {
             <div className="flex justify-between w-full mt-4">
                 <button
                     onClick={minusPage}
-                    className="px-3 py-2 rounded bg-gray-700 text-gray-400 disabled:opacity-50"
+                    className="px-3 py-2 rounded bg-gray-700 text-light-gray disabled:opacity-50"
                     disabled={page === 1}
                 >
                     Назад
@@ -132,7 +132,7 @@ const UserProducts = () => {
                 <button
                     onClick={plusPage}
                     disabled={page === totalPages}
-                    className="px-3 py-2 rounded bg-gray-700 text-gray-400 disabled:opacity-50"
+                    className="px-3 py-2 rounded bg-gray-700 text-light-gray disabled:opacity-50"
                 >
                     Вперед
                 </button>

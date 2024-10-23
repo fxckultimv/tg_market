@@ -85,7 +85,7 @@ class productController {
 
         try {
             const result = await db.query(
-                'SELECT * FROM products WHERE user_id = $1',
+                'SELECT p.*, vc.channel_tg_id FROM products AS p JOIN verifiedchannels vc ON p.channel_id = vc.channel_id WHERE p.user_id = $1 ORDER BY p.created_at DESC',
                 [user_id]
             )
             if (result.rows.length > 0) {
@@ -388,6 +388,92 @@ class productController {
 
             // Возвращаем добавленный продукт
             res.status(201).json({ message: 'Product added successfully' })
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async editProduct(req, res) {
+        const initData = res.locals.initData
+        const user_id = initData.user.id
+        const {
+            channel_id,
+            category_id,
+            description,
+            price,
+            post_time,
+            format,
+        } = req.body
+
+        try {
+            // Проверка, верифицирован ли канал и получение channel_name
+            const verificationResult = await db.query(
+                `SELECT channel_name FROM verifiedchannels WHERE user_id = $1 AND channel_id = $2`,
+                [user_id, channel_id]
+            )
+
+            // Если канал не найден или не верифицирован, возвращаем ошибку
+            if (verificationResult.rows.length === 0) {
+                return res
+                    .status(403)
+                    .json({ error: 'Канал не верифицирован или не найден' })
+            }
+
+            // Получаем channel_name
+            const channel_name = verificationResult.rows[0].channel_name
+
+            // Обновляем основной продукт
+            const result = await db.query(
+                `UPDATE products
+                SET category_id = $1, description = $2, price = $3, post_time = $4
+                WHERE channel_id = $5 AND user_id = $6
+                RETURNING *`,
+                [
+                    category_id,
+                    description,
+                    price,
+                    post_time[0],
+                    channel_id,
+                    user_id,
+                ]
+            )
+
+            // Если продукт не найден, возвращаем ошибку
+            if (result.rows.length === 0) {
+                return res.status(404).json({ error: 'Продукт не найден' })
+            }
+
+            const product_id = result.rows[0].product_id
+
+            // Удаляем старые форматы публикации и время публикации, чтобы вставить новые
+            await db.query(
+                `DELETE FROM product_publication_formats WHERE product_id = $1`,
+                [product_id]
+            )
+            await db.query(
+                `DELETE FROM products_post_time WHERE product_id = $1`,
+                [product_id]
+            )
+
+            // Добавление каждого элемента массива format в таблицу product_publication_formats
+            for (let i = 0; i < format.length; i++) {
+                await db.query(
+                    `INSERT INTO product_publication_formats (product_id, format_id) VALUES ($1, $2)`,
+                    [product_id, format[i]]
+                )
+            }
+
+            // Добавление каждого элемента массива post_time в таблицу products_post_time
+            for (let i = 0; i < post_time.length; i++) {
+                await db.query(
+                    `INSERT INTO products_post_time (product_id, post_time) VALUES ($1, $2)`,
+                    [product_id, post_time[i]]
+                )
+            }
+
+            // Возвращаем обновленный продукт
+            res.status(200).json({ message: 'Product updated successfully' })
         } catch (err) {
             console.error(err)
             res.status(500).json({ error: 'Database error' })

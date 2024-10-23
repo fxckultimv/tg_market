@@ -7,6 +7,7 @@ import Home from '../assets/home.svg'
 import List from '../assets/list.svg'
 import Add from '../assets/add.svg'
 import Basket from '../assets/basket.svg'
+import Profile from '../assets/profile.svg'
 
 const Layout = () => {
     //   const backButton = useBackButton();
@@ -30,8 +31,8 @@ const Layout = () => {
     //   }, [backButton]);
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-900 text-white">
-            <header className="flex justify-around bg-gray-800 shadow-lg">
+        <div className="flex min-h-screen flex-col bg-dark-gray text-white">
+            <header className="flex justify-around bg-medium-gray shadow-lg">
                 <CustomLink to="/">
                     <img src={Home} alt="home" />
                 </CustomLink>
@@ -43,6 +44,9 @@ const Layout = () => {
                 </CustomLink>
                 <CustomLink to="/basket">
                     <img src={Basket} alt="basket" />
+                </CustomLink>
+                <CustomLink to="/profile">
+                    <img src={Profile} alt="profile" />
                 </CustomLink>
             </header>
             <Outlet></Outlet>

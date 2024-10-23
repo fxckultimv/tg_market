@@ -5,6 +5,8 @@ const userController = require('../controllers/userController')
 
 router.use(authMiddleware)
 
+router.get('/me', userController.me)
+
 // Получение продуктов пользователя
 router.get('/:uuid', userController.user)
 

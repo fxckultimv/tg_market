@@ -17,8 +17,8 @@ import CreateAd from './pages/CreateAd/CreateAd'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { useNavigate } from 'react-router-dom'
 import Cart from './pages/Cart/Cart'
-import History from './pages/History'
-import SingleHistory from './pages/SingleHistory'
+import History from './pages/History/History'
+import SingleHistory from './pages/History/SingleHistory'
 import AdminDashboard from './pages/Setting/AdminDashboard'
 import AdminLayout from './pages/adminDashboard/AdminLayout'
 import AdminUsers from './pages/adminDashboard/AdminUsers/AdminUsers'
@@ -33,6 +33,9 @@ import Buy from './pages/Buy/Buy'
 import BuyOrder from './pages/Buy/BuyOrder'
 import MyChannels from './pages/MyChannels/MyChannels'
 import User from './pages/User/User'
+import Profile from './pages/Profile/Profile'
+import Products from './pages/Products/Products/Products'
+import ChannelStats from './pages/Products/ChannelStats/ChannelStats'
 // import { useStore } from '../store'
 
 const App = () => {
@@ -92,15 +95,21 @@ const App = () => {
 
                     <Route path="create-ad" element={<CreateAd />} />
 
+                    <Route path="basket" element={<Cart />} />
+
+                    <Route path="buy" element={<Buy />} />
+                    <Route path="buy/:id" element={<BuyOrder />} />
+
+                    <Route path="profile" element={<Profile />} />
+
                     <Route path="history" element={<History />} />
                     <Route path="history/:id" element={<SingleHistory />} />
 
                     <Route path="my_channels" element={<MyChannels />} />
 
-                    <Route path="basket" element={<Cart />} />
-
-                    <Route path="buy" element={<Buy />} />
-                    <Route path="buy/:id" element={<BuyOrder />} />
+                    <Route path="products" element={<Products />} />
+                    <Route path="products/:id" element={<ChannelStats />} />
+                    <Route path="settings" element={<Settings />} />
 
                     <Route path="user/:id" element={<User />} />
 
@@ -137,8 +146,6 @@ const App = () => {
                             ></Route>
                         </Route>
                     )}
-
-                    <Route path="settings" element={<Settings />} />
 
                     <Route path="*" element={<NotFoundPage />} />
                 </Route>
