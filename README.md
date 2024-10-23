@@ -34,6 +34,7 @@ DB_PASSWORD=пароль
 DB_HOST=localhost
 DB_PORT=5432
 BOT_TOKEN=токен бота
+MONGO_DB_URL=ссылка на базу данных mongodb
 ```
 
 Токен настроенного бота = '7248552375:AAFU11syb9Xi6ii3TLarCkwUB3tG8fYnquQ'
@@ -97,6 +98,7 @@ source venv/scripts/activate
 ```
 
 Установите зависимости:
+
 ```bash
 pip install -r requirements.txt
 ```

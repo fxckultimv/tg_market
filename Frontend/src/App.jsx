@@ -3,6 +3,7 @@ import {
     retrieveLaunchParams,
     useLaunchParams,
     useSettingsButton,
+    useThemeParamsRaw,
     useViewport,
 } from '@tma.js/sdk-react'
 import usePreventCollapse from './usePreventCollapse'
@@ -79,6 +80,29 @@ const App = () => {
     useEffect(() => {
         checkAdmin(initDataRaw)
     }, [checkAdmin, initDataRaw])
+
+    const theme = useThemeParamsRaw()
+
+    useEffect(() => {
+        if (theme?.result?.state?.state) {
+            const { buttonColor, buttonTextColor, bgColor, accentTextColor } =
+                theme.result.state.state
+            // Обновляем CSS переменные
+            document.documentElement.style.setProperty('--bg-color', bgColor)
+            document.documentElement.style.setProperty(
+                '--button-color',
+                buttonColor
+            )
+            document.documentElement.style.setProperty(
+                '--button-text-color',
+                buttonTextColor
+            )
+            document.documentElement.style.setProperty(
+                '--accent-color',
+                accentTextColor
+            )
+        }
+    }, [theme])
 
     // if (loading) {
     //     return <div>Загрузка...</div>

@@ -1,7 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useAdminStore, useUserStore } from '../../store'
-import { useInitDataRaw, useLaunchParams } from '@tma.js/sdk-react'
+import {
+    useInitDataRaw,
+    useLaunchParams,
+    useThemeParamsRaw,
+} from '@tma.js/sdk-react'
 import { useEffect } from 'react'
 import Loading from '../../Loading'
 import Error from '../../Error'
@@ -10,12 +14,17 @@ const Profile = () => {
     const { initDataRaw } = useLaunchParams()
     const { isAdmin } = useAdminStore()
     const initData = useInitDataRaw()
-    const { user, fetchMe, error, loading } = useUserStore()
+    const theme = useThemeParamsRaw()
+    console.log(theme.result.state.state.buttonColor)
+
+    const { user, fetchMe, fetchBalance, balance, error, loading } =
+        useUserStore()
     const user_id = initData.result.user.id
     console.log(user_id)
 
     useEffect(() => {
         fetchMe(initDataRaw)
+        fetchBalance(initDataRaw)
     }, [initDataRaw, fetchMe])
 
     if (loading) {
@@ -36,6 +45,9 @@ const Profile = () => {
                 />
                 <p className="text-lg font-semibold">Рейтинг: 4.8⭐️</p>
             </div>
+            <p className=" border-2 border-green-400 rounded-xl p-4 m-2 text-xl text-white">
+                Баланс: {balance} RUB
+            </p>
             <Link
                 to="/history"
                 className="bg-medium-gray text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 hover:bg-medium-gray w-full"

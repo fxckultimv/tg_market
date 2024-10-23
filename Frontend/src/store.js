@@ -601,6 +601,7 @@ export const useUserStore = create((set) => ({
     formats: [],
     history: [],
     reviews: [],
+    balance: 0,
     status: false,
     fetchAuth: async (initDataRaw) => {
         set({ loading: true, error: null })
@@ -659,6 +660,36 @@ export const useUserStore = create((set) => ({
             set({ loading: false })
             console.error('Error:', error)
             return null
+        }
+    },
+    fetchBalance: async (initDataRaw) => {
+        set({ loading: true, error: null })
+
+        try {
+            const response = await fetch(
+                'http://localhost:5000/balance/balance?id=801541001',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+            // Проверяем, был ли запрос успешным
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const data = await response.json()
+            set({ balance: data.balance, loading: false })
+        } catch (error) {
+            console.error('Ошибка при авторизации:', error)
+            set({
+                error: 'Ошибка при авторизации',
+                loading: false,
+            })
+            // navigate('/')
         }
     },
     fetchCategories: async (initDataRaw) => {

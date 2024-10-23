@@ -15,7 +15,7 @@ const ChannelsRouter = require('./routes/channels')
 const buyRouter = require('./routes/buy')
 const userRouter = require('./routes/user')
 const path = require('path')
-const balanceRouter = require('./routes/balance');
+const balanceRouter = require('./routes/balance')
 // const startScheduler = require('./scheduler/complited')
 
 app.use(cors())
@@ -36,6 +36,7 @@ app.use('/admin_stats', adminStatsRouter)
 app.use('/channels', ChannelsRouter)
 app.use('/buy', buyRouter)
 app.use('/user', userRouter)
+app.use('/balance', balanceRouter)
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
