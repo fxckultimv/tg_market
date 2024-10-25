@@ -155,8 +155,8 @@ const CreateAd = () => {
     }
 
     return (
-        <div className="container mx-auto p-6 min-h-screen bg-gray-900 text-white">
-            <h2 className="text-2xl font-bold text-green-400 mb-8">
+        <div className="container mx-auto p-6 min-h-screen bg-medium-gray text-white">
+            <h2 className="text-2xl font-bold text-main-green mb-8">
                 Создать рекламное предложение
             </h2>
 
@@ -171,7 +171,7 @@ const CreateAd = () => {
                         </label>
                         <select
                             id="channel-select"
-                            className="w-full p-3 bg-gray-800 text-white rounded"
+                            className="w-full p-3 bg-medium-gray text-white rounded"
                             value={selectedChannel || ''}
                             onChange={(e) => setSelectedChannel(e.target.value)}
                         >
@@ -201,7 +201,7 @@ const CreateAd = () => {
                                 </label>
                                 <select
                                     id="categories-select"
-                                    className="w-full p-3 bg-gray-800 text-white rounded"
+                                    className="w-full p-3 bg-medium-gray text-white rounded"
                                     value={selectedCategories || ''}
                                     onChange={(e) => {
                                         setSelectedCategories(e.target.value)
@@ -252,7 +252,7 @@ const CreateAd = () => {
                                 </label>
                                 <textarea
                                     id="description"
-                                    className="w-full p-3 bg-gray-800 text-white rounded"
+                                    className="w-full p-3 bg-medium-gray text-white rounded"
                                     placeholder="Введите описание рекламы"
                                     value={description}
                                     onChange={(e) =>
@@ -278,7 +278,7 @@ const CreateAd = () => {
                                     >
                                         <input
                                             type="time"
-                                            className="w-full p-3 bg-gray-800 text-white rounded"
+                                            className="w-full p-3 bg-medium-gray text-white rounded"
                                             value={time}
                                             onChange={(e) =>
                                                 handleTimeChange(
@@ -300,7 +300,7 @@ const CreateAd = () => {
                                 ))}
                                 <button
                                     onClick={addPublicationTime}
-                                    className="mt-2 bg-green-500 text-white p-2 rounded"
+                                    className="mt-2 bg-accent-green text-white p-2 rounded"
                                 >
                                     Добавить время
                                 </button>
@@ -322,7 +322,7 @@ const CreateAd = () => {
                                 <input
                                     type="number"
                                     id="price"
-                                    className="w-full p-3 bg-gray-800 text-white rounded"
+                                    className="w-full p-3 bg-medium-gray text-white rounded"
                                     placeholder="Введите цену"
                                     value={price}
                                     onChange={(e) => setPrice(e.target.value)}

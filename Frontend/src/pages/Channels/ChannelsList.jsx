@@ -35,7 +35,7 @@ const ChannelsList = () => {
             <div className="flex justify-between w-full mt-4">
                 <button
                     onClick={minusPage}
-                    className="px-3 py-2 rounded bg-gray-700 text-gray-400 disabled:opacity-50"
+                    className="px-3 py-2 rounded bg-gray-700 text-light-gray disabled:opacity-50"
                     disabled={page === 1}
                 >
                     Назад
@@ -46,7 +46,7 @@ const ChannelsList = () => {
                 <button
                     onClick={plusPage}
                     disabled={page === totalPages}
-                    className="px-3 py-2 rounded bg-gray-700 text-gray-400 disabled:opacity-50"
+                    className="px-3 py-2 rounded bg-gray-700 text-light-gray disabled:opacity-50"
                 >
                     Вперед
                 </button>
@@ -71,17 +71,17 @@ const ProductCard = ({ product }) => {
             : 'Время не указано'
 
     return (
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-4 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out">
+        <div className="bg-gradient-to-r from-dark-gray to-medium-gray p-4 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out">
             <div className="flex-none">
                 <Link to={`${product.product_id}`}>
-                    <h3 className="text-xl font-extrabold mb-2 text-green-400">
+                    <h3 className="text-xl font-extrabold mb-2 text-main-green">
                         {product.title}
                     </h3>
 
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-light-gray">
                         ⭐️ {product.rating}
                     </p>
-                    <p className="text-base text-gray-300 border-gray-500 border-2 rounded-full px-2 inline-block">
+                    <p className="text-base text-gray-300 border-main-gray border border-main-gray rounded-full px-2 inline-block">
                         {product.category_name}
                     </p>
                     {/* <p>{product.post_times.slice(0, 5)}</p> */}
@@ -89,7 +89,7 @@ const ProductCard = ({ product }) => {
                 <div className="relative my-2 ">
                     <button
                         onClick={() => setIsOpenFormat(!isOpenFormar)}
-                        className="flex items-center text-base text-gray-300 bg-gray-800 border border-gray-500 rounded-full px-2  focus:outline-none focus:border-blue-500"
+                        className="flex items-center text-base text-gray-300 bg-medium-gray border border-main-gray rounded-full px-2  focus:outline-none focus:border-blue-500"
                     >
                         {firstFormatName}
                         <svg
@@ -110,7 +110,7 @@ const ProductCard = ({ product }) => {
                         </svg>
                     </button>
                     {isOpenFormar && (
-                        <ul className=" left-0 mt-1  bg-gray-800 shadow-lg rounded-md z-50">
+                        <ul className=" left-0 mt-1  bg-medium-gray shadow-lg rounded-md z-50">
                             {product.format_names.map((format, index) => (
                                 <li
                                     key={index}
@@ -129,7 +129,7 @@ const ProductCard = ({ product }) => {
                 <div className="relative my-2">
                     <button
                         onClick={() => setIsOpenPostTime(!isOpenPostTime)}
-                        className="flex items-center text-base text-gray-300 bg-gray-800 border border-gray-500 rounded-full px-2 focus:outline-none focus:border-blue-500"
+                        className="flex items-center text-base text-gray-300 bg-medium-gray border border-main-gray rounded-full px-2 focus:outline-none focus:border-blue-500"
                     >
                         {firstPostTime}
                         <svg
@@ -150,7 +150,7 @@ const ProductCard = ({ product }) => {
                         </svg>
                     </button>
                     {isOpenPostTime && (
-                        <ul className="left-0 mt-1 bg-gray-800 shadow-lg rounded-md z-50">
+                        <ul className="left-0 mt-1 bg-medium-gray shadow-lg rounded-md z-50">
                             {product.post_times.map((time, index) => (
                                 <li
                                     key={index}
@@ -170,13 +170,13 @@ const ProductCard = ({ product }) => {
                 <div className="mb-2">
                     <InfoBox product={product} />
                 </div>
-                <p className="font-bold text-2xl text-green-500">
+                <p className="font-bold text-2xl text-accent-green">
                     {product.price}₽
                 </p>
             </div>
             <div className="shrink">
                 <img
-                    className="rounded-full object-cover border-2 border-green-500 shadow-lg"
+                    className="rounded-full object-cover border-2 border-accent-green shadow-lg"
                     src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                     alt={product.title}
                 />
@@ -186,11 +186,11 @@ const ProductCard = ({ product }) => {
 }
 
 const InfoBox = ({ product }) => (
-    <div className="border flex justify-evenly border-gray-600 rounded-lg p-3 bg-gray-800 gap-2">
+    <div className="border flex justify-evenly border-main-gray rounded-lg p-3 bg-medium-gray gap-2">
         <div className="flex flex-col items-center justify-center">
             <img src={Person} alt="person" />
             <p className="text-sm text-gray-300">
-                <span className="text-green-400">
+                <span className="text-main-green">
                     {product.subscribers_count}
                 </span>
             </p>
@@ -198,7 +198,7 @@ const InfoBox = ({ product }) => (
         <div className="flex flex-col items-center justify-center">
             <img src={View} alt="view" />
             <p className="text-sm text-gray-300">
-                <span className="text-green-400">
+                <span className="text-main-green">
                     {Math.round(product.views)}
                 </span>
             </p>
@@ -206,7 +206,7 @@ const InfoBox = ({ product }) => (
         <div className="flex flex-col items-center justify-center">
             <p>ER</p>
             <p className="text-sm text-gray-300">
-                <span className="text-green-400">
+                <span className="text-main-green">
                     {(
                         (100 / product.subscribers_count) *
                         product.views
@@ -218,7 +218,7 @@ const InfoBox = ({ product }) => (
         <div className="flex flex-col items-center justify-center">
             <p>CPV</p>
             <p className="text-sm text-gray-300">
-                <span className="text-green-400">
+                <span className="text-main-green">
                     {Math.round(product.price / product.views)} р
                 </span>
             </p>

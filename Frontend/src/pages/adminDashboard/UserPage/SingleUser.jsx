@@ -49,21 +49,21 @@ const SingleUser = () => {
     return (
         <div>
             {user && (
-                <ul className="w-full max-w-4xl bg-gray-800 rounded-lg p-2 shadow-md">
+                <ul className="w-full max-w-4xl bg-medium-gray rounded-lg p-2 shadow-md">
                     <li
                         key={user.user_id}
-                        className="mb-4 p-4 rounded-lg bg-gray-900 text-white shadow transition duration-300 hover:shadow-lg"
+                        className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
                     >
                         <div className="text-xl font-bold">{user.username}</div>
-                        <div className="text-gray-400">
+                        <div className="text-light-gray">
                             <span className="font-semibold">ID:</span>{' '}
                             {user.user_id}
                         </div>
-                        <div className="text-gray-400">
+                        <div className="text-light-gray">
                             <span className="font-semibold">Рейтинг:</span>{' '}
                             {user.rating}
                         </div>
-                        <div className="text-gray-400">
+                        <div className="text-light-gray">
                             <span className="font-semibold">
                                 Дата создания:
                             </span>{' '}

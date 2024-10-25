@@ -6,8 +6,8 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import (
-    ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, 
-    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType
+    ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery,
+    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo
 )
 from aiogram.utils import executor
 import asyncpg
@@ -17,7 +17,7 @@ from telethon import TelegramClient
 from telethon.tl.functions.messages import GetHistoryRequest
 import asyncio
 
-API_TOKEN = 'YOUR_API_TOKEN_HERE'
+API_TOKEN = '7741416101:AAERfPXfyjwvIQbIHqZQc5iKFHdHaRk4WWE'
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,9 +29,9 @@ db_pool = None
 
 app = Flask(__name__)
 
-api_id = 'YOUR_API_ID'
-api_hash = 'YOUR_API_HASH'
-phone_number = 'YOUR_PHONE_NUMBER'
+api_id = '24463380'
+api_hash = '2d943e94d362db2be40612c00019e381'
+phone_number = '+8562057532284'
 
 client = TelegramClient('session_name', api_id, api_hash)
 
@@ -43,7 +43,7 @@ async def create_db_pool():
     try:
         db_pool = await asyncpg.create_pool(
             user=os.getenv('DB_USER', 'postgres'),
-            password=os.getenv('DB_PASSWORD', 'YOUR_PASSWORD'),
+            password=os.getenv('DB_PASSWORD', 'Stepan110104'),
             database=os.getenv('DB_NAME', 'TeleAdMarket'),
             host=os.getenv('DB_HOST', 'localhost'),
             port=os.getenv('DB_PORT', '5432'),
@@ -592,10 +592,10 @@ async def process_completion_seller(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda query: query.data.startswith('not_completed_seller_'))
 async def process_not_completion_seller(callback_query: types.CallbackQuery):
     order_id = callback_query.data.split('_')[2]
-    # Add your code for non-completion here.
     pass
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(create_db_pool())
     executor.start_polling(dp, skip_updates=True)
+

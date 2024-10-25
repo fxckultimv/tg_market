@@ -15,7 +15,7 @@ const ProductsSearch = ({ onSearch, fetchAllProducts }) => {
         <div className="w-full max-w-4xl mb-6">
             <input
                 type="text"
-                className="w-full p-2 mb-2 rounded bg-gray-800 text-white"
+                className="w-full p-2 mb-2 rounded bg-medium-gray text-white"
                 placeholder="Введите ID продукта"
                 value={searchProductId}
                 onChange={(e) => setSearchProductId(e.target.value)}

@@ -14,7 +14,7 @@ const UserReviews = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -22,27 +22,27 @@ const UserReviews = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white ">
-            <h2 className="text-3xl font-bold mb-2 text-green-400">Отзывы</h2>
+        <div className="min-h-screen bg-dark-gray text-white ">
+            <h2 className="text-3xl font-bold mb-2 text-main-green">Отзывы</h2>
             {reviews.length > 0 ? (
                 <div className="space-y-6">
                     {reviews.map((review) => (
                         <div
                             key={review.review_id}
-                            className="bg-gray-800 p-4 rounded-lg shadow-md"
+                            className="bg-medium-gray p-4 rounded-lg shadow-md"
                         >
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-base font-semibold text-green-400">
+                                <span className="text-base font-semibold text-main-green">
                                     Оценка: {review.rating}/5⭐️
                                 </span>
-                                <span className="text-sm text-gray-400">
+                                <span className="text-sm text-light-gray">
                                     {new Date(
                                         review.created_at
                                     ).toLocaleDateString()}
@@ -53,7 +53,7 @@ const UserReviews = () => {
                     ))}
                 </div>
             ) : (
-                <p className="text-gray-400">Отзывов пока нет.</p>
+                <p className="text-light-gray">Отзывов пока нет.</p>
             )}
         </div>
     )

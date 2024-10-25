@@ -79,7 +79,7 @@ const Filters = () => {
     }
 
     return (
-        <div className="p-4 bg-gray-800 text-white rounded-b-lg shadow-lg">
+        <div className="p-4 bg-medium-gray text-white rounded-b-lg shadow-lg">
             <div className="flex items-center justify-between mb-4">
                 <input
                     type="search"

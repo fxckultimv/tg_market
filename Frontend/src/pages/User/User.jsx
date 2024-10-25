@@ -6,6 +6,8 @@ import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useEffect } from 'react'
 import { useUserStore } from '../../store'
 import { useState } from 'react'
+import Error from '../../Error'
+import Loading from '../../Loading'
 
 const User = () => {
     const { id } = useParams()
@@ -35,35 +37,27 @@ const User = () => {
     }, [initDataRaw])
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl font-semibold">Загрузка...</div>
-            </div>
-        )
+        return <Loading />
     }
 
     if (error) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <div className="text-xl text-red-500">{error}</div>
-            </div>
-        )
+        return <Error />
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white">
+        <div className="min-h-screen bg-dark-gray text-white">
             <div className="container mx-auto px-2 py-4">
                 <div className="mb-2">
                     <img
-                        className="rounded-full w-32 h-32 object-cover border-green-400 border-2"
+                        className="rounded-full w-32 h-32 object-cover border-main-green border-2"
                         src={`http://localhost:5000/user_${id}.png`}
                         alt={`${user.username}'s profile`}
                     />
                 </div>
-                <h1 className="text-xl font-bold text-green-400 mb-4">
+                <h1 className="text-xl font-bold text-main-green mb-4">
                     {user.username}
                 </h1>
-                <div className="text-lg text-gray-400">
+                <div className="text-lg text-light-gray">
                     <p className="mb-2">⭐️Рейтинг: {user.rating}</p>
                     <p className="mb-2">
                         Дата создания аккаунта:{' '}
@@ -75,8 +69,8 @@ const User = () => {
                     <button
                         className={`px-4 py-2 font-bold rounded ${
                             activeTab === 'products'
-                                ? 'bg-green-500 text-white'
-                                : 'bg-gray-700 text-gray-400'
+                                ? 'bg-accent-green text-white'
+                                : 'bg-gray-700 text-light-gray'
                         }`}
                         onClick={() => setActiveTab('products')}
                     >
@@ -85,8 +79,8 @@ const User = () => {
                     <button
                         className={`px-4 py-2 font-bold rounded ${
                             activeTab === 'reviews'
-                                ? 'bg-green-500 text-white'
-                                : 'bg-gray-700 text-gray-400'
+                                ? 'bg-accent-green text-white'
+                                : 'bg-gray-700 text-light-gray'
                         }`}
                         onClick={() => setActiveTab('reviews')}
                     >

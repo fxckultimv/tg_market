@@ -28,6 +28,9 @@ router.get('/busy_day/:id', productsController.busyDayProducts)
 // Добавление нового продукта
 router.post('/add', productsController.addProduct)
 
+// Добавление нового продукта
+router.patch('/edit', productsController.editProduct)
+
 //Удаление продукта
 router.delete('/', productsController.deleteProduct)
 

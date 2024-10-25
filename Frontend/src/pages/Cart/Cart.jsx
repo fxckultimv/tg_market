@@ -110,14 +110,14 @@ const Cart = () => {
 
     if (!cart || !cart.products || Object.keys(cart.products).length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-dark-gray text-white">
                 <div className="text-2xl font-bold mb-4">
                     Ваша корзина пуста
                 </div>
 
                 <Link
                     to="/channels"
-                    className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold text-lg transition-transform transform hover:scale-105 hover:bg-green-600"
+                    className="bg-accent-green text-white px-6 py-3 rounded-full font-semibold text-lg transition-transform transform hover:scale-105 hover:bg-green-600"
                 >
                     Перейти к товарам
                 </Link>
@@ -127,31 +127,31 @@ const Cart = () => {
 
     return (
         <div className="container mx-auto p-4">
-            <h2 className="text-3xl font-extrabold text-green-400 mb-8">
-                Ваша корзина
+            <h2 className="text-3xl font-extrabold text-main-green mb-8">
+                Корзина
             </h2>
             <ul className="space-y-6">
                 {Object.entries(cart.products).map(([productId, product]) => (
                     <div
                         key={productId}
                         onClick={() => handleSelectProduct(productId)}
-                        className={`bg-gradient-to-r from-gray-900 to-gray-800 p-2 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out ${
+                        className={`bg-gradient-to-r from-dark-gray to-medium-gray p-2 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out ${
                             selectedProductId === productId
-                                ? 'border-4 border-green-400 scale-105'
+                                ? 'border-4 border-main-green scale-105'
                                 : 'hover:shadow-2xl hover:scale-105'
                         }`}
                     >
                         <div className="flex-none">
-                            <h3 className="text-xl font-extrabold mb-2 text-green-400">
+                            <h3 className="text-xl font-extrabold mb-2 text-main-green">
                                 {product.title}
                             </h3>{' '}
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-light-gray">
                                 ⭐️ {product.rating}
                             </p>
                             {console.log(product.rating)}
                             <div className="">
                                 <p>Время публикации: </p>
-                                <div className="border flex justify-evenly border-gray-600 rounded-lg p-3 bg-gray-800 gap-2">
+                                <div className="border flex justify-evenly border-main-gray rounded-lg p-3 bg-medium-gray gap-2">
                                     <ul className=" space-y-2">
                                         {product.items.map((item) => (
                                             <CartItem
@@ -162,7 +162,7 @@ const Cart = () => {
                                     </ul>
                                 </div>
                             </div>
-                            <p className="font-bold text-2xl text-green-500">
+                            <p className="font-bold text-2xl text-accent-green">
                                 {product.price}₽
                             </p>
                             <button onClick={() => handleDeleteItem(productId)}>
@@ -172,21 +172,21 @@ const Cart = () => {
 
                         <div className="shrink">
                             <img
-                                className="rounded-full object-cover border-2 border-green-500 shadow-lg"
+                                className="rounded-full object-cover border-2 border-accent-green shadow-lg"
                                 src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                                 alt={product.title}
                             />
                         </div>
 
                         {/* <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-extrabold mb-2 text-green-400">
+                            <h3 className="text-xl font-extrabold mb-2 text-main-green">
                                 {product.title}
                             </h3>
                         </div>
 
                         <div className="flex-shrink-0">
                             <img
-                                className="rounded-full w-28 h-28 object-cover border-2 border-green-500 shadow-lg"
+                                className="rounded-full w-28 h-28 object-cover border-2 border-accent-green shadow-lg"
                                 src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                                 alt={product.title}
                             />
@@ -194,13 +194,13 @@ const Cart = () => {
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-gray-300">
                                 Цена:{' '}
-                                <span className="font-semibold text-green-400">
+                                <span className="font-semibold text-main-green">
                                     {product.price} руб.
                                 </span>
                             </p>
                             <p className="text-gray-300">
                                 Общее количество:{' '}
-                                <span className="font-semibold text-green-400">
+                                <span className="font-semibold text-main-green">
                                     {product.items.reduce(
                                         (total, item) => total + item.quantity,
                                         0
