@@ -14,7 +14,7 @@ const UserReviews = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -22,14 +22,14 @@ const UserReviews = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-dark-gray text-white ">
+        <div className="min-h-screen bg-card-white">
             <h2 className="text-3xl font-bold mb-2 text-main-green">Отзывы</h2>
             {reviews.length > 0 ? (
                 <div className="space-y-6">
@@ -39,21 +39,21 @@ const UserReviews = () => {
                             className="bg-medium-gray p-4 rounded-lg shadow-md"
                         >
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-base font-semibold text-main-green">
+                                <span className="text-base font-semibold ">
                                     Оценка: {review.rating}/5⭐️
                                 </span>
-                                <span className="text-sm text-light-gray">
+                                <span className="text-sm text-blue">
                                     {new Date(
                                         review.created_at
                                     ).toLocaleDateString()}
                                 </span>
                             </div>
-                            <p className="text-gray-300">{review.comment}</p>
+                            <p className="text-blue">{review.comment}</p>
                         </div>
                     ))}
                 </div>
             ) : (
-                <p className="text-light-gray">Отзывов пока нет.</p>
+                <p className="">Отзывов пока нет.</p>
             )}
         </div>
     )

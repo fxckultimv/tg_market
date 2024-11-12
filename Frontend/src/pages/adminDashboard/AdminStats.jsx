@@ -15,7 +15,7 @@ const AdminStats = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -23,14 +23,14 @@ const AdminStats = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-dark-gray text-white p-4">
+        <div className="min-h-screen bg-dark-gray p-4">
             <h1 className="text-2xl font-bold mb-4 text-main-green">
                 Административная статистика
             </h1>

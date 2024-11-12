@@ -45,19 +45,17 @@ const User = () => {
     }
 
     return (
-        <div className="min-h-screen bg-dark-gray text-white">
+        <div className="min-h-screen bg-dark-gray ">
             <div className="container mx-auto px-2 py-4">
                 <div className="mb-2">
                     <img
-                        className="rounded-full w-32 h-32 object-cover border-main-green border-2"
+                        className="rounded-full w-32 h-32 object-cover border-main-green border-2 "
                         src={`http://localhost:5000/user_${id}.png`}
                         alt={`${user.username}'s profile`}
                     />
                 </div>
-                <h1 className="text-xl font-bold text-main-green mb-4">
-                    {user.username}
-                </h1>
-                <div className="text-lg text-light-gray">
+                <h1 className="text-xl font-bold  mb-4">{user.username}</h1>
+                <div className="text-lg">
                     <p className="mb-2">⭐️Рейтинг: {user.rating}</p>
                     <p className="mb-2">
                         Дата создания аккаунта:{' '}
@@ -69,8 +67,8 @@ const User = () => {
                     <button
                         className={`px-4 py-2 font-bold rounded ${
                             activeTab === 'products'
-                                ? 'bg-accent-green text-white'
-                                : 'bg-gray-700 text-light-gray'
+                                ? 'bg-card-white '
+                                : 'bg-gray-700 text-blue'
                         }`}
                         onClick={() => setActiveTab('products')}
                     >
@@ -79,8 +77,8 @@ const User = () => {
                     <button
                         className={`px-4 py-2 font-bold rounded ${
                             activeTab === 'reviews'
-                                ? 'bg-accent-green text-white'
-                                : 'bg-gray-700 text-light-gray'
+                                ? 'bg-card-white'
+                                : 'bg-gray-700 text-blue'
                         }`}
                         onClick={() => setActiveTab('reviews')}
                     >

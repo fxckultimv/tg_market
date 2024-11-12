@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { useProductStore } from '../../store'
 import { useParams } from 'react-router-dom'
 import Calendar from 'react-calendar'
+import './CalendarStyles.css'
 import 'react-calendar/dist/Calendar.css'
 import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
@@ -184,10 +185,10 @@ const ChannelDetails = () => {
 
         // Добавляем класс для выделения выбранных дней и занятых дней
         return isSelected
-            ? 'bg-accent-green text-white'
+            ? 'bg-accent-green bg'
             : isBusy
-            ? 'bg-light-gray text-white'
-            : ''
+              ? 'bg-light-gray bg'
+              : ''
     }
 
     // const handleScroll = () => {
@@ -220,7 +221,7 @@ const ChannelDetails = () => {
 
     if (!productDetails) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">Данные не найдены</div>
             </div>
         )
@@ -229,7 +230,7 @@ const ChannelDetails = () => {
     const er = (100 / productDetails.subscribers_count) * productDetails.views
 
     return (
-        <div className="container mx-auto p-8 min-h-screen bg-gradient-to-r from-medium-gray to-dark-gray text-white rounded-lg shadow-2xl">
+        <div className="container mx-auto p-8 min-h-screen bg-gradient-to-r from-medium-gray to-dark-gray  rounded-lg shadow-2xl">
             <div className="flex flex-col md:flex-row justify-between items-center mb-8">
                 {/* Левая часть с информацией о продукте */}
                 <div className="flex-1 md:pr-8 mb-2 md:mb-0">
@@ -310,7 +311,7 @@ const ChannelDetails = () => {
                             id="format"
                             value={format} // Значение выбранного формата
                             onChange={handleFormatChange} // Обработчик изменения формата
-                            className="w-full p-3 bg-gray-700 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
+                            className="w-full p-3 bg-gray-700  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                         >
                             <option value="">Выбрать формат</option>
                             {formatList.map((formatId) => (
@@ -333,7 +334,7 @@ const ChannelDetails = () => {
                             id="post_time"
                             value={post_time} // Значение выбранного времени
                             onChange={handlePostTimeChange} // Обработчик изменения времени
-                            className="w-full p-3 bg-gray-700 text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
+                            className="w-full p-3 bg-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                         >
                             <option value="">Выбрать время</option>
                             {productDetails.post_times.map((time, index) => (
@@ -377,7 +378,7 @@ const ChannelDetails = () => {
                     value={selectedDates} // Массив выбранных дат
                     tileDisabled={tileDisabled} // Делаем неактивными занятые дни
                     tileClassName={tileClassName} // Подсвечиваем выбранные и занятые дни
-                    className="bg-dark-gray text-white rounded-lg shadow-lg p-4"
+                    className="bg-dark-gray bg-white rounded-lg shadow-lg p-4"
                 />
                 <p className="text-lg mt-6">
                     Выбранные даты:{' '}

@@ -25,7 +25,7 @@ const AdminOrders = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -33,7 +33,7 @@ const AdminOrders = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
@@ -58,7 +58,7 @@ const AdminOrders = () => {
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center bg-dark-gray text-white p-1">
+        <div className="flex min-h-screen flex-col items-center bg-dark-gray bg-white p-1">
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление заказами
             </h2>
@@ -66,7 +66,7 @@ const AdminOrders = () => {
                 {orders.map((order) => (
                     <li
                         key={order.order_id}
-                        className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                        className="mb-4 p-4 rounded-lg bg-dark-gray bg-white shadow transition duration-300 hover:shadow-lg"
                     >
                         <div className="text-xl font-bold">
                             Заказ №{order.order_id}
@@ -108,7 +108,7 @@ const AdminOrders = () => {
                         onClick={() => setCurrentPage(i + 1)}
                         className={`mx-1 px-3 py-1 rounded ${
                             currentPage === i + 1
-                                ? 'bg-main-green text-white'
+                                ? 'bg-main-green bg'
                                 : 'bg-gray-700 text-light-gray'
                         }`}
                     >

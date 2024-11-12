@@ -57,7 +57,7 @@ const AdminUsers = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -65,14 +65,14 @@ const AdminUsers = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center bg-dark-gray text-white p-1">
+        <div className="flex min-h-screen flex-col items-center bg-dark-gray bg-white p-1">
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление пользователями
             </h2>
@@ -81,13 +81,13 @@ const AdminUsers = () => {
             <div className="w-full max-w-4xl mb-6">
                 <input
                     type="text"
-                    className="w-full p-2 mb-2 rounded bg-medium-gray text-white"
+                    className="w-full p-2 mb-2 rounded bg-medium-gray bg"
                     placeholder="Введите ID пользователя"
                     value={searchUserId}
                     onChange={(e) => setSearchUserId(e.target.value)}
                 />
                 <button
-                    className="w-full p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+                    className="w-full p-2 bg-white bg-blue-500 rounded hover:bg-blue-600"
                     onClick={handleSearch}
                 >
                     Найти пользователя
@@ -101,7 +101,7 @@ const AdminUsers = () => {
                         key={searchedUser.user_id}
                         to={`${searchedUser.user_id}`}
                     >
-                        <li className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg">
+                        <li className="mb-4 p-4 rounded-lg bg-dark-gray bg-white shadow transition duration-300 hover:shadow-lg">
                             <div className="text-xl font-bold">
                                 {searchedUser.username}
                             </div>
@@ -133,7 +133,7 @@ const AdminUsers = () => {
                                 <Link key={user.user_id} to={`${user.user_id}`}>
                                     <li
                                         key={user.user_id}
-                                        className="mb-1 p-2 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                                        className="mb-1 p-2 rounded-lg bg-dark-gray bg-white shadow transition duration-300 hover:shadow-lg"
                                     >
                                         <div className="text-xl font-bold">
                                             {user.username}
@@ -176,7 +176,7 @@ const AdminUsers = () => {
                                 onClick={() => setCurrentPage(i + 1)}
                                 className={`mx-1 px-3 py-1 rounded ${
                                     currentPage === i + 1
-                                        ? 'bg-main-green text-white'
+                                        ? 'bg-main-green bg'
                                         : 'bg-gray-700 text-light-gray'
                                 }`}
                             >

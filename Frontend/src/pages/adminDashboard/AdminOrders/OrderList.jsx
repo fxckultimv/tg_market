@@ -16,28 +16,28 @@ const OrderList = ({
                     <Link key={order.order_id} to={`${order.order_id}`}>
                         <li
                             key={order.order_id}
-                            className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                            className="mb-4 p-4 rounded-lg bg-dark-gray  shadow transition duration-300 hover:shadow-lg"
                         >
                             <div className="text-xl font-bold">
                                 Заказ №{order.order_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     ID пользователя:
                                 </span>{' '}
                                 {order.user_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     Сумма заказа:
                                 </span>{' '}
                                 {order.total_price} руб.
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">Статус:</span>{' '}
                                 {order.status}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     Дата создания:
                                 </span>{' '}
@@ -53,7 +53,7 @@ const OrderList = ({
                 <button
                     onClick={goToPreviousPage}
                     disabled={currentPage === 1}
-                    className="mx-1 px-3 py-1 rounded bg-gray-700 text-light-gray disabled:opacity-50"
+                    className="mx-1 px-3 py-1 rounded bg-gray-700  disabled:opacity-50"
                 >
                     &laquo; Previous
                 </button>
@@ -63,8 +63,8 @@ const OrderList = ({
                         onClick={() => setCurrentPage(i + 1)}
                         className={`mx-1 px-3 py-1 rounded ${
                             currentPage === i + 1
-                                ? 'bg-main-green text-white'
-                                : 'bg-gray-700 text-light-gray'
+                                ? 'bg-main-green '
+                                : 'bg-gray-700 '
                         }`}
                     >
                         {i + 1}
@@ -73,7 +73,7 @@ const OrderList = ({
                 <button
                     onClick={goToNextPage}
                     disabled={currentPage === totalPages}
-                    className="mx-1 px-3 py-1 rounded bg-gray-700 text-light-gray disabled:opacity-50"
+                    className="mx-1 px-3 py-1 rounded bg-gray-700  disabled:opacity-50"
                 >
                     Next &raquo;
                 </button>

@@ -9,7 +9,7 @@ const UserProducts = () => {
     const { initDataRaw } = useLaunchParams()
     const { id } = useParams()
     const {
-        products,
+        userProducts,
         fetchUserProducts,
         page,
         totalPages,
@@ -25,7 +25,7 @@ const UserProducts = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -33,15 +33,15 @@ const UserProducts = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
-    if (!products || products.length === 0) {
+    if (!userProducts || userProducts.length === 0) {
         return (
-            <div className="text-white text-center mt-8">
+            <div className="bg-text-center mt-8">
                 <p>Нет доступных продуктов</p>
             </div>
         )
@@ -49,25 +49,23 @@ const UserProducts = () => {
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
-            {products.map((product) => (
+            {userProducts.map((product) => (
                 <Link
                     to={`/channels/${product.product_id}`}
                     key={product.product_id}
                 >
                     <div
                         key={product.product_id}
-                        className="bg-gradient-to-r from-dark-gray to-medium-gray p-6 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out"
+                        className="bg-gradient-to-r from-dark-gray to-medium-gray p-6 rounded-xl shadow-2x flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out bg-card-white"
                     >
                         <div className="flex-1">
-                            <h3 className="text-xl font-extrabold mb-2 text-main-green">
+                            <h3 className="text-xl font-extrabold mb-2 text-blue">
                                 {product.title}
                             </h3>
                             <div className="mb-2">
-                                <p className="text-sm text-light-gray">
-                                    ⭐️ {product.rating}
-                                </p>
+                                <p className="text-sm">⭐️ {product.rating}</p>
                                 <div className="border border-main-gray rounded-lg p-3 bg-medium-gray">
-                                    <p className="text-sm text-gray-300">
+                                    <p className="text-sm">
                                         Подписчики:{' '}
                                         <span className="text-main-green">
                                             {product.subscribers_count}
@@ -90,9 +88,9 @@ const UserProducts = () => {
                                             %
                                         </span>
                                     </p>
-                                    <p className="text-sm text-gray-300">
+                                    <p className="text-sm">
                                         CPV:{' '}
-                                        <span className="text-main-green">
+                                        <span className="text-blue">
                                             {Math.round(
                                                 product.price / product.views
                                             )}{' '}
@@ -101,7 +99,7 @@ const UserProducts = () => {
                                     </p>
                                 </div>
                             </div>
-                            <p className="font-bold text-2xl text-accent-green">
+                            <p className="font-bold text-2xl text-blue">
                                 {product.price}₽
                             </p>
                         </div>

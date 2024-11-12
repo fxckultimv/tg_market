@@ -10,6 +10,7 @@ import usePreventCollapse from './usePreventCollapse'
 import { Routes } from 'react-router-dom'
 import { Route } from 'react-router-dom'
 import Layout from './components/Layout'
+import ProfileLayout from './components/ProfileLayout'
 import Home from './pages/Home/Home'
 import Channels from './pages/Channels/Channels'
 import ChannelDetails from './pages/Channels/ChannelDetails'
@@ -21,11 +22,11 @@ import Cart from './pages/Cart/Cart'
 import History from './pages/History/History'
 import SingleHistory from './pages/History/SingleHistory'
 import AdminDashboard from './pages/Setting/AdminDashboard'
-import AdminLayout from './pages/adminDashboard/AdminLayout'
+import AdminLayout from './components/AdminLayout'
 import AdminUsers from './pages/adminDashboard/AdminUsers/AdminUsers'
 import AdminProducts from './pages/adminDashboard/AdminProducts/AdminProducts'
 import AdminOrders from './pages/adminDashboard/AdminOrders/AdminOrders'
-import { useAdminStore } from './store'
+import { useAdminStore, useUserStore } from './store'
 import AdminCategories from './pages/adminDashboard/AdminCategories'
 import SingleUser from './pages/adminDashboard/UserPage/SingleUser'
 import OrderDetails from './pages/adminDashboard/OrderDetails/OrderDetails'
@@ -37,6 +38,9 @@ import User from './pages/User/User'
 import Profile from './pages/Profile/Profile'
 import Products from './pages/Products/Products/Products'
 import ChannelStats from './pages/Products/ChannelStats/ChannelStats'
+import { AnimatePresence } from 'framer-motion'
+import AnimatedPage from './components/AnimatedPage'
+import { useLocation } from 'react-router-dom'
 // import { useStore } from '../store'
 
 const App = () => {
@@ -44,6 +48,9 @@ const App = () => {
     const { initDataRaw } = useLaunchParams()
     const navigate = useNavigate()
     const settingsButton = useSettingsButton()
+    const { theme, setTheme } = useUserStore()
+
+    const location = useLocation()
 
     //кастомный хук для того чтобы убать закрытие приложения при скроле
     usePreventCollapse()
@@ -81,28 +88,38 @@ const App = () => {
         checkAdmin(initDataRaw)
     }, [checkAdmin, initDataRaw])
 
-    const theme = useThemeParamsRaw()
-
     useEffect(() => {
-        if (theme?.result?.state?.state) {
-            const { buttonColor, buttonTextColor, bgColor, accentTextColor } =
-                theme.result.state.state
-            // Обновляем CSS переменные
-            document.documentElement.style.setProperty('--bg-color', bgColor)
-            document.documentElement.style.setProperty(
-                '--button-color',
-                buttonColor
-            )
-            document.documentElement.style.setProperty(
-                '--button-text-color',
-                buttonTextColor
-            )
-            document.documentElement.style.setProperty(
-                '--accent-color',
-                accentTextColor
-            )
-        }
-    }, [theme])
+        // Получаем тему из localStorage при загрузке компонента
+        const savedTheme = localStorage.getItem('theme') || 'dark'
+        setTheme(savedTheme)
+
+        // Устанавливаем начальный класс на <html> элемент
+        document.body.classList.add(savedTheme)
+    }, [setTheme])
+
+    // // Получение темы пользователя
+    // const theme = useThemeParamsRaw()
+
+    // useEffect(() => {
+    //     if (theme?.result?.state?.state) {
+    //         const { buttonColor, buttonTextColor, bgColor, accentTextColor } =
+    //             theme.result.state.state
+    //         // Обновляем CSS переменные
+    //         document.documentElement.style.setProperty('--bg-color', bgColor)
+    //         document.documentElement.style.setProperty(
+    //             '--button-color',
+    //             buttonColor
+    //         )
+    //         document.documentElement.style.setProperty(
+    //             '--button-text-color',
+    //             buttonTextColor
+    //         )
+    //         document.documentElement.style.setProperty(
+    //             '--accent-color',
+    //             accentTextColor
+    //         )
+    //     }
+    // }, [theme])
 
     // if (loading) {
     //     return <div>Загрузка...</div>
@@ -110,70 +127,215 @@ const App = () => {
 
     return (
         <div>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
+            <AnimatePresence mode="wait">
+                <Routes location={location} key={location.pathname}>
+                    <Route path="/" element={<Layout />}>
+                        <Route
+                            index
+                            element={
+                                <AnimatedPage>
+                                    <Home />
+                                </AnimatedPage>
+                            }
+                        />
 
-                    <Route path="channels" element={<Channels />} />
-                    <Route path="channels/:id" element={<ChannelDetails />} />
+                        <Route
+                            path="channels"
+                            element={
+                                <AnimatedPage>
+                                    <Channels />
+                                </AnimatedPage>
+                            }
+                        />
+                        <Route
+                            path="channels/:id"
+                            element={
+                                <AnimatedPage>
+                                    <ChannelDetails />
+                                </AnimatedPage>
+                            }
+                        />
 
-                    <Route path="create-ad" element={<CreateAd />} />
+                        <Route
+                            path="create-ad"
+                            element={
+                                <AnimatedPage>
+                                    <CreateAd />
+                                </AnimatedPage>
+                            }
+                        />
 
-                    <Route path="basket" element={<Cart />} />
+                        <Route
+                            path="basket"
+                            element={
+                                <AnimatedPage>
+                                    <Cart />
+                                </AnimatedPage>
+                            }
+                        />
 
-                    <Route path="buy" element={<Buy />} />
-                    <Route path="buy/:id" element={<BuyOrder />} />
+                        <Route
+                            path="user/:id"
+                            element={
+                                <AnimatedPage>
+                                    <User />
+                                </AnimatedPage>
+                            }
+                        />
 
-                    <Route path="profile" element={<Profile />} />
+                        <Route
+                            path="buy"
+                            element={
+                                <AnimatedPage>
+                                    <Buy />
+                                </AnimatedPage>
+                            }
+                        />
+                        <Route
+                            path="buy/:id"
+                            element={
+                                <AnimatedPage>
+                                    <BuyOrder />
+                                </AnimatedPage>
+                            }
+                        />
 
-                    <Route path="history" element={<History />} />
-                    <Route path="history/:id" element={<SingleHistory />} />
-
-                    <Route path="my_channels" element={<MyChannels />} />
-
-                    <Route path="products" element={<Products />} />
-                    <Route path="products/:id" element={<ChannelStats />} />
-                    <Route path="settings" element={<Settings />} />
-
-                    <Route path="user/:id" element={<User />} />
-
-                    {isAdmin && (
-                        <Route path="admin" element={<AdminLayout />}>
-                            <Route index element={<AdminDashboard />}></Route>
+                        <Route path="profile" element={<ProfileLayout />}>
                             <Route
-                                path="users"
-                                element={<AdminUsers />}
-                            ></Route>
+                                index
+                                element={
+                                    <AnimatedPage>
+                                        <History />
+                                    </AnimatedPage>
+                                }
+                            />
+
                             <Route
-                                path="users/:id"
-                                element={<SingleUser />}
-                            ></Route>
+                                path="history/:id"
+                                element={
+                                    <AnimatedPage>
+                                        <SingleHistory />
+                                    </AnimatedPage>
+                                }
+                            />
+
+                            <Route
+                                path="my_channels"
+                                element={
+                                    <AnimatedPage>
+                                        <MyChannels />
+                                    </AnimatedPage>
+                                }
+                            />
+
                             <Route
                                 path="products"
-                                element={<AdminProducts />}
-                            ></Route>
+                                element={
+                                    <AnimatedPage>
+                                        <Products />
+                                    </AnimatedPage>
+                                }
+                            />
+
                             <Route
                                 path="products/:id"
-                                element={<ProductDetails />}
-                            ></Route>
-                            <Route
-                                path="orders"
-                                element={<AdminOrders />}
-                            ></Route>
-                            <Route
-                                path="orders/:id"
-                                element={<OrderDetails />}
-                            ></Route>
-                            <Route
-                                path="categories"
-                                element={<AdminCategories />}
-                            ></Route>
+                                element={
+                                    <AnimatedPage>
+                                        <ChannelStats />
+                                    </AnimatedPage>
+                                }
+                            />
                         </Route>
-                    )}
 
-                    <Route path="*" element={<NotFoundPage />} />
-                </Route>
-            </Routes>
+                        <Route
+                            path="settings"
+                            element={
+                                <AnimatedPage>
+                                    <Settings />
+                                </AnimatedPage>
+                            }
+                        />
+
+                        {isAdmin && (
+                            <Route path="admin" element={<AdminLayout />}>
+                                <Route
+                                    index
+                                    element={
+                                        <AnimatedPage>
+                                            <AdminDashboard />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="users"
+                                    element={
+                                        <AnimatedPage>
+                                            <AdminUsers />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="users/:id"
+                                    element={
+                                        <AnimatedPage>
+                                            <SingleUser />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="products"
+                                    element={
+                                        <AnimatedPage>
+                                            <AdminProducts />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="products/:id"
+                                    element={
+                                        <AnimatedPage>
+                                            <ProductDetails />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="orders"
+                                    element={
+                                        <AnimatedPage>
+                                            <AdminOrders />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="orders/:id"
+                                    element={
+                                        <AnimatedPage>
+                                            <OrderDetails />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="categories"
+                                    element={
+                                        <AnimatedPage>
+                                            <AdminCategories />
+                                        </AnimatedPage>
+                                    }
+                                />
+                            </Route>
+                        )}
+
+                        <Route
+                            path="*"
+                            element={
+                                <AnimatedPage>
+                                    <NotFoundPage />
+                                </AnimatedPage>
+                            }
+                        />
+                    </Route>
+                </Routes>
+            </AnimatePresence>
         </div>
     )
 }

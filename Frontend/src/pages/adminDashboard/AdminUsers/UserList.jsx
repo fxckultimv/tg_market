@@ -17,25 +17,20 @@ const UserList = ({
                         <Link key={user.user_id} to={`${user.user_id}`}>
                             <li
                                 key={user.user_id}
-                                className="mb-1 p-2 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                                className="mb-1 p-2 rounded-lg bg-dark-gray  shadow transition duration-300 hover:shadow-lg"
                             >
                                 <div className="text-xl font-bold">
                                     {user.username}
                                 </div>
-                                <div className="text-light-gray">
-                                    <span className="font-semibold">ID:</span>{' '}
-                                    {user.user_id}
+                                <div className="">
+                                    <span className="">ID:</span> {user.user_id}
                                 </div>
-                                <div className="text-light-gray">
-                                    <span className="font-semibold">
-                                        Рейтинг:
-                                    </span>{' '}
+                                <div className="">
+                                    <span className="">Рейтинг:</span>{' '}
                                     {user.rating}
                                 </div>
-                                <div className="text-light-gray">
-                                    <span className="font-semibold">
-                                        Дата создания:
-                                    </span>{' '}
+                                <div className="">
+                                    <span className="">Дата создания:</span>{' '}
                                     {new Date(
                                         user.created_at
                                     ).toLocaleDateString()}
@@ -48,7 +43,7 @@ const UserList = ({
                 <button
                     onClick={goToPreviousPage}
                     disabled={currentPage === 1}
-                    className="mx-1 px-3 py-1 rounded bg-gray-700 text-light-gray disabled:opacity-50"
+                    className="mx-1 px-3 py-1 rounded bg-gray-700  disabled:opacity-50"
                 >
                     &laquo; Previous
                 </button>
@@ -58,8 +53,8 @@ const UserList = ({
                         onClick={() => setCurrentPage(i + 1)}
                         className={`mx-1 px-3 py-1 rounded ${
                             currentPage === i + 1
-                                ? 'bg-main-green text-white'
-                                : 'bg-gray-700 text-light-gray'
+                                ? 'bg-main-green '
+                                : 'bg-gray-700 '
                         }`}
                     >
                         {i + 1}
@@ -68,7 +63,7 @@ const UserList = ({
                 <button
                     onClick={goToNextPage}
                     disabled={currentPage === totalPages}
-                    className="mx-1 px-3 py-1 rounded bg-gray-700 text-light-gray disabled:opacity-50"
+                    className="mx-1 px-3 py-1 rounded bg-gray-700  disabled:opacity-50"
                 >
                     Next &raquo;
                 </button>

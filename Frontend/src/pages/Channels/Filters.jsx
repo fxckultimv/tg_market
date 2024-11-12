@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useProductStore } from '../../store'
 import { useLaunchParams } from '@tma.js/sdk-react'
-import Tune from '../../assets/tune.svg'
+import Document from '../../assets/document.svg'
+import settings from '../../assets/settings.svg'
 
 const Filters = () => {
     const {
@@ -79,108 +80,138 @@ const Filters = () => {
     }
 
     return (
-        <div className="p-4 bg-medium-gray text-white rounded-b-lg shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-                <input
-                    type="search"
-                    placeholder="Поиск продуктов..."
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    className="w-full p-2 bg-gray-700 rounded text-white outline-none"
-                />
-                <img
-                    src={Tune}
-                    alt="tune"
-                    onClick={toggleFilters}
-                    className="ml-4 w-8 h-8 cursor-pointer transition-transform transform hover:scale-110"
-                />
+        <>
+            <div className="flex flex-col items-center justify-center gap-3 mt-16">
+                <div className="p-4 bg-blue rounded-2xl">
+                    <img src={Document} alt="Документ" className="h-[32px]" />
+                </div>
+                <h1 className="text-black text-5xl max-md:text-3xl">
+                    Объявления
+                </h1>
             </div>
-
-            {isExpanded && (
-                <div className="space-y-2">
-                    {/* Category Filter */}
-                    <div>
-                        <select
-                            id="category"
-                            value={filters.category || ''}
-                            onChange={handleCategoryChange}
-                            className="w-full p-2 bg-gray-700 rounded text-white outline-none"
+            <div className="flex flex-col items-center w-full mt-6 mb-16 p-3">
+                {/* Поле поиска */}
+                <div className="w-full max-w-md mb-4">
+                    <input
+                        type="search"
+                        placeholder="Поиск объявлений"
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        className="w-full px-4 py-2 border rounded-lg outline-none  placeholder-gray-400 focus:ring-2 focus:ring-blue"
+                    />
+                </div>
+                {/* Кнопка для фильтров */}
+                <div>
+                    {' '}
+                    <div className="w-full">
+                        <button
+                            onClick={toggleFilters}
+                            className="flex items-center px-4 py-2 bg-blue text-white rounded-full hover:bg-blue-600 transition"
                         >
-                            <option value="">Категория</option>
-                            {categories.map((category) => (
-                                <option
-                                    key={category.category_id}
-                                    value={category.category_id}
-                                >
-                                    {category.category_name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <select
-                            id="ad-format"
-                            className="w-full p-2 bg-gray-700 rounded text-white outline-none"
-                            value={filters.format || ''}
-                            onChange={handleFormat}
-                        >
-                            <option value="">Формат</option>
-                            <option value="1">
-                                1/24 (1 публикация в течение 24 часов)
-                            </option>
-                            <option value="2">
-                                2/48 (2 публикации в течение 48 часов)
-                            </option>
-                            <option value="3">
-                                2/72 (3 публикации в течение 72 часов)
-                            </option>
-                            <option value="4">
-                                Бессрочный (Реклама навсегда в канале)
-                            </option>
-                            <option value="5">
-                                Репост (Репост поста из канала)
-                            </option>
-                            <option value="6">
-                                Ответка (Дополнительнвй пост через 30 минут
-                                после основного)
-                            </option>
-                        </select>
-                    </div>
-
-                    {/* Price Filter */}
-                    <div className="flex items-center justify-between">
-                        <div className="w-full mr-2">
-                            <label htmlFor="min-price" className="block mb-2">
-                                Мин. цена
-                            </label>
-                            <input
-                                id="min-price"
-                                type="number"
-                                min="0"
-                                max="1000000"
-                                value={minPrice}
-                                onChange={handleMinPriceChange}
-                                className="w-full p-2 bg-gray-700 rounded text-white outline-none"
+                            <img
+                                src={settings}
+                                alt="Tune icon"
+                                className="w-5 h-5 mr-2"
                             />
-                        </div>
-                        <div className="w-full">
-                            <label htmlFor="max-price" className="block mb-2">
-                                Макс. цена
-                            </label>
-                            <input
-                                id="max-price"
-                                type="number"
-                                min="0"
-                                max="1000000"
-                                value={maxPrice}
-                                onChange={handleMaxPriceChange}
-                                className="w-full p-2 bg-gray-700 rounded text-white outline-none"
-                            />
-                        </div>
+                            Показать фильтры
+                        </button>
                     </div>
                 </div>
-            )}
-        </div>
+            </div>
+
+            <div className="bg-medium-gray  rounded-b-lg p-2">
+                {isExpanded && (
+                    <div className="space-y-2">
+                        {/* Category Filter */}
+                        <div>
+                            <select
+                                id="category"
+                                value={filters.category || ''}
+                                onChange={handleCategoryChange}
+                                className="w-full p-2 bg-gray-700 rounded  outline-none bg-gray"
+                            >
+                                <option value="">Категория</option>
+                                {categories.map((category) => (
+                                    <option
+                                        key={category.category_id}
+                                        value={category.category_id}
+                                    >
+                                        {category.category_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <select
+                                id="ad-format"
+                                className="w-full p-2 bg-gray-700 rounded  outline-none bg-gray"
+                                value={filters.format || ''}
+                                onChange={handleFormat}
+                            >
+                                <option value="">Формат</option>
+                                <option value="1">
+                                    1/24 (1 публикация в течение 24 часов)
+                                </option>
+                                <option value="2">
+                                    2/48 (2 публикации в течение 48 часов)
+                                </option>
+                                <option value="3">
+                                    2/72 (3 публикации в течение 72 часов)
+                                </option>
+                                <option value="4">
+                                    Бессрочный (Реклама навсегда в канале)
+                                </option>
+                                <option value="5">
+                                    Репост (Репост поста из канала)
+                                </option>
+                                <option value="6">
+                                    Ответка (Дополнительнвй пост через 30 минут
+                                    после основного)
+                                </option>
+                            </select>
+                        </div>
+
+                        {/* Price Filter */}
+                        <div className="flex items-center justify-between">
+                            <div className="w-full mr-2">
+                                <label
+                                    htmlFor="min-price"
+                                    className="block mb-2"
+                                >
+                                    Мин. цена
+                                </label>
+                                <input
+                                    id="min-price"
+                                    type="number"
+                                    min="0"
+                                    max="1000000"
+                                    value={minPrice}
+                                    onChange={handleMinPriceChange}
+                                    className="w-full p-2 bg-gray-700 rounded bg-blue text-white  outline-none"
+                                />
+                            </div>
+                            <div className="w-full">
+                                <label
+                                    htmlFor="max-price"
+                                    className="block mb-2"
+                                >
+                                    Макс. цена
+                                </label>
+                                <input
+                                    id="max-price"
+                                    type="number"
+                                    min="0"
+                                    max="1000000"
+                                    value={maxPrice}
+                                    onChange={handleMaxPriceChange}
+                                    className="w-full p-2 bg-gray-700 rounded  outline-none bg-blue bg"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     )
 }
 

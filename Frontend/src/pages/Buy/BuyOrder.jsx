@@ -60,7 +60,7 @@ const BuyOrder = () => {
             </p>
             <button
                 onClick={handleBuyProduct}
-                className={`bg-accent-green text-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 ${
+                className={`bg-accent-green bg-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 ${
                     isOrderProcessing ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 disabled={isOrderProcessing}

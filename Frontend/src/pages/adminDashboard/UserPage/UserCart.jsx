@@ -16,22 +16,22 @@ const UserCart = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
-                <div className="text-xl font-semibold">Загрузка...</div>
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
+                <div className="text-xl ">Загрузка...</div>
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center bg-dark-gray text-white p-1">
+        <div className="flex min-h-screen flex-col items-center bg-dark-gray bg-white p-1">
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление корзиной
             </h2>
@@ -40,51 +40,41 @@ const UserCart = () => {
                     carts.map((cart) => (
                         <li
                             key={cart.cart_item_id}
-                            className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                            className="mb-4 p-4 rounded-lg bg-dark-gray bg-white shadow transition duration-300 hover:shadow-lg"
                         >
                             <div className="text-xl font-bold">
                                 {cart.title}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    ID продукта:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">ID продукта:</span>{' '}
                                 {cart.product_id}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    ID корзины:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">ID корзины:</span>{' '}
                                 {cart.cart_id}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    Категория:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">Категория:</span>{' '}
                                 {cart.category_id}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">Описание:</span>{' '}
+                            <div className="">
+                                <span className="">Описание:</span>{' '}
                                 {cart.description}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">Цена:</span>{' '}
-                                {cart.price} руб.
+                            <div className="">
+                                <span className="">Цена:</span> {cart.price}{' '}
+                                руб.
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    Количество:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">Количество:</span>{' '}
                                 {cart.quantity}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    Время публикации:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">Время публикации:</span>{' '}
                                 {new Date(cart.post_time).toLocaleDateString()}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
+                            <div className="">
+                                <span className="">
                                     Дата добавления в корзину:
                                 </span>{' '}
                                 {new Date(cart.created_at).toLocaleDateString()}

@@ -5,6 +5,14 @@ import Error from '../../../Error'
 import { useProductStore } from '../../../store'
 import { useParams } from 'react-router-dom'
 import SalesChart from './SalesChart'
+import AverageViewsChart from './AverageViewsChart'
+import EngagementRateChart from './EngagementRateChart'
+import AdPostsChart from './AdPostsChart'
+import PostingFrequencyChart from './PostingFrequencyChart'
+import CTRChart from './CTRChart'
+import ConversionChart from './ConversionChart'
+import CPMChart from './CPMChart'
+import SubscribersChart from './SubscribersChart'
 
 const ChannelStats = () => {
     const { initDataRaw } = useLaunchParams()
@@ -142,13 +150,6 @@ const ChannelStats = () => {
         setPublicationTimes(newTimes)
     }
 
-    const salesData = [
-        { date: '2024-10-01', amount: 150 },
-        { date: '2024-10-02', amount: 200 },
-        { date: '2024-10-03', amount: 100 },
-        { date: '2024-10-04', amount: 300 },
-    ]
-
     console.log(order_stats)
 
     if (loading) {
@@ -161,7 +162,7 @@ const ChannelStats = () => {
 
     if (!productDetails) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">Данные не найдены</div>
             </div>
         )
@@ -199,7 +200,7 @@ const ChannelStats = () => {
                         id="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="mt-1 block w-full rounded-md bg-medium-gray text-white border-main-gray"
+                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray"
                     />
                 </div>
 
@@ -215,7 +216,7 @@ const ChannelStats = () => {
                         <div key={index} className="flex items-center mb-2">
                             <input
                                 type="time"
-                                className="w-full p-3 bg-medium-gray text-white rounded"
+                                className="w-full p-3 bg-medium-gray bg-white rounded"
                                 value={time}
                                 onChange={(e) =>
                                     handleTimeChange(e.target.value, index)
@@ -223,7 +224,7 @@ const ChannelStats = () => {
                             />
                             <button
                                 onClick={() => removePublicationTime(index)}
-                                className="ml-2 bg-red-500 text-white p-2 rounded"
+                                className="ml-2 bg-red-500 bg-white p-2 rounded"
                             >
                                 Удалить
                             </button>
@@ -231,7 +232,7 @@ const ChannelStats = () => {
                     ))}
                     <button
                         onClick={addPublicationTime}
-                        className="mt-2 bg-accent-green text-white p-2 rounded"
+                        className="mt-2 bg-accent-green bg-white p-2 rounded"
                     >
                         Добавить время
                     </button>
@@ -275,7 +276,7 @@ const ChannelStats = () => {
                         id="category"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className="mt-1 block w-full rounded-md bg-medium-gray text-white border-main-gray"
+                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray"
                     />
                 </div> */}
                 <div className="mb-6">
@@ -287,7 +288,7 @@ const ChannelStats = () => {
                     </label>
                     <select
                         id="categories-select"
-                        className="w-full p-3 bg-medium-gray text-white rounded"
+                        className="w-full p-3 bg-medium-gray bg-white rounded"
                         value={categories || ''}
                         onChange={(e) => {
                             setCategory(e.target.value)
@@ -321,14 +322,14 @@ const ChannelStats = () => {
                         id="price"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
-                        className="mt-1 block w-full rounded-md bg-medium-gray text-white border-main-gray"
+                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray"
                     />
                 </div>
 
                 {/* Кнопки */}
                 <button
                     type="submit"
-                    className="mt-4 bg-accent-green text-white px-4 py-2 rounded-md"
+                    className="mt-4 bg-accent-green bg-white px-4 py-2 rounded-md"
                     onClick={handleSave}
                 >
                     Сохранить изменения
@@ -337,12 +338,20 @@ const ChannelStats = () => {
                 <button
                     type="button"
                     onClick={handleDelete}
-                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md ml-4"
+                    className="mt-4 bg-red-500 bg-white px-4 py-2 rounded-md ml-4"
                 >
                     Удалить продукт
                 </button>
             </form>
             <SalesChart ordersData={order_stats} />
+            <AverageViewsChart />
+            <EngagementRateChart />
+            <AdPostsChart />
+            <PostingFrequencyChart />
+            <CTRChart />
+            <ConversionChart />
+            <CPMChart />
+            <SubscribersChart />
         </div>
     )
 }

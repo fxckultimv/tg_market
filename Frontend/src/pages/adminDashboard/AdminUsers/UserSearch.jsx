@@ -15,13 +15,13 @@ const UserSearch = ({ onSearch, fetchAllUsers }) => {
         <div className="w-full max-w-4xl mb-6">
             <input
                 type="text"
-                className="w-full p-2 mb-2 rounded bg-medium-gray text-white"
+                className="w-full p-2 mb-2 rounded bg-medium-gray "
                 placeholder="Введите ID пользователя"
                 value={searchUserId}
                 onChange={(e) => setSearchUserId(e.target.value)}
             />
             <button
-                className="w-full p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+                className="w-full p-2  bg-blue rounded hover:bg-blue-600"
                 onClick={handleSearch}
             >
                 Найти пользователя

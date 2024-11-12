@@ -2,9 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    body {
+        @apply font-inter;
+    }
+}
+
+.light {
+    --background: 255, 255, 255;
+    --white: 255, 255, 255;
+    --card-white: 247, 249, 251;
+    --main-gray: 246, 246, 246;
+    --gray: 205, 205, 205;
+    --green: 37, 198, 95;
+    --red: 248, 79, 82;
+    --blue: 0, 122, 255;
+    --dark-blue: 18, 23, 45;
+    --main-blue: 30, 35, 54;
+    --light-gray: 245, 247, 249;
+    --dark: 25, 26, 35;
+    --black: 0, 0, 0;
+}
+
+.dark {
+    --background: 0, 0, 0;
+    --white: 255, 255, 255;
+    --card-white: 247, 249, 251;
+    --main-gray: 246, 246, 246;
+    --gray: 205, 205, 205;
+    --green: 37, 198, 95;
+    --red: 248, 79, 82;
+    --blue: 0, 122, 255;
+    --dark-blue: 18, 23, 45;
+    --main-blue: 30, 35, 54;
+    --light-gray: 245, 247, 249;
+    --dark: 25, 26, 35;
+    --black: 0, 0, 0;
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Roboto', 'Oxygen', 'Ubuntu',
-        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.5;
@@ -46,19 +82,4 @@ input[type='datetime-local']:focus {
     border-color: #8f77a4;
     box-shadow: 0 0 0 2px rgba(123, 76, 163, 0.25);
     outline: none;
-}
-
-:root {
-    --bg-color: #ffffff; /* Фоновый цвет по умолчанию */
-    --button-color: #5288c1; /* Цвет кнопки по умолчанию */
-    --button-text-color: #ffffff; /* Цвет текста кнопки */
-    --accent-color: #6ab2f2; /* Акцентный цвет */
-}
-
-/* Поддержка динамической темы */
-.dark {
-    --bg-color: #17212b;
-    --button-color: #5288c1;
-    --button-text-color: #ffffff;
-    --accent-color: #6ab2f2;
 }

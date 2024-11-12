@@ -16,21 +16,21 @@ const UserProducts = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
-                <div className="text-xl font-semibold">Загрузка...</div>
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
+                <div className="text-xl ">Загрузка...</div>
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
     return (
-        <div className="flex min-h-screen flex-col items-center bg-dark-gray text-white p-1">
+        <div className="flex min-h-screen flex-col items-center bg-dark-gray bg-white p-1">
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление продуктами
             </h2>
@@ -42,47 +42,37 @@ const UserProducts = () => {
                     >
                         <li
                             key={product.product_id}
-                            className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                            className="mb-4 p-4 rounded-lg bg-dark-gray bg-white shadow transition duration-300 hover:shadow-lg"
                         >
                             <div className="text-xl font-bold">
                                 {product.title}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    ID продукта:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">ID продукта:</span>{' '}
                                 {product.product_id}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    ID пользователя:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">ID пользователя:</span>{' '}
                                 {product.user_id}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    Категория:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">Категория:</span>{' '}
                                 {product.category_id}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">Описание:</span>{' '}
+                            <div className="">
+                                <span className="">Описание:</span>{' '}
                                 {product.description}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">Цена:</span>{' '}
-                                {product.price} руб.
+                            <div className="">
+                                <span className="">Цена:</span> {product.price}{' '}
+                                руб.
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    Время публикации:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">Время публикации:</span>{' '}
                                 {product.post_time}
                             </div>
-                            <div className="text-light-gray">
-                                <span className="font-semibold">
-                                    Дата создания:
-                                </span>{' '}
+                            <div className="">
+                                <span className="">Дата создания:</span>{' '}
                                 {new Date(
                                     product.created_at
                                 ).toLocaleDateString()}

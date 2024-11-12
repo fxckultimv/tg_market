@@ -55,23 +55,23 @@ const AdminOrders = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
-                <div className="text-xl font-semibold">Загрузка...</div>
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
+                <div className="text-xl ">Загрузка...</div>
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center bg-dark-gray text-white p-1">
-            <h2 className="mb-6 text-xl font-extrabold text-main-green">
+        <div className="flex min-h-screen flex-col items-center">
+            <h2 className="mb-6 text-xl font-extrabold text-blue">
                 Управление заказами
             </h2>
 
@@ -84,29 +84,25 @@ const AdminOrders = () => {
                 <ul className="w-full max-w-4xl bg-medium-gray rounded-lg p-2 shadow-md">
                     <li
                         key={searchedOrder.order_id}
-                        className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                        className="mb-4 p-4 rounded-lg bg-card-white shadow transition duration-300 hover:shadow-lg"
                     >
-                        <div className="text-xl font-bold">
+                        <div className="text-xl">
                             Заказ №{searchedOrder.order_id}
                         </div>
-                        <div className="text-light-gray">
-                            <span className="font-semibold">
-                                ID пользователя:
-                            </span>{' '}
+                        <div className="">
+                            <span className="">ID пользователя:</span>{' '}
                             {searchedOrder.user_id}
                         </div>
-                        <div className="text-light-gray">
-                            <span className="font-semibold">Сумма заказа:</span>{' '}
+                        <div className="">
+                            <span className="">Сумма заказа:</span>{' '}
                             {searchedOrder.total_price} руб.
                         </div>
-                        <div className="text-light-gray">
-                            <span className="font-semibold">Статус:</span>{' '}
+                        <div className="">
+                            <span className="">Статус:</span>{' '}
                             {searchedOrder.status}
                         </div>
-                        <div className="text-light-gray">
-                            <span className="font-semibold">
-                                Дата создания:
-                            </span>{' '}
+                        <div className="">
+                            <span className="">Дата создания:</span>{' '}
                             {new Date(
                                 searchedOrder.created_at
                             ).toLocaleDateString()}

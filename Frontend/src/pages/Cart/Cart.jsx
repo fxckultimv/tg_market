@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import Delete from '../../assets/delete.svg'
 import Loading from '../../Loading'
+import Bag from '../../assets/bag.svg'
 
 const Cart = () => {
     const { initDataRaw } = useLaunchParams()
@@ -110,14 +111,14 @@ const Cart = () => {
 
     if (!cart || !cart.products || Object.keys(cart.products).length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-dark-gray bg">
                 <div className="text-2xl font-bold mb-4">
                     Ваша корзина пуста
                 </div>
 
                 <Link
                     to="/channels"
-                    className="bg-accent-green text-white px-6 py-3 rounded-full font-semibold text-lg transition-transform transform hover:scale-105 hover:bg-green-600"
+                    className="bg-accent-green bg-white px-6 py-3 rounded-full font-semibold text-lg transition-transform transform hover:scale-105 hover:bg-green-600"
                 >
                     Перейти к товарам
                 </Link>
@@ -126,98 +127,123 @@ const Cart = () => {
     }
 
     return (
-        <div className="container mx-auto p-4">
-            <h2 className="text-3xl font-extrabold text-main-green mb-8">
-                Корзина
-            </h2>
-            <ul className="space-y-6">
-                {Object.entries(cart.products).map(([productId, product]) => (
-                    <div
-                        key={productId}
-                        onClick={() => handleSelectProduct(productId)}
-                        className={`bg-gradient-to-r from-dark-gray to-medium-gray p-2 rounded-xl shadow-2xl text-white flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out ${
-                            selectedProductId === productId
-                                ? 'border-4 border-main-green scale-105'
-                                : 'hover:shadow-2xl hover:scale-105'
-                        }`}
-                    >
-                        <div className="flex-none">
-                            <h3 className="text-xl font-extrabold mb-2 text-main-green">
-                                {product.title}
-                            </h3>{' '}
-                            <p className="text-sm text-light-gray">
-                                ⭐️ {product.rating}
-                            </p>
-                            {console.log(product.rating)}
-                            <div className="">
-                                <p>Время публикации: </p>
-                                <div className="border flex justify-evenly border-main-gray rounded-lg p-3 bg-medium-gray gap-2">
-                                    <ul className=" space-y-2">
-                                        {product.items.map((item) => (
-                                            <CartItem
-                                                key={item.cart_item_id}
-                                                item={item}
+        <>
+            <div className="flex flex-col items-center justify-center gap-3 m-16">
+                <div className="p-4 bg-blue rounded-2xl">
+                    <img src={Bag} alt="Документ" className="h-[32px]" />
+                </div>
+                <div className="flex">
+                    <h1 className="text-black text-5xl max-md:text-3xl">
+                        Корзина
+                    </h1>
+                    <p>{Object.keys(cart.products).length}</p>
+                </div>
+            </div>
+            <div className="flex justify-between p-16 max-md:p-5 max-xl:p-8 max-md:flex-col">
+                <div className="mr-auto basis-2/3">
+                    <ul className="space-y-6">
+                        {Object.entries(cart.products).map(
+                            ([productId, product]) => (
+                                <div
+                                    key={productId}
+                                    onClick={() =>
+                                        handleSelectProduct(productId)
+                                    }
+                                    className={`bg-card-white px-6 py-5 rounded-xl   flex flex-col gap-3 transform hover:scale-105 transition duration-300 ease-in-out ${
+                                        selectedProductId === productId
+                                            ? 'border-4 border-main-green scale-105'
+                                            : 'hover:shadow-2xl hover:scale-105'
+                                    }`}
+                                >
+                                    <div className="flex gap-3">
+                                        <div className="aspect-square">
+                                            <img
+                                                className="rounded-full max-h-[111px]"
+                                                src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                                                alt={product.title}
                                             />
-                                        ))}
-                                    </ul>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl mb-2 text-main-green">
+                                                {product.title}
+                                            </h3>{' '}
+                                            <p className="text-base">
+                                                ⭐️ {product.rating}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray w-full h-[1px]"></div>
+                                    <div className="flex-none">
+                                        <div className="">
+                                            <p>Время публикации: </p>
+                                            <div>
+                                                <ul className="flex gap-3 justify-start flex-wrap items-center">
+                                                    {product.items.map(
+                                                        (item) => (
+                                                            <CartItem
+                                                                key={
+                                                                    item.cart_item_id
+                                                                }
+                                                                item={item}
+                                                            />
+                                                        )
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray w-full h-[1px] "></div>
+                                    <div className="flex justify-between items-center">
+                                        <p className=" text-2xl text-accent-green">
+                                            {product.price}₽
+                                        </p>
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteItem(productId)
+                                            }
+                                            className="p-3"
+                                        >
+                                            <img
+                                                src={Delete}
+                                                alt=""
+                                                className="bg-red p-3 rounded-md"
+                                            />
+                                        </button>
+                                    </div>
                                 </div>
+                            )
+                        )}
+                    </ul>
+                </div>
+                <div className="basis-1/3">
+                    <div className="bg-dark-blue text-white p-6 rounded-xl mx-auto basis-1/3 w-full">
+                        <h2 className="text-lg  mb-4">Оформление заказа</h2>
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <p>Топор+ (3 дня)</p>
+                                <p>1500 ₽</p>
                             </div>
-                            <p className="font-bold text-2xl text-accent-green">
-                                {product.price}₽
-                            </p>
-                            <button onClick={() => handleDeleteItem(productId)}>
-                                <img src={Delete} alt="" />
-                            </button>
+                            <div className="flex justify-between">
+                                <p>Топор+ (3 дня)</p>
+                                <p>1500 ₽</p>
+                            </div>
+                            <div className="flex justify-between">
+                                <p>Топор+ (3 дня)</p>
+                                <p>1500 ₽</p>
+                            </div>
                         </div>
-
-                        <div className="shrink">
-                            <img
-                                className="rounded-full object-cover border-2 border-accent-green shadow-lg"
-                                src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
-                                alt={product.title}
-                            />
+                        <div className="border-t border-gray my-4"></div>
+                        <div className="flex justify-between text-lg ">
+                            <p>Итого:</p>
+                            <p>4500 ₽</p>
                         </div>
-
-                        {/* <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-extrabold mb-2 text-main-green">
-                                {product.title}
-                            </h3>
-                        </div>
-
-                        <div className="flex-shrink-0">
-                            <img
-                                className="rounded-full w-28 h-28 object-cover border-2 border-accent-green shadow-lg"
-                                src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
-                                alt={product.title}
-                            />
-                        </div>
-                        <div className="flex justify-between items-center mb-4">
-                            <p className="text-gray-300">
-                                Цена:{' '}
-                                <span className="font-semibold text-main-green">
-                                    {product.price} руб.
-                                </span>
-                            </p>
-                            <p className="text-gray-300">
-                                Общее количество:{' '}
-                                <span className="font-semibold text-main-green">
-                                    {product.items.reduce(
-                                        (total, item) => total + item.quantity,
-                                        0
-                                    )}
-                                </span>
-                            </p>
-                        </div>
-
-                        <ul className="mt-4 space-y-2">
-                            {product.items.map((item) => (
-                                <CartItem key={item.cart_item_id} item={item} />
-                            ))}
-                        </ul> */}
+                        <button className="w-full bg-blue-500 bg-white py-2 mt-4 rounded-lg  hover:bg-blue-600 transition">
+                            Перейти к оплате
+                        </button>
                     </div>
-                ))}
-            </ul>
-        </div>
+                </div>
+            </div>
+        </>
     )
 }
 

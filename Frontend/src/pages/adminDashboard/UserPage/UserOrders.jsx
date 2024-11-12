@@ -24,7 +24,7 @@ const UserOrders = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray ">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -32,14 +32,14 @@ const UserOrders = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen bg-dark-gray ">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center bg-dark-gray text-white p-1">
+        <div className="flex min-h-screen flex-col items-center bg-dark-gray  p-1">
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление заказами
             </h2>
@@ -51,34 +51,34 @@ const UserOrders = () => {
                     >
                         <li
                             key={order.order_id}
-                            className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                            className="mb-4 p-4 rounded-lg bg-dark-gray  shadow transition duration-300 hover:shadow-lg"
                         >
                             <div className="text-xl font-bold">
                                 Заказ #{order.order_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     ID заказа:
                                 </span>{' '}
                                 {order.order_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     ID пользователя:
                                 </span>{' '}
                                 {order.user_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">Статус:</span>{' '}
                                 {order.status}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     Общая сумма:
                                 </span>{' '}
                                 {order.total_price} руб.
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     Дата создания:
                                 </span>{' '}

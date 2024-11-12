@@ -52,21 +52,17 @@ const SingleUser = () => {
                 <ul className="w-full max-w-4xl bg-medium-gray rounded-lg p-2 shadow-md">
                     <li
                         key={user.user_id}
-                        className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                        className="mb-4 p-4 rounded-lg bg-dark-gray bg-white shadow transition duration-300 hover:shadow-lg"
                     >
                         <div className="text-xl font-bold">{user.username}</div>
-                        <div className="text-light-gray">
-                            <span className="font-semibold">ID:</span>{' '}
-                            {user.user_id}
+                        <div className="">
+                            <span className="">ID:</span> {user.user_id}
                         </div>
-                        <div className="text-light-gray">
-                            <span className="font-semibold">Рейтинг:</span>{' '}
-                            {user.rating}
+                        <div className="">
+                            <span className="">Рейтинг:</span> {user.rating}
                         </div>
-                        <div className="text-light-gray">
-                            <span className="font-semibold">
-                                Дата создания:
-                            </span>{' '}
+                        <div className="">
+                            <span className="">Дата создания:</span>{' '}
                             {new Date(user.created_at).toLocaleDateString()}
                         </div>
                     </li>
@@ -77,7 +73,7 @@ const SingleUser = () => {
                 <button
                     className={`px-4 py-2 rounded ${
                         activeSection === 'products'
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-blue-500 bg'
                             : 'bg-gray-700 text-gray-300'
                     }`}
                     onClick={() => setActiveSection('products')}
@@ -87,7 +83,7 @@ const SingleUser = () => {
                 <button
                     className={`px-4 py-2 rounded ${
                         activeSection === 'orders'
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-blue-500 bg'
                             : 'bg-gray-700 text-gray-300'
                     }`}
                     onClick={() => setActiveSection('orders')}
@@ -97,7 +93,7 @@ const SingleUser = () => {
                 <button
                     className={`px-4 py-2 rounded ${
                         activeSection === 'cart'
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-blue-500 bg'
                             : 'bg-gray-700 text-gray-300'
                     }`}
                     onClick={() => setActiveSection('cart')}

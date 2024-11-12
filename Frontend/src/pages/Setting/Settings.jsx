@@ -1,19 +1,28 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useAdminStore } from '../../store'
 
 const Setting = () => {
     const [theme, setTheme] = useState('dark') // Тема по умолчанию - тёмная
     const [language, setLanguage] = useState('ru') // Язык по умолчанию - русский
 
-    // Переключатель темы
+    useEffect(() => {
+        // Получаем тему из localStorage при загрузке компонента
+        const savedTheme = localStorage.getItem('theme') || 'dark'
+        setTheme(savedTheme)
+        // Устанавливаем класс на элемент <html> для работы с Tailwind
+        document.body.classList.add(savedTheme)
+    }, [])
+
+    // Переключатель темы с сохранением в localStorage
     const toggleTheme = () => {
-        setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'))
-        document.body.className =
-            theme === 'dark' ? 'bg-dark-gray text-white' : 'bg-white text-black'
+        const newTheme = theme === 'dark' ? 'light' : 'dark'
+        setTheme(newTheme)
+        localStorage.setItem('theme', newTheme)
+        document.body.classList.remove(theme) // Удаляем старую тему
+        document.body.classList.add(newTheme) // Добавляем новую тему
     }
 
-    // Изменение языка
+    // Обработчик изменения языка
     const handleLanguageChange = (e) => {
         setLanguage(e.target.value)
         // Здесь можно добавить логику по изменению языка в приложении
@@ -21,20 +30,24 @@ const Setting = () => {
 
     return (
         <div
-            className={`flex flex-col  justify-start min-h-screen ${
+            className={`flex flex-col items-start min-h-screen px-6 py-4 ${
                 theme === 'dark'
-                    ? 'bg-dark-gray text-white'
-                    : 'bg-white text-black'
-            } m-2`}
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-900'
+            }`}
         >
-            <h2 className="text-3xl font-bold mb-6">Настройки</h2>
+            <h2 className="text-3xl font-bold mb-8">Настройки</h2>
 
             {/* Переключатель темы */}
-            <div className="mb-4">
-                <label className="mr-2">Тема сайта:</label>
+            <div className="mb-6">
+                <label className="mr-4 font-medium">Тема сайта:</label>
                 <button
                     onClick={toggleTheme}
-                    className="bg-accent-green text-white px-4 py-2 rounded transition-transform transform hover:scale-105"
+                    className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-300 ${
+                        theme === 'dark'
+                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                    }`}
                 >
                     {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
                 </button>
@@ -42,17 +55,21 @@ const Setting = () => {
 
             {/* Выбор языка */}
             <div className="mb-6">
-                <label className="mr-2">Язык сайта:</label>
+                <label className="mr-4 font-medium">Язык сайта:</label>
                 <select
                     value={language}
                     onChange={handleLanguageChange}
-                    className="bg-medium-gray text-white px-4 py-2 rounded"
+                    className="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-gray-900 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                     <option value="ru">Русский</option>
                     <option value="en">English</option>
-                    {/* Добавь другие языки по мере необходимости */}
                 </select>
             </div>
+
+            {/* Добавить ссылку для возврата на предыдущую страницу */}
+            <Link to="/" className="text-blue-500 hover:underline">
+                Вернуться на главную
+            </Link>
         </div>
     )
 }

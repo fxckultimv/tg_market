@@ -594,6 +594,8 @@ export const useAdminStore = create((set) => ({
 }))
 
 export const useUserStore = create((set) => ({
+    theme: 'light', // начальное значение темы по умолчанию
+    setTheme: (newTheme) => set({ theme: newTheme }), // метод для смены темы
     cart: [],
     user: [],
     verifiedChannels: [],
@@ -1064,6 +1066,7 @@ export const useProductStore = create((set, get) => ({
     products: [],
     myProducts: [],
     productDetails: null,
+    userProducts: [],
     busyDay: [],
     order_stats: [],
     searchQuery: '',
@@ -1217,13 +1220,13 @@ export const useProductStore = create((set, get) => ({
             const data = await response.json()
 
             set({
-                products: data.products,
+                userProducts: data.products,
                 totalPages: data.totalPages || 1,
                 isLoading: false,
             })
         } catch (error) {
             console.error('Error fetching products:', error)
-            set({ products: [], isLoading: false })
+            set({ userProducts: [], isLoading: false })
         }
     },
     fetchMyProducts: async (initDataRaw) => {

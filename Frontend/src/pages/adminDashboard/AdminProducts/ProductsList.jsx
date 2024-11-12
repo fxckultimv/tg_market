@@ -17,44 +17,44 @@ const ProductsList = ({
                         {console.log(product)}
                         <li
                             key={product.product_id}
-                            className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                            className="mb-4 p-4 rounded-lg bg-dark-gray  shadow transition duration-300 hover:shadow-lg"
                         >
                             <div className="text-xl font-bold">
                                 {product.title}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     ID продукта:
                                 </span>{' '}
                                 {product.product_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     ID пользователя:
                                 </span>{' '}
                                 {product.user_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     Категория:
                                 </span>{' '}
                                 {product.category_id}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">Описание:</span>{' '}
                                 {product.description}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">Цена:</span>{' '}
                                 {product.price} руб.
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     Время публикации:
                                 </span>{' '}
                                 {product.post_time}
                             </div>
-                            <div className="text-light-gray">
+                            <div className="">
                                 <span className="font-semibold">
                                     Дата создания:
                                 </span>{' '}
@@ -70,7 +70,7 @@ const ProductsList = ({
                 <button
                     onClick={goToPreviousPage}
                     disabled={currentPage === 1}
-                    className="mx-1 px-3 py-1 rounded bg-gray-700 text-light-gray disabled:opacity-50"
+                    className="mx-1 px-3 py-1 rounded bg-gray-700  disabled:opacity-50"
                 >
                     &laquo; Previous
                 </button>
@@ -80,8 +80,8 @@ const ProductsList = ({
                         onClick={() => setCurrentPage(i + 1)}
                         className={`mx-1 px-3 py-1 rounded ${
                             currentPage === i + 1
-                                ? 'bg-main-green text-white'
-                                : 'bg-gray-700 text-light-gray'
+                                ? 'bg-main-green '
+                                : 'bg-gray-700 '
                         }`}
                     >
                         {i + 1}
@@ -90,7 +90,7 @@ const ProductsList = ({
                 <button
                     onClick={goToNextPage}
                     disabled={currentPage === totalPages}
-                    className="mx-1 px-3 py-1 rounded bg-gray-700 text-light-gray disabled:opacity-50"
+                    className="mx-1 px-3 py-1 rounded bg-gray-700  disabled:opacity-50"
                 >
                     Next &raquo;
                 </button>

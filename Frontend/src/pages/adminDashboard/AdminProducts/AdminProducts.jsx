@@ -59,7 +59,7 @@ const AdminProducts = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen ">
                 <div className="text-xl font-semibold">Загрузка...</div>
             </div>
         )
@@ -67,14 +67,14 @@ const AdminProducts = () => {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray text-white">
+            <div className="flex items-center justify-center min-h-screen ">
                 <div className="text-xl text-red-500">{error}</div>
             </div>
         )
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center bg-dark-gray text-white p-1">
+        <div className="flex min-h-screen flex-col items-center  p-1">
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление продуктами
             </h2>
@@ -88,7 +88,7 @@ const AdminProducts = () => {
                 <ul className="w-full max-w-4xl bg-medium-gray rounded-lg p-2 shadow-md">
                     <li
                         key={searchedProduct.product_id}
-                        className="mb-4 p-4 rounded-lg bg-dark-gray text-white shadow transition duration-300 hover:shadow-lg"
+                        className="mb-4 p-4 rounded-lg  shadow transition duration-300 hover:shadow-lg"
                     >
                         <div className="text-xl font-bold">
                             {searchedProduct.title}
