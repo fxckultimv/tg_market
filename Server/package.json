@@ -15,6 +15,7 @@
     "axios": "^1.7.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "ton-connect": "^1.0.0",
     "express": "^4.19.2",
     "mongodb": "^3.6.3",
     "mongoose": "^8.7.2",
