@@ -10,7 +10,7 @@ const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS;
 class BalanceController {
     async getBalance(req, res) {
         try {
-            const { id: userId } = req.query;
+            const userId = req.user._id;
             let userBalance = await UserBalance.findOne({ userId });
             
             if (!userBalance) {
@@ -31,7 +31,7 @@ class BalanceController {
     async replenishBalance(req, res) {
         try {
             const { amount } = req.body;
-            const userId = req.user.id;
+            const userId = req.user._id;
 
             if (isNaN(amount) || amount <= 0) {
                 return res.status(400).json({ error: 'Invalid amount' });
@@ -69,7 +69,7 @@ class BalanceController {
     async handleTonTopUp(req, res) {
         try {
             const { tonAmount, transactionHash } = req.body;
-            const userId = req.user.id;
+            const userId = req.user._id;
 
             const isValid = await verifyTonPayment(tonAmount, transactionHash);
             if (!isValid) {
@@ -109,7 +109,7 @@ class BalanceController {
     async handlePurchase(req, res) {
         try {
             const { sellerId, amount, productId } = req.body;
-            const buyerId = req.user.id;
+            const buyerId = req.user._id;
 
             const [buyerBalance, sellerBalance] = await Promise.all([
                 UserBalance.findOne({ userId: buyerId }),
@@ -188,7 +188,7 @@ class BalanceController {
     async handleWithdrawal(req, res) {
         try {
             const { amount, toAddress } = req.body;
-            const userId = req.user.id;
+            const userId = req.user._id;
 
             const userBalance = await UserBalance.findOne({ userId });
             if (!userBalance) {

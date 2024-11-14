@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/User');
+const User = require('../models/User');
 const logger = require('../config/logging');
 
 const authMiddleware = async (req, res, next) => {
@@ -12,26 +12,15 @@ const authMiddleware = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        const user = await User.findOne({ 
-            _id: decoded._id, 
-            'tokens.token': token 
-        });
+        const user = await User.findOne({ _id: decoded._id, 'tokens.token': token });
 
         if (!user) {
             logger.warn(`Authentication failed: User not found for token ${token}`);
             throw new Error('User not found');
         }
 
-        const currentTimestamp = Math.floor(Date.now() / 1000);
-        if (decoded.exp && decoded.exp < currentTimestamp) {
-            logger.warn(`Authentication failed: Token expired for user ${user._id}`);
-            throw new Error('Token expired');
-        }
-
-        req.user = user;
         req.token = token;
-
+        req.user = user;
         next();
     } catch (error) {
         logger.error(`Authentication error: ${error.message}`);
