@@ -3,10 +3,10 @@ const logger = require('../config/logging');
 
 const userBalanceSchema = new mongoose.Schema({
     userId: { 
-        type: String, 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true, 
-        unique: true,
-        ref: 'User'
+        unique: true
     },
     balance: { 
         type: Number, 
