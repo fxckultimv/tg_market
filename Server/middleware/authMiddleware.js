@@ -1,39 +1,31 @@
-// authMiddleware.js
-require('dotenv').config()
-const { validate, parse } = require('@telegram-apps/init-data-node')
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const logger = require('../config/logging');
 
-const token = process.env.BOT_TOKEN
-
-const authMiddleware = (req, res, next) => {
-    const authHeader = req.header('Authorization')
-    if (!authHeader) {
-        return res.status(401).json({ message: 'Authorization header missing' })
-    }
-
-    const [authType, authData] = authHeader.split(' ')
-
-    if (authType !== 'tma' || !authData) {
-        return res.status(401).json({ message: 'Invalid authorization format' })
-    }
-
+const authMiddleware = async (req, res, next) => {
     try {
-        validate(authData, token, { expiresIn: 3600 })
-        const initData = parse(authData)
-        res.locals.initData = initData
-        // console.log('Init data ', initData)
-        // console.log(initData.user.id)
+        const token = req.header('Authorization')?.replace('Bearer ', '');
 
-        next()
-    } catch (error) {
-        // Обработка ошибок типа unknown
-        if (error) {
-            console.log(error.message)
-            return res
-                .status(401)
-                .json({ message: 'Invalid init data', error: error.message })
+        if (!token) {
+            logger.warn('Authentication failed: No token provided');
+            return res.status(401).json({ error: 'Authentication required' });
         }
-        return res.status(401).json({ message: 'Invalid init data', error })
-    }
-}
 
-module.exports = authMiddleware
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findOne({ _id: decoded._id, 'tokens.token': token });
+
+        if (!user) {
+            logger.warn(`Authentication failed: User not found for token ${token}`);
+            throw new Error('User not found');
+        }
+
+        req.token = token;
+        req.user = user;
+        next();
+    } catch (error) {
+        logger.error(`Authentication error: ${error.message}`);
+        res.status(401).json({ error: 'Please authenticate' });
+    }
+};
+
+module.exports = authMiddleware;
