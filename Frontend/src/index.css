@@ -10,6 +10,7 @@
 
 .light {
     --background: 255, 255, 255;
+    --text: 0, 0, 0;
     --white: 255, 255, 255;
     --card-white: 247, 249, 251;
     --main-gray: 246, 246, 246;
@@ -25,9 +26,10 @@
 }
 
 .dark {
-    --background: 0, 0, 0;
+    --background: 21, 31, 46;
+    --text: 255, 255, 255;
     --white: 255, 255, 255;
-    --card-white: 247, 249, 251;
+    --card-white: 34, 57, 91;
     --main-gray: 246, 246, 246;
     --gray: 205, 205, 205;
     --green: 37, 198, 95;
@@ -51,6 +53,16 @@ body {
 
 body::-webkit-scrollbar {
     display: none; /* Safari и Chrome */
+}
+
+/* Скрытие горизонтального скроллбара */
+.no-scrollbar {
+    -ms-overflow-style: none; /* для Internet Explorer и Edge */
+    scrollbar-width: none; /* для Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none; /* для Chrome, Safari и Opera */
 }
 
 blockquote {

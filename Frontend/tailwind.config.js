@@ -13,7 +13,7 @@ export default {
             colors: {
                 background: 'rgba(var(--background))',
                 white: '#FFFFFF',
-                'card-white': '#F7F9FB',
+                'card-white': 'rgba(var(--card-white))',
                 'main-gray': '#F6F6F6',
                 gray: '#CDCDCD',
                 green: '#25C65F',
@@ -24,6 +24,7 @@ export default {
                 'light-gray': '#F5F7F9',
                 dark: '#191A23',
                 black: '#000000',
+                text: 'rgba(var(--text))',
                 // Используем CSS-переменные
                 'theme-bg': 'var(--bg-color)',
                 'theme-button': 'var(--button-color)',

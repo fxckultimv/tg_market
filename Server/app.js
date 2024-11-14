@@ -16,10 +16,14 @@ const buyRouter = require('./routes/buy')
 const userRouter = require('./routes/user')
 const path = require('path')
 const balanceRouter = require('./routes/balance')
-const paymentRouter = require('./routes/payments');
+const paymentRouter = require('./routes/payment')
+const { default: mongoose } = require('mongoose')
 // const startScheduler = require('./scheduler/complited')
 
-mongoose.connect('mongodb://localhost/mydatabase', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost:27017/TeleAd', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
 
 app.use(cors())
 
@@ -40,7 +44,7 @@ app.use('/channels', ChannelsRouter)
 app.use('/buy', buyRouter)
 app.use('/user', userRouter)
 app.use('/balance', balanceRouter)
-app.use('/payments', paymentRouter);
+app.use('/payments', paymentRouter)
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {

@@ -8,9 +8,7 @@ const CustomLink = ({ to, children, ...props }) => {
         <Link
             to={to}
             className={`p-3 rounded-lg ${
-                match
-                    ? 'text-black bg-light-gray'
-                    : 'text-gray hover:text-black'
+                match ? 'text-text bg-light-gray' : 'text-gray hover:text-text'
             }`}
             {...props}
         >

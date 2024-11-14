@@ -85,7 +85,7 @@ const Filters = () => {
                 <div className="p-4 bg-blue rounded-2xl">
                     <img src={Document} alt="Документ" className="h-[32px]" />
                 </div>
-                <h1 className="text-black text-5xl max-md:text-3xl">
+                <h1 className="text-text text-5xl max-md:text-3xl">
                     Объявления
                 </h1>
             </div>

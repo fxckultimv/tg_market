@@ -6,6 +6,12 @@ import Loading from '../../Loading'
 import Error from '../../Error'
 import Document from '../../assets/create.svg'
 import check from '../../assets/check.svg'
+import ArrowLeft from '../../assets/arrow-left.svg'
+import ArrowRight from '../../assets/arrow-right.svg'
+import Star from '../../assets/star.svg'
+import Check from '../../assets/check-contained.svg'
+import { div, img } from 'framer-motion/client'
+import { useRef } from 'react'
 
 const CreateAd = () => {
     const { initDataRaw } = useLaunchParams()
@@ -46,6 +52,9 @@ const CreateAd = () => {
         setPublicationTimes(newTimes)
     }
 
+    console.log('publicationTime', publicationTime)
+    console.log('publicationTimes', publicationTimes.length)
+
     useEffect(() => {
         fetchVerifiedChannels(initDataRaw)
         fetchCategories(initDataRaw)
@@ -58,8 +67,8 @@ const CreateAd = () => {
             const isFormFilled =
                 selectedChannel &&
                 selectedCategories &&
-                selectedFormat &&
-                publicationTimes &&
+                selectedFormat.length > 0 &&
+                publicationTimes.length > 0 &&
                 price &&
                 description &&
                 !timeError
@@ -88,7 +97,6 @@ const CreateAd = () => {
                     setSelectedChannel(null)
                     setSelectedCategories(null)
                     setSelectedFormat([])
-                    setAdFormat('')
                     setPublicationTime('')
                     setPublicationTimes('')
                     setPrice('')
@@ -115,6 +123,7 @@ const CreateAd = () => {
         selectedCategories,
         selectedFormat,
         publicationTime,
+        publicationTimes,
         price,
         description,
         timeError,
@@ -146,6 +155,26 @@ const CreateAd = () => {
         }
     }
 
+    const sliderRef = useRef(null)
+
+    const handleSelectChannel = (channelId) => {
+        if (channelId != selectedChannel) {
+            setSelectedChannel(channelId)
+        } else setSelectedChannel(null)
+    }
+
+    const scrollLeft = () => {
+        if (sliderRef.current) {
+            sliderRef.current.scrollBy({ left: -150, behavior: 'smooth' })
+        }
+    }
+
+    const scrollRight = () => {
+        if (sliderRef.current) {
+            sliderRef.current.scrollBy({ left: 150, behavior: 'smooth' })
+        }
+    }
+
     if (loading) {
         return <Loading />
     }
@@ -170,220 +199,249 @@ const CreateAd = () => {
                     {verifiedChannels.length > 0 ? (
                         <>
                             <div className="mb-6 bg-card-white p-6 rounded-xl">
+                                <div className="flex flex-col">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-base">
+                                            Выберите верифицированный канал:
+                                        </p>
+                                        <div className="flex gap-3 max-md:hidden">
+                                            <button onClick={scrollLeft}>
+                                                <img
+                                                    src={ArrowLeft}
+                                                    alt="Left Arrow"
+                                                />
+                                            </button>
+                                            <button onClick={scrollRight}>
+                                                <img
+                                                    src={ArrowRight}
+                                                    alt="Right Arrow"
+                                                />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        ref={sliderRef}
+                                        className="flex overflow-x-scroll py-3 no-scrollbar snap-x -scroll-m-3 gap-3"
+                                    >
+                                        {verifiedChannels.map((channel) => (
+                                            <div
+                                                key={channel.channel_id}
+                                                onClick={() =>
+                                                    handleSelectChannel(
+                                                        channel.channel_id
+                                                    )
+                                                }
+                                                className={` rounded-3xl flex flex-col gap-3 items-center p-4 cursor-pointer w-[150px] h-[200px] select-none scroll-mr-3 ${
+                                                    selectedChannel ===
+                                                    channel.channel_id
+                                                        ? 'bg-blue text-white'
+                                                        : 'bg-white'
+                                                }`}
+                                            >
+                                                <div className="relative">
+                                                    {' '}
+                                                    <img
+                                                        src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
+                                                        alt=""
+                                                        className="rounded-full h-[82px]"
+                                                    />
+                                                    {selectedChannel ===
+                                                        channel.channel_id && (
+                                                        <img
+                                                            src={Check}
+                                                            alt=""
+                                                            className="absolute right-0 top-0 bg-blue rounded-full"
+                                                        />
+                                                    )}
+                                                </div>
+
+                                                <p className="mt-2">
+                                                    {channel.channel_name}
+                                                </p>
+                                                {/* <div className="flex gap-2 items-center mt-1">
+                                                    <p>4.8</p>
+                                                    <img
+                                                        src={Star}
+                                                        alt="Star Icon"
+                                                    />
+                                                </div> */}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Выбор категории */}
+                            <div className="mb-6 bg-card-white rounded-xl p-6">
                                 <label
-                                    htmlFor="channel-select"
+                                    htmlFor="categories-select"
                                     className="block mb-2"
                                 >
                                     <p className="text-base">
-                                        Выберите верифицированный канал:
+                                        Выберите категорию:
                                     </p>
                                 </label>
                                 <select
-                                    id="channel-select"
-                                    className="w-full p-3 bg-medium-gray rounded"
-                                    value={selectedChannel || ''}
-                                    onChange={(e) =>
-                                        setSelectedChannel(e.target.value)
-                                    }
+                                    id="categories-select"
+                                    className="w-full p-3 bg-white rounded"
+                                    value={selectedCategories || ''}
+                                    onChange={(e) => {
+                                        setSelectedCategories(e.target.value)
+                                        console.log(e.target.value)
+                                    }}
                                 >
                                     <option value="" disabled>
-                                        -- Выберите канал --
+                                        -- Выберите категорию --
                                     </option>
-                                    {verifiedChannels.map((channel) => (
+                                    {categories.map((category) => (
                                         <option
-                                            key={channel.channel_id}
-                                            value={channel.channel_id}
+                                            key={category.category_id}
+                                            value={category.category_id}
                                         >
-                                            {channel.channel_name}
+                                            {category.category_name}
                                         </option>
                                     ))}
                                 </select>
                             </div>
 
-                            {selectedChannel && (
-                                <>
-                                    {/* Выбор категории */}
-                                    <div className="mb-6 bg-card-white rounded-xl p-6">
-                                        <label
-                                            htmlFor="categories-select"
-                                            className="block mb-2"
-                                        >
-                                            <p className="text-base">
-                                                Выберите категорию:
-                                            </p>
-                                        </label>
-                                        <select
-                                            id="categories-select"
-                                            className="w-full p-3 bg-white rounded"
-                                            value={selectedCategories || ''}
-                                            onChange={(e) => {
-                                                setSelectedCategories(
-                                                    e.target.value
+                            {/* Выбор формата размещения */}
+                            <div className="bg-card-white rounded-xl p-6">
+                                <p className="text-base">
+                                    Выберите типы публикации:
+                                </p>
+                                <div className="flex gap-2 p-6 flex-wrap">
+                                    {formats.map((format) => (
+                                        <button
+                                            key={format.format_id}
+                                            className={`flex gap-2 justify-between items-center px-4 py-2 rounded ${
+                                                selectedFormat.includes(
+                                                    format.format_id
                                                 )
-                                                console.log(e.target.value)
-                                            }}
-                                        >
-                                            <option value="" disabled>
-                                                -- Выберите категорию --
-                                            </option>
-                                            {categories.map((category) => (
-                                                <option
-                                                    key={category.category_id}
-                                                    value={category.category_id}
-                                                >
-                                                    {category.category_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* Выбор формата размещения */}
-                                    <div className="bg-card-white rounded-xl p-6">
-                                        <p className="text-base">
-                                            Выберите типы публикации:
-                                        </p>
-                                        <div className="flex gap-2 p-6 flex-wrap">
-                                            {formats.map((format) => (
-                                                <button
-                                                    key={format.format_id}
-                                                    className={`flex gap-2 justify-between items-center px-4 py-2 rounded ${
-                                                        selectedFormat.includes(
-                                                            format.format_id
-                                                        )
-                                                            ? 'bg-blue bg'
-                                                            : 'bg-white text-black'
-                                                    }`}
-                                                    onClick={() =>
-                                                        handleButtonClick(
-                                                            format.format_id
-                                                        )
-                                                    }
-                                                >
-                                                    {selectedFormat.includes(
-                                                        format.format_id
-                                                    ) && (
-                                                        <img
-                                                            src={check}
-                                                            alt="Selected"
-                                                            className="w-4 h-4"
-                                                        />
-                                                    )}
-                                                    {format.format_name}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Описание */}
-                                    <div className="bg-card-white p-6  rounded-xl">
-                                        <label
-                                            htmlFor="description"
-                                            className="block text-base mb-2"
-                                        >
-                                            Введите описание рекламы:
-                                        </label>
-                                        <textarea
-                                            id="description"
-                                            className="w-full p-3rounded"
-                                            placeholder="Введите описание до 256 символов"
-                                            value={description}
-                                            onChange={(e) =>
-                                                setDescription(e.target.value)
+                                                    ? 'bg-blue bg'
+                                                    : 'bg-white text-black'
+                                            }`}
+                                            onClick={() =>
+                                                handleButtonClick(
+                                                    format.format_id
+                                                )
                                             }
-                                            rows="4"
-                                        ></textarea>
-                                    </div>
-                                    {console.log(publicationTimes)}
-                                    <div className="flex justify-between bg-card-white p-6 rounded-xl gap-7 max-md:flex-col">
-                                        {/* Выбор времени публикации */}
-                                        <div className="flex flex-col gap-3 justify-start">
-                                            <label
-                                                htmlFor="publication-time"
-                                                className="block text-base font-semibold"
-                                            >
-                                                Выберите время публикации:
-                                            </label>
-                                            {publicationTimes.map(
-                                                (time, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center"
-                                                    >
-                                                        <input
-                                                            type="time"
-                                                            className="w-full p-3 rounded"
-                                                            value={time}
-                                                            onChange={(e) =>
-                                                                handleTimeChange(
-                                                                    e.target
-                                                                        .value,
-                                                                    index
-                                                                )
-                                                            }
-                                                            onBlur={
-                                                                handleCheckAvailability
-                                                            }
-                                                        />
-                                                        <button
-                                                            onClick={() =>
-                                                                removePublicationTime(
-                                                                    index
-                                                                )
-                                                            }
-                                                            className="ml-2 bg-red p-2 rounded"
-                                                        >
-                                                            Удалить
-                                                        </button>
-                                                    </div>
-                                                )
-                                            )}
-                                            <div>
-                                                <button
-                                                    onClick={addPublicationTime}
-                                                    className="px-4 py-2 rounded-md bg-green"
-                                                >
-                                                    <p className="text-base bg">
-                                                        Добавить время
-                                                    </p>
-                                                </button>
-                                            </div>
-
-                                            {timeError && (
-                                                <p className="text-red-500 mt-2">
-                                                    {timeError}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* Установка цены */}
-                                        <div className="mb-6 rounded-xl">
-                                            <label
-                                                htmlFor="price"
-                                                className="block text-base font-semibold mb-2"
-                                            >
-                                                Установите цену за размещение:
-                                            </label>
-                                            <div className="flex justify-between items-center rounded-md border-2 bg-white border-gray">
-                                                <p className="px-4 py-2 border-r-2 border-gray">
-                                                    ₽
-                                                </p>
-                                                <input
-                                                    id="price"
-                                                    className="w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
-                                                    placeholder="Введите цену"
-                                                    value={price}
-                                                    onChange={(e) =>
-                                                        setPrice(e.target.value)
-                                                    }
-                                                    style={{
-                                                        appearance: 'textfield',
-                                                    }}
+                                        >
+                                            {selectedFormat.includes(
+                                                format.format_id
+                                            ) && (
+                                                <img
+                                                    src={check}
+                                                    alt="Selected"
+                                                    className="w-4 h-4"
                                                 />
-                                            </div>
+                                            )}
+                                            {format.format_name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Описание */}
+                            <div className="bg-card-white p-6  rounded-xl">
+                                <label
+                                    htmlFor="description"
+                                    className="block text-base mb-2"
+                                >
+                                    Введите описание рекламы:
+                                </label>
+                                <textarea
+                                    id="description"
+                                    className="w-full p-3rounded"
+                                    placeholder="Введите описание до 256 символов"
+                                    value={description}
+                                    onChange={(e) =>
+                                        setDescription(e.target.value)
+                                    }
+                                    rows="4"
+                                ></textarea>
+                            </div>
+                            {console.log(publicationTimes)}
+                            <div className="flex justify-between bg-card-white p-6 rounded-xl gap-7 max-md:flex-col">
+                                {/* Выбор времени публикации */}
+                                <div className="flex flex-col gap-3 justify-start">
+                                    <label
+                                        htmlFor="publication-time"
+                                        className="block text-base font-semibold"
+                                    >
+                                        Выберите время публикации:
+                                    </label>
+                                    {publicationTimes.map((time, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-center"
+                                        >
+                                            <input
+                                                type="time"
+                                                className="w-full p-3 rounded"
+                                                value={time}
+                                                onChange={(e) =>
+                                                    handleTimeChange(
+                                                        e.target.value,
+                                                        index
+                                                    )
+                                                }
+                                                onBlur={handleCheckAvailability}
+                                            />
+                                            <button
+                                                onClick={() =>
+                                                    removePublicationTime(index)
+                                                }
+                                                className="ml-2 bg-red p-2 rounded"
+                                            >
+                                                Удалить
+                                            </button>
                                         </div>
+                                    ))}
+                                    <div>
+                                        <button
+                                            onClick={addPublicationTime}
+                                            className="px-4 py-2 rounded-md bg-green"
+                                        >
+                                            <p className="text-base bg">
+                                                Добавить время
+                                            </p>
+                                        </button>
                                     </div>
-                                </>
-                            )}
+
+                                    {timeError && (
+                                        <p className="text-red-500 mt-2">
+                                            {timeError}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Установка цены */}
+                                <div className="mb-6 rounded-xl">
+                                    <label
+                                        htmlFor="price"
+                                        className="block text-base font-semibold mb-2"
+                                    >
+                                        Установите цену за размещение:
+                                    </label>
+                                    <div className="flex justify-between items-center rounded-md border-2 bg-white border-gray">
+                                        <p className="px-4 py-2 border-r-2 border-gray">
+                                            ₽
+                                        </p>
+                                        <input
+                                            id="price"
+                                            className="w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
+                                            placeholder="Введите цену"
+                                            value={price}
+                                            onChange={(e) =>
+                                                setPrice(e.target.value)
+                                            }
+                                            style={{
+                                                appearance: 'textfield',
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </>
                     ) : (
                         <div className="text-center bg-card-white">

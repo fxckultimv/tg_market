@@ -3,15 +3,12 @@ import React from 'react'
 
 const ProfileCustomLink = ({ to, children, ...props }) => {
     const match = useMatch(to)
-    console.log(match)
 
     return (
         <Link
             to={to}
-            className={`p-3 rounded-lg w-full ${
-                match
-                    ? ' bg-blue text-white'
-                    : 'text-black bg-card-white hover:text-gray'
+            className={`p-3 rounded-lg w-full text-text  border-[1px] border-gray${
+                match ? ' bg-blue' : ' bg-card-white hover:text-gray'
             }`}
             {...props}
         >

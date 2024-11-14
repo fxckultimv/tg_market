@@ -11,6 +11,7 @@ import {
     useTonAddress,
     useTonConnectUI,
     useTonWallet,
+    CHAIN,
 } from '@tonconnect/ui-react'
 
 const ProfileLayout = () => {
@@ -61,11 +62,11 @@ const ProfileLayout = () => {
                         className="h-[32px]"
                     />
                 </div>
-                <h1 className="text-black text-5xl text-center max-md:text-3xl">
+                <h1 className="text-text text-5xl text-center max-md:text-3xl">
                     Личный кабинет
                 </h1>
             </div>
-            <div className="flex gap-4 p-16 max-md:p-5 max-xl:p-8 max-md:flex-col">
+            <div className="flex gap-4 p-16 max-md:p-5 max-xl:p-8 max-md:flex-col text-text">
                 <div className="basis-1/3">
                     <div className="flex flex-col  bg-card-white rounded-t-xl">
                         <div>
@@ -89,6 +90,22 @@ const ProfileLayout = () => {
                                 </div>
                             </div>
                             <TonConnectButton></TonConnectButton>
+                            <div
+                                className={`p-2 ${
+                                    wallet
+                                        ? wallet.account.chain === CHAIN.MAINNET
+                                            ? 'bg-green'
+                                            : 'bg-red'
+                                        : 'bg-gray-300'
+                                }`}
+                            >
+                                {wallet
+                                    ? wallet.account.chain === CHAIN.MAINNET
+                                        ? 'MainNet'
+                                        : 'TestNet'
+                                    : 'N/A'}
+                            </div>
+
                             {rawAddress && (
                                 <div>
                                     <span>
@@ -131,7 +148,7 @@ const ProfileLayout = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col items-start bg-card-white rounded-b-xl">
+                    <div className="flex flex-col items-start bg-card-white rounded-b-xl gap-3">
                         <ProfileCustomLink to="/profile">
                             Мои заказы
                         </ProfileCustomLink>
@@ -143,7 +160,7 @@ const ProfileLayout = () => {
                         </ProfileCustomLink>
                         <a
                             href="https://t.me/Stepanusik"
-                            className="p-3 rounded-lg hover:text-gray"
+                            className="p-3 rounded-lg hover:text-gray text-text"
                         >
                             Поддержка
                         </a>
