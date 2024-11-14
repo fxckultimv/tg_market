@@ -1,3 +1,10 @@
+require('dotenv').config();
+const mongoose = require('mongoose');
+const logger = require('./config/logging');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+const balanceRoutes = require('./routes/balance');
+const productRoutes = require('./routes/product');
 const express = require('express')
 const cors = require('cors')
 const app = express()
@@ -14,16 +21,27 @@ const adminStatsRouter = require('./routes/adminStats')
 const ChannelsRouter = require('./routes/channels')
 const buyRouter = require('./routes/buy')
 const userRouter = require('./routes/user')
-const path = require('path')
 const balanceRouter = require('./routes/balance')
+const path = require('path')
 // const startScheduler = require('./scheduler/complited')
 
-app.use(cors())
+// подключение к MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => logger.info('Connected to MongoDB'))
+.catch((err) => logger.error('MongoDB connection error:', err));
 
+// мидлвари
+app.use(cors())
 app.use(express.json())
-//Полчение картинки из папки Bot папки static
+
+// обработка файлов из Bot/static
 app.use(express.static(path.join(__dirname, '../Bot/static')))
-app.use('/auth', initAuth)
+
+// роуты
+app.use('/api/auth', initAuth)
 app.use('/categories', categoriesRouter)
 app.use('/formats', formatsRouter)
 app.use('/products', productsRouter)
@@ -35,11 +53,16 @@ app.use('/check_admin', checkAdminRouter)
 app.use('/admin_stats', adminStatsRouter)
 app.use('/channels', ChannelsRouter)
 app.use('/buy', buyRouter)
-app.use('/user', userRouter)
-app.use('/balance', balanceRouter)
+app.use('/api/users', userRouter)
+app.use('/api/balance', balanceRoutes)
+
+
 
 const PORT = process.env.PORT || 3000
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
     // startScheduler()
 })
+
+module.exports = app
