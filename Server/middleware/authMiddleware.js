@@ -1,6 +1,8 @@
 require('dotenv').config();
 const { validate, parse } = require('@telegram-apps/init-data-node');
 const User = require('../models/User');
+// ЭТО ПИЗДЁЖ ЛОГИРОВАНИЯ НЕТ
+// ЛОГИРОВАНИЕ НЕ СУЩЕСТВУЕТ
 const logger = require('../config/logging');
 
 const token = process.env.BOT_TOKEN;
