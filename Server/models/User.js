@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         sparse: true,
     },
+    firstName: {
+        type: String,
+    },
+    lastName: {
+        type: String,
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],
