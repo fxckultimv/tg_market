@@ -1,21 +1,17 @@
 require('dotenv').config();
 const { validate, parse } = require('@telegram-apps/init-data-node');
-const User = require('../models/User');
-const logger = require('../config/logging');
 
 const token = process.env.BOT_TOKEN;
 
-const authMiddleware = async (req, res, next) => {
+const authMiddleware = (req, res, next) => {
     const authHeader = req.header('Authorization');
     if (!authHeader) {
-        logger.warn('Authorization header missing');
         return res.status(401).json({ message: 'Authorization header missing' });
     }
 
     const [authType, authData] = authHeader.split(' ');
 
     if (authType !== 'tma' || !authData) {
-        logger.warn('Invalid authorization format');
         return res.status(401).json({ message: 'Invalid authorization format' });
     }
 
@@ -24,20 +20,6 @@ const authMiddleware = async (req, res, next) => {
         const initData = parse(authData);
         res.locals.initData = initData;
 
-        // Find or create user
-        let user = await User.findOne({ telegramId: initData.user.id });
-        if (!user) {
-            user = new User({
-                telegramId: initData.user.id,
-                username: initData.user.username,
-                firstName: initData.user.first_name,
-                lastName: initData.user.last_name,
-            });
-            await user.save();
-            logger.info(`New user created: ${user.telegramId}`);
-        }
-
-        req.user = user;
         next();
     } catch (error) {
         logger.error(`Authentication error: ${error.message}`);
