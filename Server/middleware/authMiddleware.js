@@ -1,30 +1,47 @@
-const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const { validate, parse } = require('@telegram-apps/init-data-node');
 const User = require('../models/User');
 const logger = require('../config/logging');
 
+const token = process.env.BOT_TOKEN;
+
 const authMiddleware = async (req, res, next) => {
+    const authHeader = req.header('Authorization');
+    if (!authHeader) {
+        logger.warn('Authorization header missing');
+        return res.status(401).json({ message: 'Authorization header missing' });
+    }
+
+    const [authType, authData] = authHeader.split(' ');
+
+    if (authType !== 'tma' || !authData) {
+        logger.warn('Invalid authorization format');
+        return res.status(401).json({ message: 'Invalid authorization format' });
+    }
+
     try {
-        const token = req.header('Authorization')?.replace('Bearer ', '');
+        validate(authData, token, { expiresIn: 3600 });
+        const initData = parse(authData);
+        res.locals.initData = initData;
 
-        if (!token) {
-            logger.warn('Authentication failed: No token provided');
-            return res.status(401).json({ error: 'Authentication required' });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findOne({ _id: decoded._id, 'tokens.token': token });
-
+        // Find or create user
+        let user = await User.findOne({ telegramId: initData.user.id });
         if (!user) {
-            logger.warn(`Authentication failed: User not found for token ${token}`);
-            throw new Error('User not found');
+            user = new User({
+                telegramId: initData.user.id,
+                username: initData.user.username,
+                firstName: initData.user.first_name,
+                lastName: initData.user.last_name,
+            });
+            await user.save();
+            logger.info(`New user created: ${user.telegramId}`);
         }
 
-        req.token = token;
         req.user = user;
         next();
     } catch (error) {
         logger.error(`Authentication error: ${error.message}`);
-        res.status(401).json({ error: 'Please authenticate' });
+        return res.status(401).json({ message: 'Invalid init data', error: error.message });
     }
 };
 
