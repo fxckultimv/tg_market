@@ -238,12 +238,6 @@ class BalanceController {
         }
     }
 
-    async handlePaymentNotification(req, res) {
-        // Implement logic to handle payment notifications from external payment systems
-        // This could include verifying the payment and updating the user's balance
-        res.status(200).send('OK');
-    }
-
     handleError(res, error) {
         logger.error(`Error processing request: ${error.message}`);
         res.status(500).json({ error: 'Internal server error' });
