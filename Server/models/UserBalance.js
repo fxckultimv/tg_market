@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+// тут для себя отпишу что нахуй нет пока логирования
 const logger = require('../config/logging');
 
 const userBalanceSchema = new mongoose.Schema({
