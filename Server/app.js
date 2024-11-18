@@ -1,10 +1,11 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-// тут для себя отпишу что нахуй нет пока логирования
 const logger = require('./config/logging');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const authMiddleware = require('./middleware/authMiddleware');
 const authRoutes = require('./routes/auth');
@@ -24,22 +25,39 @@ const buyRouter = require('./routes/buy');
 
 const app = express();
 
-// коннект к монгодб
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => logger.info('Connected to MongoDB'))
-.catch((err) => logger.error('MongoDB connection error:', err));
+app.use(helmet());
 
-// мидлвари
-app.use(cors());
-app.use(express.json());
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+});
+app.use(limiter);
 
-// статика
+const connectWithRetry = () => {
+    mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+    })
+    .then(() => logger.info('Connected to MongoDB'))
+    .catch((err) => {
+        logger.error('MongoDB connection error:', err);
+        setTimeout(connectWithRetry, 5000);
+    });
+};
+connectWithRetry();
+
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 app.use(express.static(path.join(__dirname, '../Bot/static')));
 
-// роуты
 app.use('/auth', authRoutes);
 app.use('/users', authMiddleware, userRoutes);
 app.use('/balance', authMiddleware, balanceRoutes);
@@ -55,18 +73,53 @@ app.use('/admin_stats', authMiddleware, adminStatsRouter);
 app.use('/channels', authMiddleware, ChannelsRouter);
 app.use('/buy', authMiddleware, buyRouter);
 
-// обработка ошибок в мидлварях
 app.use((err, req, res, next) => {
-  logger.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+    logger.error(`Error: ${err.message}\nStack: ${err.stack}`);
+    
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Validation Error',
+            errors: err.errors
+        });
+    }
+    
+    if (err.name === 'UnauthorizedError') {
+        return res.status(401).json({
+            status: 'error',
+            message: 'Unauthorized'
+        });
+    }
+    
+    res.status(500).json({
+        status: 'error',
+        message: process.env.NODE_ENV === 'production' 
+            ? 'Internal Server Error' 
+            : err.message
+    });
+});
+
+app.use((req, res) => {
+    res.status(404).json({
+        status: 'error',
+        message: 'Route not found'
+    });
 });
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`);
-    // раскоментить чтобы запустить шедулю
-    // startScheduler();
+});
+
+process.on('SIGTERM', () => {
+    logger.info('SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+        logger.info('Process terminated');
+        mongoose.connection.close(false, () => {
+            process.exit(0);
+        });
+    });
 });
 
 module.exports = app;
