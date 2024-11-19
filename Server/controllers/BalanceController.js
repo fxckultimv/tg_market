@@ -3,7 +3,7 @@ const UserBalance = require('../models/UserBalance');
 const Transaction = require('../models/Transaction');
 const { verifyTonPayment, sendTon, sendFee } = require('../utils/tonUtils');
 
-const MARKET_FEE_PERCENTAGE = 0.05; // 5% fee
+const MARKET_FEE_PERCENTAGE = 0.05; // 5%
 const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS;
 const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS;
 
@@ -117,9 +117,8 @@ class BalanceController {
             const buyerId = req.user._id;
 
             const fee = amount * MARKET_FEE_PERCENTAGE;
-            const totalAmount = amount + fee; // Buyer pays amount + fee
+            const totalAmount = amount + fee;
 
-            // Use findOneAndUpdate with optimistic concurrency control
             const buyerUpdate = await UserBalance.findOneAndUpdate(
                 { userId: buyerId, balance: { $gte: totalAmount } },
                 { $inc: { balance: -totalAmount } },
