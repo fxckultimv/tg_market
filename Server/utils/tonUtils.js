@@ -1,9 +1,17 @@
+require('dotenv').config();
 const TonWeb = require('tonweb');
 const logger = require('../config/logging');
 
-const tonweb = new TonWeb(new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC'));
+const isTestnet = process.env.NODE_ENV === 'test';
 
-const MARKET_PRIVATE_KEY = process.env.MARKET_PRIVATE_KEY;
+const tonweb = new TonWeb(new TonWeb.HttpProvider(
+  isTestnet ? 'https://testnet.toncenter.com/api/v2/jsonRPC' : 'https://toncenter.com/api/v2/jsonRPC',
+  { apiKey: process.env.TON_API_KEY }
+));
+
+const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS;
+const MARKET_PRIVATE_KEY = Buffer.from(process.env.MARKET_PRIVATE_KEY, 'hex');
+const MARKET_PUBLIC_KEY = Buffer.from(process.env.MARKET_PUBLIC_KEY, 'hex');
 
 async function verifyTonPayment(amount, transactionHash) {
     try {
@@ -11,7 +19,7 @@ async function verifyTonPayment(amount, transactionHash) {
         
         if (!transactions || transactions.length === 0) {
             logger.warn(`Transaction not found: ${transactionHash}`);
-            return false;
+            return { valid: false, error: 'TRANSACTION_NOT_FOUND' };
         }
 
         const transaction = transactions[0];
@@ -20,7 +28,7 @@ async function verifyTonPayment(amount, transactionHash) {
 
         if (!transaction.in_msg || !transaction.in_msg.value) {
             logger.warn(`Transaction does not contain incoming message or value: ${transactionHash}`);
-            return false;
+            return { valid: false, error: 'INVALID_TRANSACTION_DATA' };
         }
 
         const receivedAmount = TonWeb.utils.fromNano(transaction.in_msg.value);
@@ -30,26 +38,31 @@ async function verifyTonPayment(amount, transactionHash) {
 
         if (Math.abs(receivedAmount - expectedAmount) > 0.01) {
             logger.warn(`Amount mismatch. Expected: ${expectedAmount}, Got: ${receivedAmount}`);
-            return false;
+            return { valid: false, error: 'AMOUNT_MISMATCH' };
         }
 
-        return true;
+        const confirmations = await tonweb.getTransactionConfirmations(transactionHash);
+        if (confirmations < (isTestnet ? 1 : 3)) {
+            return { valid: false, error: 'INSUFFICIENT_CONFIRMATIONS' };
+        }
+
+        return { valid: true };
     } catch (error) {
         logger.error(`Error verifying TON payment: ${error.message}`);
-        return false;
+        return { valid: false, error: 'VERIFICATION_ERROR', details: error.message };
     }
 }
 
-async function sendTon(fromAddress, toAddress, amount) {
+async function sendTon(toAddress, amount) {
     try {
         const wallet = new tonweb.wallet.create({
-            address: fromAddress,
-            publicKey: MARKET_PRIVATE_KEY
+            address: MARKET_WALLET_ADDRESS,
+            publicKey: MARKET_PUBLIC_KEY,
         });
 
         const seqno = await wallet.methods.seqno().call();
         
-        await wallet.methods.transfer({
+        const transfer = await wallet.methods.transfer({
             secretKey: MARKET_PRIVATE_KEY,
             toAddress: toAddress,
             amount: TonWeb.utils.toNano(amount),
@@ -58,14 +71,58 @@ async function sendTon(fromAddress, toAddress, amount) {
             sendMode: 3,
         }).send();
 
-        return true;
+        logger.info(`TON transfer initiated: ${amount} TON to ${toAddress}`);
+        return { success: true, transactionHash: transfer.hash };
     } catch (error) {
         logger.error(`Error sending TON: ${error.message}`);
-        return false;
+        return { success: false, error: 'TRANSFER_ERROR', details: error.message };
+    }
+}
+
+async function getWalletBalance(address) {
+    try {
+        const balance = await tonweb.getBalance(address);
+        return { success: true, balance: TonWeb.utils.fromNano(balance) };
+    } catch (error) {
+        logger.error(`Error getting wallet balance: ${error.message}`);
+        return { success: false, error: 'BALANCE_CHECK_ERROR', details: error.message };
+    }
+}
+
+async function createWallet() {
+    try {
+        const newWallet = new tonweb.wallet.create();
+        const address = await newWallet.getAddress();
+        const publicKey = newWallet.publicKey.toString('hex');
+        const secretKey = newWallet.secretKey.toString('hex');
+
+        return {
+            success: true,
+            address: address.toString(true, true, true),
+            publicKey,
+            secretKey
+        };
+    } catch (error) {
+        logger.error(`Error creating new wallet: ${error.message}`);
+        return { success: false, error: 'WALLET_CREATION_ERROR', details: error.message };
+    }
+}
+
+async function getTransactionHistory(address, limit = 10) {
+    try {
+        const transactions = await tonweb.getTransactions(address, limit);
+        return { success: true, transactions };
+    } catch (error) {
+        logger.error(`Error getting transaction history: ${error.message}`);
+        return { success: false, error: 'TRANSACTION_HISTORY_ERROR', details: error.message };
     }
 }
 
 module.exports = {
     verifyTonPayment,
-    sendTon
+    sendTon,
+    getWalletBalance,
+    createWallet,
+    getTransactionHistory,
+    isTestnet
 };
