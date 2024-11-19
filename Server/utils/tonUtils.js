@@ -58,24 +58,32 @@ async function verifyTonPayment(amount, transactionHash) {
 
 async function sendTon(toAddress, amount) {
     try {
-        const wallet = new tonweb.wallet.create({
-            address: MARKET_WALLET_ADDRESS,
+        const WalletClass = tonweb.wallet.all['v3R1'];
+        const wallet = new WalletClass(tonweb.provider, {
             publicKey: MARKET_PUBLIC_KEY,
+            wc: 0
         });
+
+        const walletAddress = await wallet.getAddress();
+        if (walletAddress.toString(true, true, true) !== MARKET_WALLET_ADDRESS) {
+            throw new Error('Wallet address mismatch');
+        }
 
         const seqno = await wallet.methods.seqno().call();
         
-        const transfer = await wallet.methods.transfer({
+        const transfer = wallet.methods.transfer({
             secretKey: MARKET_PRIVATE_KEY,
             toAddress: toAddress,
             amount: TonWeb.utils.toNano(amount),
             seqno: seqno,
             payload: '',
             sendMode: 3,
-        }).send();
+        });
+
+        const sendResult = await transfer.send();
 
         logger.info(`TON transfer initiated: ${amount} TON to ${toAddress}`);
-        return { success: true, transactionHash: transfer.hash };
+        return { success: true, transactionHash: sendResult.hash };
     } catch (error) {
         logger.error(`Error sending TON: ${error.message}`);
         return { success: false, error: 'TRANSFER_ERROR', details: error.message };

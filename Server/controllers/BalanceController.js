@@ -1,11 +1,9 @@
 const logger = require('../config/logging');
 const UserBalance = require('../models/UserBalance');
 const Transaction = require('../models/Transaction');
-const { verifyTonPayment, sendTon } = require('../utils/tonUtils');
+const { verifyTonPayment, sendTon, sendFee } = require('../utils/tonUtils');
 
 const MARKET_FEE_PERCENTAGE = 0.05; // 5% fee
-const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS;
-const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS;
 
 class BalanceController {
     async getBalance(req, res) {
@@ -116,75 +114,64 @@ class BalanceController {
             const { sellerId, amount, productId } = req.body;
             const buyerId = req.user._id;
 
-            const [buyerBalance, sellerBalance] = await Promise.all([
-                UserBalance.findOne({ userId: buyerId }),
-                UserBalance.findOne({ userId: sellerId })
-            ]);
-
-            if (!buyerBalance || !sellerBalance) {
-                return res.status(404).json({ error: 'User balance not found' });
-            }
-
             const fee = amount * MARKET_FEE_PERCENTAGE;
             const totalAmount = amount + fee;
 
-            if (!buyerBalance.hasSufficientBalance(totalAmount)) {
-                return res.status(400).json({ error: 'Insufficient balance' });
+            const buyerUpdate = await UserBalance.findOneAndUpdate(
+                { userId: buyerId, balance: { $gte: totalAmount } },
+                { $inc: { balance: -totalAmount } },
+                { new: true, runValidators: true }
+            );
+
+            if (!buyerUpdate) {
+                return res.status(400).json({ error: 'Insufficient balance or concurrent update detected' });
             }
 
-            const buyerTransaction = new Transaction({
-                userId: buyerId,
-                type: 'purchase',
-                amount: -totalAmount,
-                fee,
-                status: 'pending',
-                details: { productId, sellerId }
-            });
+            const sellerUpdate = await UserBalance.findOneAndUpdate(
+                { userId: sellerId },
+                { $inc: { balance: amount } },
+                { new: true, runValidators: true }
+            );
 
-            const sellerTransaction = new Transaction({
-                userId: sellerId,
-                type: 'purchase',
-                amount,
-                fee: 0,
-                status: 'pending',
-                details: { productId, buyerId }
-            });
-
-            try {
-                const buyerDeducted = await buyerBalance.deductBalance(totalAmount);
-                if (!buyerDeducted) {
-                    throw new Error('Failed to deduct buyer balance');
-                }
-
-                const sellerAdded = await sellerBalance.addBalance(amount);
-                if (!sellerAdded) {
-                    await buyerBalance.addBalance(totalAmount);
-                    throw new Error('Failed to add seller balance');
-                }
-
-                const feeSent = await sendTon(MARKET_WALLET_ADDRESS, FEE_WALLET_ADDRESS, fee);
-                if (!feeSent) {
-                    await buyerBalance.addBalance(totalAmount);
-                    await sellerBalance.deductBalance(amount);
-                    throw new Error('Failed to send market fee');
-                }
-
-                buyerTransaction.status = 'completed';
-                sellerTransaction.status = 'completed';
-                await Promise.all([buyerTransaction.save(), sellerTransaction.save()]);
-
-                logger.info(`Purchase completed. BuyerId: ${buyerId}, SellerId: ${sellerId}, Amount: ${amount} TON`);
-                res.json({ 
-                    message: 'Purchase completed successfully',
-                    buyerTransaction: buyerTransaction._id,
-                    sellerTransaction: sellerTransaction._id
-                });
-            } catch (error) {
-                buyerTransaction.status = 'failed';
-                sellerTransaction.status = 'failed';
-                await Promise.all([buyerTransaction.save(), sellerTransaction.save()]);
-                throw error;
+            if (!sellerUpdate) {
+                await UserBalance.findOneAndUpdate(
+                    { userId: buyerId },
+                    { $inc: { balance: totalAmount } }
+                );
+                return res.status(500).json({ error: 'Failed to update seller balance' });
             }
+
+            const [buyerTransaction, sellerTransaction] = await Promise.all([
+                Transaction.create({
+                    userId: buyerId,
+                    type: 'purchase',
+                    amount: -totalAmount,
+                    fee,
+                    status: 'completed',
+                    details: { productId, sellerId }
+                }),
+                Transaction.create({
+                    userId: sellerId,
+                    type: 'purchase',
+                    amount,
+                    fee: 0,
+                    status: 'completed',
+                    details: { productId, buyerId }
+                })
+            ]);
+
+            const feeSent = await sendFee(fee);
+            if (!feeSent.success) {
+                logger.error(`Failed to send market fee: ${feeSent.error}`);
+                // Consider implementing a retry mechanism or manual resolution for fee transfer
+            }
+
+            logger.info(`Purchase completed. BuyerId: ${buyerId}, SellerId: ${sellerId}, Amount: ${amount} TON`);
+            res.json({ 
+                message: 'Purchase completed successfully',
+                buyerTransaction: buyerTransaction._id,
+                sellerTransaction: sellerTransaction._id
+            });
         } catch (error) {
             this.handleError(res, error);
         }
@@ -219,8 +206,8 @@ class BalanceController {
                     throw new Error('Failed to deduct user balance');
                 }
 
-                const sent = await sendTon(MARKET_WALLET_ADDRESS, toAddress, amount);
-                if (!sent) {
+                const sent = await sendTon(toAddress, amount);
+                if (!sent.success) {
                     await userBalance.addBalance(amount);
                     throw new Error('Failed to send TON');
                 }
