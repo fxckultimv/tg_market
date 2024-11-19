@@ -70,34 +70,39 @@ class BalanceController {
         try {
             const { tonAmount, transactionHash } = req.body;
             const userId = req.user._id;
-
+    
+            if (!tonAmount || !transactionHash) {
+                return res.status(400).json({ error: 'Missing tonAmount or transactionHash' });
+            }
+    
             const isValid = await verifyTonPayment(tonAmount, transactionHash);
             if (!isValid) {
                 logger.warn(`Invalid TON payment for user ${userId}`);
                 return res.status(400).json({ error: 'Invalid TON payment' });
             }
-
+    
             const userBalance = await UserBalance.findOne({ userId });
             if (!userBalance) {
                 return res.status(404).json({ error: 'User balance not found' });
             }
-
-            const success = await userBalance.addBalance(tonAmount);
+    
+            const success = await userBalance.addBalance(parseFloat(tonAmount));
             if (!success) {
                 return res.status(500).json({ error: 'Failed to update balance' });
             }
-
+    
             const transaction = new Transaction({
                 userId,
                 type: 'topup',
-                amount: tonAmount,
+                amount: parseFloat(tonAmount),
                 fee: 0,
                 status: 'completed',
                 transactionHash
             });
             await transaction.save();
-
+    
             res.json({
+                message: 'Balance updated successfully',
                 balance: userBalance.balance,
                 currency: userBalance.currency,
             });

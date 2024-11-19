@@ -7,16 +7,29 @@ const MARKET_PRIVATE_KEY = process.env.MARKET_PRIVATE_KEY;
 
 async function verifyTonPayment(amount, transactionHash) {
     try {
-        const transaction = await tonweb.getTransactions(transactionHash);
+        const transactions = await tonweb.getTransactions(transactionHash);
         
-        if (!transaction) {
+        if (!transactions || transactions.length === 0) {
             logger.warn(`Transaction not found: ${transactionHash}`);
             return false;
         }
 
-        const expectedAmount = TonWeb.utils.toNano(amount);
-        if (transaction.amount !== expectedAmount) {
-            logger.warn(`Amount mismatch. Expected: ${expectedAmount}, Got: ${transaction.amount}`);
+        const transaction = transactions[0];
+
+        logger.info(`Transaction object: ${JSON.stringify(transaction)}`);
+
+        if (!transaction.in_msg || !transaction.in_msg.value) {
+            logger.warn(`Transaction does not contain incoming message or value: ${transactionHash}`);
+            return false;
+        }
+
+        const receivedAmount = TonWeb.utils.fromNano(transaction.in_msg.value);
+        const expectedAmount = parseFloat(amount);
+
+        logger.info(`Received amount: ${receivedAmount}, Expected amount: ${expectedAmount}`);
+
+        if (Math.abs(receivedAmount - expectedAmount) > 0.01) {
+            logger.warn(`Amount mismatch. Expected: ${expectedAmount}, Got: ${receivedAmount}`);
             return false;
         }
 
