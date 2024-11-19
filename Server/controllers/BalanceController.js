@@ -4,6 +4,8 @@ const Transaction = require('../models/Transaction');
 const { verifyTonPayment, sendTon, sendFee } = require('../utils/tonUtils');
 
 const MARKET_FEE_PERCENTAGE = 0.05; // 5% fee
+const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS;
+const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS;
 
 class BalanceController {
     async getBalance(req, res) {
@@ -115,8 +117,9 @@ class BalanceController {
             const buyerId = req.user._id;
 
             const fee = amount * MARKET_FEE_PERCENTAGE;
-            const totalAmount = amount + fee;
+            const totalAmount = amount + fee; // Buyer pays amount + fee
 
+            // Use findOneAndUpdate with optimistic concurrency control
             const buyerUpdate = await UserBalance.findOneAndUpdate(
                 { userId: buyerId, balance: { $gte: totalAmount } },
                 { $inc: { balance: -totalAmount } },
@@ -163,10 +166,9 @@ class BalanceController {
             const feeSent = await sendFee(fee);
             if (!feeSent.success) {
                 logger.error(`Failed to send market fee: ${feeSent.error}`);
-                // Consider implementing a retry mechanism or manual resolution for fee transfer
             }
 
-            logger.info(`Purchase completed. BuyerId: ${buyerId}, SellerId: ${sellerId}, Amount: ${amount} TON`);
+            logger.info(`Purchase completed. BuyerId: ${buyerId}, SellerId: ${sellerId}, Amount: ${amount} TON, Fee: ${fee} TON`);
             res.json({ 
                 message: 'Purchase completed successfully',
                 buyerTransaction: buyerTransaction._id,
@@ -206,7 +208,7 @@ class BalanceController {
                     throw new Error('Failed to deduct user balance');
                 }
 
-                const sent = await sendTon(toAddress, amount);
+                const sent = await sendTon(MARKET_WALLET_ADDRESS, toAddress, amount);
                 if (!sent.success) {
                     await userBalance.addBalance(amount);
                     throw new Error('Failed to send TON');
