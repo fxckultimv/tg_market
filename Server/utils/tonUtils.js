@@ -13,6 +13,9 @@ const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS;
 const MARKET_PRIVATE_KEY = Buffer.from(process.env.MARKET_PRIVATE_KEY, 'hex');
 const MARKET_PUBLIC_KEY = Buffer.from(process.env.MARKET_PUBLIC_KEY, 'hex');
 
+const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS;
+const TRANSACTION_FEE_PERCENTAGE = parseFloat(process.env.TRANSACTION_FEE_PERCENTAGE) / 100;
+
 async function verifyTonPayment(amount, transactionHash) {
     try {
         const transactions = await tonweb.getTransactions(transactionHash);
@@ -79,7 +82,7 @@ async function sendTon(toAddress, amount) {
     }
 }
 
-async function getWalletBalance(address) {
+async function getWalletBalance(address = MARKET_WALLET_ADDRESS) {
     try {
         const balance = await tonweb.getBalance(address);
         return { success: true, balance: TonWeb.utils.fromNano(balance) };
@@ -89,40 +92,15 @@ async function getWalletBalance(address) {
     }
 }
 
-async function createWallet() {
-    try {
-        const newWallet = new tonweb.wallet.create();
-        const address = await newWallet.getAddress();
-        const publicKey = newWallet.publicKey.toString('hex');
-        const secretKey = newWallet.secretKey.toString('hex');
-
-        return {
-            success: true,
-            address: address.toString(true, true, true),
-            publicKey,
-            secretKey
-        };
-    } catch (error) {
-        logger.error(`Error creating new wallet: ${error.message}`);
-        return { success: false, error: 'WALLET_CREATION_ERROR', details: error.message };
-    }
-}
-
-async function getTransactionHistory(address, limit = 10) {
-    try {
-        const transactions = await tonweb.getTransactions(address, limit);
-        return { success: true, transactions };
-    } catch (error) {
-        logger.error(`Error getting transaction history: ${error.message}`);
-        return { success: false, error: 'TRANSACTION_HISTORY_ERROR', details: error.message };
-    }
+async function sendFee(amount) {
+    const feeAmount = amount * TRANSACTION_FEE_PERCENTAGE;
+    return sendTon(FEE_WALLET_ADDRESS, feeAmount);
 }
 
 module.exports = {
     verifyTonPayment,
     sendTon,
     getWalletBalance,
-    createWallet,
-    getTransactionHistory,
+    sendFee,
     isTestnet
 };
