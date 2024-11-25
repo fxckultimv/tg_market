@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 const Layout = () => {
     const [menuOpen, setMenuOpen] = useState(false)
@@ -51,14 +52,14 @@ const Layout = () => {
         <div className="bg-background">
             <header className="bg-background flex space-x-0 min-w-full justify-between p-4 items-center">
                 {/* Логотип */}
-                <div className="flex gap-2">
+                <Link to="/" className="flex gap-2">
                     <img src={Logo} alt="Logo" className="w-[27px]" />
                     <img
                         src={Name}
                         alt="Name"
                         className="h-28px min-w-[78px]"
                     />
-                </div>
+                </Link>
 
                 {/* Блок с ссылками (скрывается на маленьких экранах) */}
                 <div className="hidden md:flex gap-2 items-center">
