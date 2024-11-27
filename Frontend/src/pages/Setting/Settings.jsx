@@ -30,11 +30,7 @@ const Setting = () => {
 
     return (
         <div
-            className={`flex flex-col items-start min-h-screen px-6 py-4 ${
-                theme === 'dark'
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-900'
-            }`}
+            className={`flex flex-col items-start min-h-screen px-6 py-4 bg-background text-text`}
         >
             <h2 className="text-3xl font-bold mb-8">Настройки</h2>
 
@@ -43,10 +39,10 @@ const Setting = () => {
                 <label className="mr-4 font-medium">Тема сайта:</label>
                 <button
                     onClick={toggleTheme}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-300 ${
+                    className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-text ${
                         theme === 'dark'
-                            ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                            ? 'bg-gray-700 hover:bg-gray-600'
+                            : 'bg-gray-200 hover:bg-gray-300'
                     }`}
                 >
                     {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
@@ -59,7 +55,7 @@ const Setting = () => {
                 <select
                     value={language}
                     onChange={handleLanguageChange}
-                    className="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-gray-900 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-text border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                     <option value="ru">Русский</option>
                     <option value="en">English</option>
@@ -67,7 +63,7 @@ const Setting = () => {
             </div>
 
             {/* Добавить ссылку для возврата на предыдущую страницу */}
-            <Link to="/" className="text-blue-500 hover:underline">
+            <Link to="/" className="text-blue hover:underline">
                 Вернуться на главную
             </Link>
         </div>
