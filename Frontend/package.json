@@ -16,7 +16,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.51.11",
     "@tma.js/react-router-integration": "^2.0.0",
-    "@tma.js/sdk-react": "^2.1.4",
+    "@tma.js/sdk-react": "^2.2.8",
     "@tonconnect/ui-react": "^2.0.2",
     "chart.js": "^4.4.4",
     "eruda": "^3.0.1",

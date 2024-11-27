@@ -594,6 +594,8 @@ export const useAdminStore = create((set) => ({
 }))
 
 export const useUserStore = create((set) => ({
+    initData: [],
+    setInitData: (data) => set({ initData: data }),
     theme: 'light', // начальное значение темы по умолчанию
     setTheme: (newTheme) => set({ theme: newTheme }), // метод для смены темы
     cart: [],

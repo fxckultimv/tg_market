@@ -6,13 +6,8 @@ import { useInitDataRaw, useLaunchParams } from '@tma.js/sdk-react'
 import ProfileCustomLink from '../components/ProfileCustomLink'
 import ProfileLogo from '../assets/profile-logo.svg'
 import StarFull from '../assets/star-full.svg'
-import {
-    TonConnectButton,
-    useTonAddress,
-    useTonConnectUI,
-    useTonWallet,
-    CHAIN,
-} from '@tonconnect/ui-react'
+import Balance from './Balance'
+import Ton from './Ton'
 
 const ProfileLayout = () => {
     const { isAdmin } = useAdminStore()
@@ -24,32 +19,6 @@ const ProfileLayout = () => {
         fetchMe(initDataRaw)
         fetchBalance(initDataRaw)
     }, [initDataRaw, fetchMe])
-
-    //Ton Connect UI
-
-    const userFriendlyAddress = useTonAddress()
-    const rawAddress = useTonAddress(false)
-
-    const wallet = useTonWallet()
-
-    const [tonConnectUI, setOptions] = useTonConnectUI()
-
-    // Функция для смены языка интерфейса
-    const onLanguageChange = (lang) => {
-        setOptions({ language: lang })
-    }
-
-    // Объект с данными для транзакции
-    const myTransaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 60, // Срок действия - 60 сек
-        messages: [
-            {
-                address: '0QDHqPLXVrZvdbH-RzSgLFgPokwqLLU78Jbsq8pgPV3LOZdY', // адрес получателя
-                amount: '50000000', // сумма в нанотонах (например, 0.02 TON)
-                // опционально: stateInit, payload и другие параметры
-            },
-        ],
-    }
 
     return (
         <>
@@ -84,29 +53,11 @@ const ProfileLayout = () => {
                                         </p>
                                         <img src={StarFull} alt="" />
                                     </div>
-                                    <p className=" border-2 border-green rounded-md p-2 text-base">
-                                        Баланс: {balance} RUB
-                                    </p>
+                                    <Balance balance={balance / 1000000000} />
                                 </div>
                             </div>
-                            <TonConnectButton></TonConnectButton>
-                            <div
-                                className={`p-2 ${
-                                    wallet
-                                        ? wallet.account.chain === CHAIN.MAINNET
-                                            ? 'bg-green'
-                                            : 'bg-red'
-                                        : 'bg-gray-300'
-                                }`}
-                            >
-                                {wallet
-                                    ? wallet.account.chain === CHAIN.MAINNET
-                                        ? 'MainNet'
-                                        : 'TestNet'
-                                    : 'N/A'}
-                            </div>
 
-                            {rawAddress && (
+                            {/* {rawAddress && (
                                 <div>
                                     <span>
                                         User-friendly address:{' '}
@@ -120,32 +71,8 @@ const ProfileLayout = () => {
                                     <span>Connected wallet:{wallet.name}</span>
                                     <span>Device: {wallet.device.appName}</span>
                                 </div>
-                            )}
-                            <div>
-                                {/* Кнопка для отправки транзакции */}
-                                <button
-                                    onClick={() =>
-                                        tonConnectUI.sendTransaction(
-                                            myTransaction
-                                        )
-                                    }
-                                >
-                                    Send transaction
-                                </button>
-
-                                {/* Интерфейс для выбора языка */}
-                                <div>
-                                    <label>Language:</label>
-                                    <select
-                                        onChange={(e) =>
-                                            onLanguageChange(e.target.value)
-                                        }
-                                    >
-                                        <option value="en">English</option>
-                                        <option value="ru">Русский</option>
-                                    </select>
-                                </div>
-                            </div>
+                            )} */}
+                            <Ton />
                         </div>
                     </div>
                     <div className="flex flex-col items-start bg-card-white rounded-b-xl gap-3">
@@ -160,7 +87,7 @@ const ProfileLayout = () => {
                         </ProfileCustomLink>
                         <a
                             href="https://t.me/Stepanusik"
-                            className="p-3 rounded-lg hover:text-gray text-text"
+                            className="p-3 rounded-lg hover:text-gray text-text border-[1px] border-gray w-full"
                         >
                             Поддержка
                         </a>

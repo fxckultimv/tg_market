@@ -14,14 +14,10 @@ import ProfileLogo from '../../assets/profile-logo.svg'
 const Profile = () => {
     const { initDataRaw } = useLaunchParams()
     const { isAdmin } = useAdminStore()
-    const initData = useInitDataRaw()
     const theme = useThemeParamsRaw()
-    console.log(theme.result.state.state.buttonColor)
-
-    const { user, fetchMe, fetchBalance, balance, error, loading } =
+    const { user, fetchMe, fetchBalance, balance, error, loading, initData } =
         useUserStore()
     const user_id = initData.result.user.id
-    console.log(user_id)
 
     useEffect(() => {
         fetchMe(initDataRaw)

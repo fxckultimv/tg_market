@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import {
     retrieveLaunchParams,
+    useInitData,
+    useInitDataRaw,
     useLaunchParams,
     useSettingsButton,
     useThemeParamsRaw,
@@ -49,6 +51,13 @@ const App = () => {
     const navigate = useNavigate()
     const settingsButton = useSettingsButton()
     const { theme, setTheme } = useUserStore()
+    const initData = useInitDataRaw()
+    const setInitData = useUserStore((state) => state.setInitData)
+    useEffect(() => {
+        if (initData) {
+            setInitData(initData)
+        }
+    }, [])
 
     const location = useLocation()
 
