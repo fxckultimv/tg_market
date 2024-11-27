@@ -1,6 +1,5 @@
 import ReactDOM from 'react-dom/client'
-import { SDKProvider, useLaunchParams } from '@tma.js/sdk-react'
-
+import { SDKProvider, useLaunchParams, useViewportRaw } from '@tma.js/sdk-react'
 import './index.css'
 import App from './App'
 import { BrowserRouter } from 'react-router-dom'
