@@ -335,9 +335,19 @@ class productController {
             post_time,
             format,
         } = req.body
-        console.log(req.body)
+        // console.log(req.body)
 
         try {
+            const productPublished = await db.query(
+                `SELECT * FROM products WHERE channel_id = $1`,
+                [channel_id]
+            )
+
+            if (productPublished.rows.length > 0) {
+                return res
+                    .status(403)
+                    .json({ error: 'Для этого канала уже есть продукт' })
+            }
             // Проверка, верифицирован ли канал и получение channel_name
             const verificationResult = await db.query(
                 `SELECT channel_name FROM verifiedchannels WHERE user_id = $1 AND channel_id = $2`,

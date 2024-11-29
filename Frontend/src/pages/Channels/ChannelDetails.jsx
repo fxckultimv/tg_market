@@ -32,7 +32,7 @@ const ChannelDetails = () => {
     const [selectedDates, setSelectedDates] = useState([]) // Хранит выбранные даты
     const [format, setFormat] = useState()
     const [post_time, setPostTime] = useState('') // Состояние для хранения выбранного времени
-    const [postTimes, setPostTimes] = useState([]) // Состояние для хранения доступных времен
+    // const [postTimes, setPostTimes] = useState([]) // Состояние для хранения доступных времен
 
     useEffect(() => {
         fetchProductDetails(initDataRaw, id) // Загружаем данные при первом рендере
@@ -60,7 +60,8 @@ const ChannelDetails = () => {
 
     // Обработчик изменения времени
     const handlePostTimeChange = (e) => {
-        setPostTime(e.target.value) // Обновляем состояние выбранного времени
+        const selectedTime = e.target.value // Получаем выбранное время
+        setPostTime(selectedTime) // Обновляем состояние
     }
 
     useEffect(() => {
@@ -100,7 +101,7 @@ const ChannelDetails = () => {
 
             const handleMainButtonClick = async () => {
                 try {
-                    console.log(selectedDates)
+                    console.log(post_time)
 
                     await addToCart(initDataRaw, {
                         product_id: productDetails.product_id,

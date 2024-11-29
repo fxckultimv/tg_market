@@ -158,6 +158,34 @@ class CartController {
         }
     }
 
+    async deleteDateInCartItem(req, res) {
+        const initData = res.locals.initData
+        const user_id = initData.user.id
+
+        const { date, cart_item_id } = req.body
+        console.log(date, cart_item_id)
+
+        try {
+            const result = await db.query(
+                `DELETE FROM cartitems
+                USING cart
+                WHERE DATE(cartitems.post_time) = $1
+                AND cartitems.cart_item_id = $2
+                AND cart.user_id = $3;
+                `,
+                [date, cart_item_id, user_id]
+            )
+            if (result.rowCount > 0) {
+                res.status(200).json({ message: 'Successfully deleted' })
+            } else {
+                res.status(404).json({ error: 'Product not found' })
+            }
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
     async deleteAllItemsCart(req, res) {
         const initData = res.locals.initData
         const user_id = initData.user.id

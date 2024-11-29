@@ -931,6 +931,38 @@ export const useUserStore = create((set) => ({
             throw error
         }
     },
+    deleteDateInCartItem: async (
+        initDataRaw,
+        publicationDate,
+        cart_item_id
+    ) => {
+        try {
+            const response = await fetch(
+                'http://localhost:5000/cart/date-publication',
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({
+                        date: publicationDate,
+                        cart_item_id: cart_item_id,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error('Ошибка при удалении даты товара')
+            }
+
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Error creating order:', error)
+            throw error
+        }
+    },
     buyProduct: async (initDataRaw, order_id) => {
         set({ loading: true, error: null })
 

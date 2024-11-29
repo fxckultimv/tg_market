@@ -236,7 +236,7 @@ const CreateAd = () => {
                                                     channel.channel_id
                                                         ? 'bg-blue text-white'
                                                         : 'bg-white'
-                                                }`}
+                                                } ${channel.has_product ? 'opacity-50 pointer-events-none' : ''}`} //Скрытие каналов для котрых есть продукты
                                             >
                                                 <div className="relative">
                                                     {' '}
