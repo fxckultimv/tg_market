@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Delete from '../../assets/delete.svg'
 import { useEffect } from 'react'
 import { useLaunchParams, useMainButton } from '@tma.js/sdk-react'
-import { useUserStore } from '../../store'
+import { useProductStore, useUserStore } from '../../store'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/ToastProvider'
 
@@ -14,6 +14,7 @@ const CartItem = ({ cart }) => {
     const mainButton = useMainButton()
     const { fetchCart, createOrder, deleteCartItem, loading, error } =
         useUserStore()
+    const { formatNames } = useProductStore()
     const [selectedProductId, setSelectedProductId] = useState(null)
     const [totalPrice, setTotalPrice] = useState(0)
     const { addToast } = useToast()
@@ -78,7 +79,7 @@ const CartItem = ({ cart }) => {
         try {
             // Проверяем, выбран ли товар
             if (selectedProductId === null) {
-                console.error('Нет выбранных товаров.')
+                console.log('Нет выбранных товаров.')
                 return
             }
 
@@ -103,6 +104,19 @@ const CartItem = ({ cart }) => {
     const handleSelectProduct = (productId) => {
         let updatedTotalPrice = 0
 
+        const now = new Date()
+
+        // Проверяем наличие устаревших публикаций
+        const hasExpiredItems = cart.products[productId].items.some((item) => {
+            const postTime = new Date(item.post_time)
+            return postTime < now // Если время публикации меньше текущего, элемент устарел
+        })
+
+        if (hasExpiredItems) {
+            addToast('Удалите устаревшее время!', 'warning')
+            return // Прерываем выполнение функции
+        }
+
         // Если товар уже выбран, снимаем выбор
         if (selectedProductId === productId) {
             setSelectedProductId(null)
@@ -120,7 +134,7 @@ const CartItem = ({ cart }) => {
 
     const handleDeleteItem = (productId) => {
         try {
-            deleteCartItem(initDataRaw, productId)
+            deleteCartItem(initDataRaw, productId.slice(0, -2))
             fetchCart(initDataRaw)
             addToast('Товар удалён!')
         } catch (err) {
@@ -151,15 +165,26 @@ const CartItem = ({ cart }) => {
                                             alt={product.title}
                                         />
                                     </div>
-                                    <div>
-                                        <h3 className="text-xl mb-2 text-main-green">
-                                            {product.title}
-                                        </h3>{' '}
-                                        <p className="text-base">
-                                            ⭐️ {product.rating}
-                                        </p>
+                                    <div className="flex gap-5">
+                                        <div className="flex flex-col justify-between text-center items-start">
+                                            <p className="text-xl">
+                                                {product.title}
+                                            </p>
+                                            <p className="text-base">
+                                                ⭐️ {product.rating}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-base px-4 py-1 border-[1px] border-gray rounded-full">
+                                                {product.category}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
+                                <div className="bg-gray w-full h-[1px]"></div>
+                                <p className="test-">
+                                    Формат: {formatNames[product.format_id]}
+                                </p>
                                 <div className="bg-gray w-full h-[1px]"></div>
                                 <div className="flex-none">
                                     <div className="">

@@ -25,6 +25,7 @@ export default {
                 dark: '#191A23',
                 black: '#000000',
                 text: 'rgba(var(--text))',
+                yellow: '#fde047',
                 // Используем CSS-переменные
                 'theme-bg': 'var(--bg-color)',
                 'theme-button': 'var(--button-color)',

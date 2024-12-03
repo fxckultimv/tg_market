@@ -11,6 +11,8 @@ class CartController {
                 ci.cart_item_id,
                 ci.product_id,
                 ci.quantity,
+                ci.format,
+                cat.category_name,
                 p.title,
                 p.description,
                 p.price,
@@ -23,6 +25,8 @@ class CartController {
                 CartItems ci ON c.cart_id = ci.cart_id
             JOIN
                 Products p ON ci.product_id = p.product_id
+            JOIN 
+                Categories cat ON cat.category_id = p.category_id
             JOIN 
                 verifiedchannels v ON p.channel_id = v.channel_id
             JOIN 
@@ -37,10 +41,15 @@ class CartController {
             }
 
             result.rows.forEach((row) => {
+                // Создаем уникальный ключ для разделения товаров по product_id и format_id
+                const uniqueKey = `${row.product_id}-${row.format}`
+
                 // Добавляем продукт в объект products, если его там еще нет
-                if (!cart.products[row.product_id]) {
-                    cart.products[row.product_id] = {
+                if (!cart.products[uniqueKey]) {
+                    cart.products[uniqueKey] = {
                         title: row.title,
+                        format_id: row.format,
+                        category: row.category_name,
                         rating: row.rating,
                         description: row.description,
                         price: row.price,
@@ -50,7 +59,7 @@ class CartController {
                 }
 
                 // Добавляем элемент корзины в соответствующий продукт
-                cart.products[row.product_id].items.push({
+                cart.products[uniqueKey].items.push({
                     cart_item_id: row.cart_item_id,
                     product_id: row.product_id,
                     quantity: row.quantity,
@@ -69,6 +78,18 @@ class CartController {
         const initData = res.locals.initData
         const user_id = initData.user.id
         const { product_id, quantity, date, post_time, format } = req.body
+        console.log(
+            'product_id:',
+            product_id,
+            'quantity',
+            quantity,
+            'date',
+            date,
+            'post_time',
+            post_time,
+            'format',
+            format
+        )
 
         if (quantity == null) {
             res.status(400).json({ error: `Quantity = ${quantity}` })

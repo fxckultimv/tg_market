@@ -1,3 +1,4 @@
+const { query } = require('express')
 const db = require('../db')
 
 class buyController {
@@ -12,10 +13,7 @@ class buyController {
                 [order_id, user_id]
             )
 
-            // Проверяем, были ли обновлены строки
             if (result.rowCount > 0) {
-                // Если обновление успешно, отправляем POST-запрос на локальный сервер
-
                 try {
                     const buy_info = await db.query(
                         `SELECT p.user_id, oi.post_time, vc.channel_name, vc.channel_url, oi.order_id, oi.message_id, pf.format_name

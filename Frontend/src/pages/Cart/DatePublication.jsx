@@ -15,7 +15,6 @@ const DatePublication = ({ item }) => {
     const currentDate = new Date()
     // Сравниваем даты: если публикация уже прошла, то true
     const isPastDate = publicationDate < currentDate
-    console.log(item.cart_item_id)
 
     const deleteDateButton = async (publicationDate) => {
         try {

@@ -1110,6 +1110,14 @@ export const useProductStore = create((set, get) => ({
         category: '',
         priceRange: [0, 1000000],
     },
+    formatNames: {
+        1: '1/24',
+        2: '2/48',
+        3: '3/72',
+        4: 'Indefinite',
+        5: 'Repost',
+        6: 'Response',
+    },
     setPage: (newPage) => set({ page: newPage }),
     plusPage: () => set({ page: get().page + 1 }), // Увеличение страницы на 1
     minusPage: () => set({ page: get().page - 1 }),
@@ -1378,6 +1386,8 @@ export const useProductStore = create((set, get) => ({
     },
     addToCart: async (initDataRaw, cartInfo) => {
         set({ loading: true })
+        console.log('cartinfo:', cartInfo)
+
         try {
             const response = await fetch('http://localhost:5000/cart/add', {
                 method: 'POST',
@@ -1387,6 +1397,7 @@ export const useProductStore = create((set, get) => ({
                 },
                 body: JSON.stringify(cartInfo),
             })
+            console.log('cartinfo:', cartInfo)
 
             if (response.status === 204) {
                 // Если сервер вернул 204, устанавливаем пустой массив

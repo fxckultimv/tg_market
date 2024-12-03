@@ -6,14 +6,24 @@ const ToastContext = createContext()
 export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([])
 
-    const addToast = useCallback((message) => {
+    const addToast = useCallback((message, type = 'info') => {
         const id = Date.now()
-        setToasts((prev) => [...prev, { id, message }])
+        setToasts((prev) => [...prev, { id, message, type }])
 
         setTimeout(() => {
             setToasts((prev) => prev.filter((toast) => toast.id !== id))
         }, 3000)
     }, [])
+
+    const colorToast = (type) => {
+        if (type === 'error') {
+            return 'bg-red'
+        }
+        if (type === 'warning') {
+            return 'bg-yellow'
+        }
+        return 'bg-blue'
+    }
 
     return (
         <ToastContext.Provider value={{ addToast }}>
@@ -27,7 +37,7 @@ export const ToastProvider = ({ children }) => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -50 }}
                             transition={{ duration: 0.3 }}
-                            className={`${toast.type === 'error' ? 'bg-red' : 'bg-blue'} px-4 py-2 rounded-lg shadow-lg`}
+                            className={`${colorToast(toast.type)} px-4 py-2 rounded-lg shadow-lg`}
                         >
                             {toast.message}
                         </motion.div>

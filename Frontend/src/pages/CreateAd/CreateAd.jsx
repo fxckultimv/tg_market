@@ -8,9 +8,7 @@ import Document from '../../assets/create.svg'
 import check from '../../assets/check.svg'
 import ArrowLeft from '../../assets/arrow-left.svg'
 import ArrowRight from '../../assets/arrow-right.svg'
-import Star from '../../assets/star.svg'
 import Check from '../../assets/check-contained.svg'
-import { div, img } from 'framer-motion/client'
 import { useRef } from 'react'
 
 const CreateAd = () => {
@@ -36,7 +34,6 @@ const CreateAd = () => {
     const [description, setDescription] = useState('')
     const [timeError, setTimeError] = useState('')
     const [publicationTimes, setPublicationTimes] = useState([])
-    console.log(publicationTime)
 
     const addPublicationTime = () => {
         setPublicationTimes([...publicationTimes, '12:00']) // Добавление нового времени по умолчанию
@@ -51,9 +48,6 @@ const CreateAd = () => {
         newTimes[index] = time
         setPublicationTimes(newTimes)
     }
-
-    console.log('publicationTime', publicationTime)
-    console.log('publicationTimes', publicationTimes.length)
 
     useEffect(() => {
         fetchVerifiedChannels(initDataRaw)
