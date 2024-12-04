@@ -4,27 +4,19 @@ import view from '../assets/view-black.svg'
 
 const InfoBox = ({ product }) => (
     <div className="flex justify-between gap-3 w-full ">
-        <div className="bg-white flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2">
-            <img
-                src={user}
-                alt=""
-                className="max-h-[32px] max-md:min-h-[24px]"
-            />
+        <div className="bg-info-box flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2">
+            <img src={user} alt="" className="min-h-[24px]" />
             <p className="text-white text-sm bg-blue px-1 py-[2px] rounded-sm flex justify-center items-center max-md:text-xs">
                 {product.subscribers_count}
             </p>
         </div>
-        <div className="bg-white flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2">
-            <img
-                src={view}
-                alt=""
-                className="max-h-[32px] max-md:min-h-[24px]"
-            />
+        <div className="bg-info-box flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2">
+            <img src={view} alt="" className="min-h-[24px]" />
             <p className="text-white text-sm bg-blue px-1 py-[2px] rounded-sm flex justify-center items-center max-md:text-xs">
                 {Math.round(product.views)}
             </p>
         </div>
-        <div className="bg-white flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2 max-md:text-xs">
+        <div className="bg-info-box flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2 max-md:text-xs">
             <h2 className="">ER</h2>
             <p className="text-white text-sm bg-blue px-1 py-[2px] rounded-sm flex justify-center items-center max-md:text-xs">
                 {((100 / product.subscribers_count) * product.views).toFixed(1)}
@@ -32,7 +24,7 @@ const InfoBox = ({ product }) => (
             </p>
         </div>
         {product.price && (
-            <div className="bg-white flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2 max-md:text-xs">
+            <div className="bg-info-box flex flex-col justify-center items-center w-1/4 px-6 py-2 rounded-xl gap-2 max-md:px-2 max-md:text-xs">
                 <h2 className="">CPV</h2>
                 <div className="bg-blue rounded-sm flex justify-center items-center">
                     <p className="text-white text-sm px-1 py-[2px] max-md:text-xs">

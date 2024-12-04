@@ -32,7 +32,7 @@ const DatePublication = ({ item }) => {
 
     return (
         <li
-            className={`p-2 rounded-md flex justify-between gap-2 ${isPastDate ? 'bg-gray hover:scale-105 duration-300' : 'bg-white'}`}
+            className={`text-black p-2 rounded-md flex justify-between gap-2 ${isPastDate ? 'bg-gray hover:scale-105 duration-300' : 'bg-white'}`}
             onClick={() => {
                 if (isPastDate) {
                     deleteDateButton(publicationDate)

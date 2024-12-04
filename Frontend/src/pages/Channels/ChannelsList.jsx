@@ -89,7 +89,7 @@ const ProductCard = ({ product }) => {
             : 'Время не указано'
 
     return (
-        <div className="flex gap-4 flex-col ">
+        <div className="flex gap-4 flex-col">
             <Link
                 to={product.product_id}
                 className="bg-card-white  shadow-card basis-1/3 p-8 rounded-3xl"

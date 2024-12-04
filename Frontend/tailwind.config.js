@@ -21,11 +21,12 @@ export default {
                 blue: '#007AFF',
                 'dark-blue': '#12172D',
                 'main-blue': '#1E2336',
-                'light-gray': '#F5F7F9',
+                'light-gray': 'rgba(var(--light-gray))',
                 dark: '#191A23',
                 black: '#000000',
                 text: 'rgba(var(--text))',
                 yellow: '#fde047',
+                'info-box': 'rgba(var(--info-box))',
                 // Используем CSS-переменные
                 'theme-bg': 'var(--bg-color)',
                 'theme-button': 'var(--button-color)',

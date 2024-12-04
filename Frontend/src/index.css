@@ -23,13 +23,14 @@
     --light-gray: 245, 247, 249;
     --dark: 25, 26, 35;
     --black: 0, 0, 0;
+    --info-box: 255, 255, 255;
 }
 
 .dark {
     --background: 21, 31, 46;
     --text: 255, 255, 255;
     --white: 255, 255, 255;
-    --card-white: 34, 57, 91;
+    --card-white: 30, 35, 54;
     --main-gray: 246, 246, 246;
     --gray: 205, 205, 205;
     --green: 37, 198, 95;
@@ -37,18 +38,16 @@
     --blue: 0, 122, 255;
     --dark-blue: 18, 23, 45;
     --main-blue: 30, 35, 54;
-    --light-gray: 245, 247, 249;
+    --light-gray: 30, 35, 54;
     --dark: 25, 26, 35;
     --black: 0, 0, 0;
+    --info-box: 30, 35, 35;
 }
 
 body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.5;
-
-    background: var(--tg-theme-secondary-bg-color, white);
-    color: var(--tg-theme-text-color, black);
 }
 
 body::-webkit-scrollbar {

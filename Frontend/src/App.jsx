@@ -135,7 +135,7 @@ const App = () => {
     // }
 
     return (
-        <div>
+        <div className="text-text">
             <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
                     <Route path="/" element={<Layout />}>

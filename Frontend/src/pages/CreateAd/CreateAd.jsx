@@ -277,7 +277,7 @@ const CreateAd = () => {
                                 </label>
                                 <select
                                     id="categories-select"
-                                    className="w-full p-3 bg-white rounded"
+                                    className="w-full p-3 bg-info-box rounded"
                                     value={selectedCategories || ''}
                                     onChange={(e) => {
                                         setSelectedCategories(e.target.value)
@@ -345,7 +345,7 @@ const CreateAd = () => {
                                 </label>
                                 <textarea
                                     id="description"
-                                    className="w-full p-3rounded"
+                                    className="w-full p-3 rounded bg-info-box"
                                     placeholder="Введите описание до 256 символов"
                                     value={description}
                                     onChange={(e) =>
@@ -417,13 +417,13 @@ const CreateAd = () => {
                                     >
                                         Установите цену за размещение:
                                     </label>
-                                    <div className="flex justify-between items-center rounded-md border-2 bg-white border-gray">
+                                    <div className="flex justify-between items-center rounded-md border-2 bg-info-box border-gray">
                                         <p className="px-4 py-2 border-r-2 border-gray">
                                             ₽
                                         </p>
                                         <input
                                             id="price"
-                                            className="w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
+                                            className="bg-info-box w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
                                             placeholder="Введите цену"
                                             value={price}
                                             onChange={(e) =>

@@ -87,7 +87,7 @@ const Home = () => {
                 </h1>
 
                 {/* Подзаголовок */}
-                <p className="text-gray-600 mt-4 max-w-2xl">
+                <p className="text-gray-600 mt-4 max-md:text-xs">
                     Наше приложение помогает покупать рекламу в Telegram-каналах
                     и автоматизировать процесс её продажи.
                 </p>
@@ -120,7 +120,7 @@ const Home = () => {
                 </div>
             </div>
 
-            <div className="flex flex-row gap-8 m-6">
+            <div className="flex flex-row gap-8 m-6 max-md:flex-col">
                 <div className="basis-1/3 bg-gradient-radial from-white to-main-gray p-8 rounded-3xl flex flex-col items-center border-2">
                     <div className="flex-1 flex justify-center items-center">
                         <img
@@ -134,7 +134,7 @@ const Home = () => {
                         На нашей платформе огромное количество рекламодателей
                     </p>
                 </div>
-                <div className="basis-2/3 bg-cardGradient border-2 p-8 rounded-3xl flex flex-col items-center">
+                <div className="basis-2/3 bg-gradient-radial border-2 p-8 rounded-3xl flex flex-col items-center">
                     <div className="flex-1 flex justify-center items-center">
                         <img
                             src={time}
@@ -239,36 +239,38 @@ const Home = () => {
                             <div className="bg-gray w-full h-[1px] my-8"></div>
                             <div>
                                 <p className="bg">Статистика</p>
-                                <div className="flex justify-between gap-3 text-nowrap">
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
+                                <div className="flex justify-between gap-3 text-nowrap ">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
                                             src={user}
                                             alt=""
-                                            className="min-h-[24px]"
+                                            className="max-h-[24px]"
                                         />
-                                        <p className="bg-blue text-white text-sm p-1 rounded">
+                                        <p className="bg-blue text-white text-sm p-1 rounded max-md:text-xs">
                                             4
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
                                             src={view}
                                             alt=""
-                                            className="min-h-[24px]"
+                                            className="max-h-[24px]"
                                         />
-                                        <p className="bg-blue text-white  text-sm p-1 rounded">
+                                        <p className="bg-blue text-white  text-sm p-1 rounded max-md:text-xs">
                                             44
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
-                                        <h2 className="text-white">ER</h2>
-                                        <p className="bg-blue text-white text-sm p-1 rounded">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:text-xs max-md:px-3">
+                                        <p className="text-white">ER</p>
+                                        <p className="bg-blue text-white text-sm p-1 rounded max-md:text-xs">
                                             233.33%
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
-                                        <h2 className="text-white">CPV</h2>
-                                        <p className="bg-blue text-white  text-sm p-1 rounded">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
+                                        <p className="text-white max-md:text-xs">
+                                            CPV
+                                        </p>
+                                        <p className="bg-blue text-white  text-sm p-1 rounded max-md:text-xs">
                                             44 ₽
                                         </p>
                                     </div>
@@ -334,35 +336,39 @@ const Home = () => {
                             <div>
                                 <p className="bg">Статистика</p>
                                 <div className="flex justify-between gap-3 text-nowrap">
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
                                             src={user}
                                             alt=""
                                             className="min-h-[24px]"
                                         />
-                                        <p className="bg-blue text-white text-sm p-1 rounded">
+                                        <p className="bg-blue text-white text-sm p-1 rounded max-md:text-xs">
                                             4
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
                                             src={view}
                                             alt=""
                                             className="min-h-[24px]"
                                         />
-                                        <p className="bg-blue text-white  text-sm p-1 rounded">
+                                        <p className="bg-blue text-white  text-sm p-1 rounded max-md:text-xs">
                                             44
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
-                                        <h2 className="text-white">ER</h2>
-                                        <p className="bg-blue text-white text-sm p-1 rounded">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
+                                        <h2 className="text-white max-md:text-xs">
+                                            ER
+                                        </h2>
+                                        <p className="bg-blue text-white text-sm p-1 rounded max-md:text-xs">
                                             233.33%
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
-                                        <h2 className="text-white">CPV</h2>
-                                        <p className="bg-blue text-white  text-sm p-1 rounded">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
+                                        <h2 className="text-white max-md:text-xs">
+                                            CPV
+                                        </h2>
+                                        <p className="bg-blue text-white  text-sm p-1 rounded max-md:text-xs">
                                             44 ₽
                                         </p>
                                     </div>
@@ -427,35 +433,39 @@ const Home = () => {
                             <div>
                                 <p className="text-white p-2">Статистика</p>
                                 <div className="flex justify-between gap-3 text-nowrap">
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
                                             src={user}
                                             alt=""
                                             className="min-h-[24px]"
                                         />
-                                        <p className="bg-blue text-white text-sm p-1 rounded">
+                                        <p className="bg-blue text-white text-sm p-1 rounded max-md:text-xs">
                                             4
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
                                             src={view}
                                             alt=""
                                             className="min-h-[24px]"
                                         />
-                                        <p className="bg-blue text-white  text-sm p-1 rounded">
+                                        <p className="bg-blue text-white  text-sm p-1 rounded max-md:text-xs">
                                             44
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
-                                        <h2 className="text-white">ER</h2>
-                                        <p className="bg-blue text-white text-sm p-1 rounded">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
+                                        <h2 className="text-white max-md:text-xs">
+                                            ER
+                                        </h2>
+                                        <p className="bg-blue text-white text-sm p-1 rounded max-md:text-xs">
                                             233.33%
                                         </p>
                                     </div>
-                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2">
-                                        <h2 className="text-white">CPV</h2>
-                                        <p className="bg-blue text-white  text-sm p-1 rounded">
+                                    <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
+                                        <h2 className="text-white max-md:text-xs">
+                                            CPV
+                                        </h2>
+                                        <p className="bg-blue text-white  text-sm p-1 rounded max-md:text-xs">
                                             44 ₽
                                         </p>
                                     </div>
@@ -484,7 +494,7 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                <div className="bg-white px-16 py-20">
+                <div className="px-16 py-20">
                     <h1 className="text-5xl">Часто задаваемые вопросы</h1>
                     <div className="flex flex-col gap-6 mt-8">
                         <div className="px-5 py-8 bg-blue rounded-3xl">
@@ -522,7 +532,7 @@ const Home = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center text-center py-10 relative bg-white">
+                <div className="flex flex-col items-center text-center py-10 relative">
                     {/* Фоновое изображение */}
                     <img
                         src={Ellipse}
@@ -583,7 +593,7 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex justify-between px-16 py-8 items-center bg-white">
+                <div className="flex justify-between px-16 py-8 items-center">
                     {' '}
                     <div className="max-w-[540px] flex flex-col max-lg:items-center">
                         <div className="flex gap-2 ">

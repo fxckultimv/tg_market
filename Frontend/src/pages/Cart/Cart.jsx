@@ -46,9 +46,7 @@ const Cart = () => {
                     <img src={Bag} alt="Документ" className="h-[32px]" />
                 </div>
                 <div className="flex">
-                    <h1 className="text-black text-5xl max-md:text-3xl">
-                        Корзина
-                    </h1>
+                    <h1 className="text-5xl max-md:text-3xl">Корзина</h1>
                     <p>{Object.keys(cart.products).length}</p>
                 </div>
             </div>
