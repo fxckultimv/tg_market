@@ -182,13 +182,26 @@ const CartItem = ({ cart }) => {
                                     </div>
                                 </div>
                                 <div className="bg-gray w-full h-[1px]"></div>
-                                <p className="test-">
-                                    Формат: {formatNames[product.format_id]}
-                                </p>
+                                <div className="flex justify-between max-md:flex-col">
+                                    {' '}
+                                    <p className="">
+                                        Формат: {formatNames[product.format_id]}
+                                    </p>
+                                    <p className="">
+                                        Время:{' '}
+                                        {new Date(
+                                            product.items[0].post_time
+                                        ).toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
+                                    </p>
+                                </div>
+
                                 <div className="bg-gray w-full h-[1px]"></div>
                                 <div className="flex-none">
                                     <div className="">
-                                        <p>Время публикации: </p>
+                                        <p>Даты публикации: </p>
                                         <div>
                                             <ul className="flex gap-3 justify-start flex-wrap items-center">
                                                 {product.items.map((item) => (

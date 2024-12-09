@@ -11,6 +11,7 @@
 .light {
     --background: 255, 255, 255;
     --text: 0, 0, 0;
+    --text-revers: 255, 255, 255;
     --white: 255, 255, 255;
     --card-white: 247, 249, 251;
     --main-gray: 246, 246, 246;
@@ -29,6 +30,7 @@
 .dark {
     --background: 21, 31, 46;
     --text: 255, 255, 255;
+    --text-revers: 0, 0, 0;
     --white: 255, 255, 255;
     --card-white: 30, 35, 54;
     --main-gray: 246, 246, 246;

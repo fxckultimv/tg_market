@@ -319,7 +319,7 @@ const ChannelDetails = () => {
                         id="format"
                         value={format} // Значение выбранного формата
                         onChange={handleFormatChange} // Обработчик изменения формата
-                        className="w-full p-3 bg-gray-700  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
+                        className="w-full p-3 bg-background  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                     >
                         <option value="">Выбрать формат</option>
                         {formatList.map((formatId) => (
@@ -342,7 +342,7 @@ const ChannelDetails = () => {
                         id="post_time"
                         value={post_time} // Значение выбранного времени
                         onChange={handlePostTimeChange} // Обработчик изменения времени
-                        className="w-full p-3 bg-gray-700 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
+                        className="w-full p-3 bg-background rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                     >
                         <option value="">Выбрать время</option>
                         {productDetails.post_times.map((time, index) => (

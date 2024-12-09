@@ -56,14 +56,18 @@ class ordersController {
                 `SELECT ci.product_id, ci.quantity, ci.format, ci.post_time, p.price
             FROM cartitems ci
             JOIN products p ON ci.product_id = p.product_id
-            WHERE ci.cart_item_id = ANY($1) AND ci.cart_id = (SELECT cart_id FROM cart WHERE user_id = $2)`,
+            LEFT JOIN orderitems oi ON ci.product_id = oi.product_id AND ci.post_time = oi.post_time
+            LEFT JOIN orders o ON oi.order_id = o.order_id
+            WHERE ci.cart_item_id = ANY($1)
+              AND ci.cart_id = (SELECT cart_id FROM cart WHERE user_id = $2)
+              AND (o.status IS NULL OR o.status != 'completed')`,
                 [cart_item_id, user_id]
             )
 
             const cartItems = cartItemsResult.rows
             if (cartItems.length === 0) {
                 await db.query('ROLLBACK')
-                return res.status(400).json({ error: 'No items in cart' })
+                return res.status(400).json({ error: 'No valid items in cart' })
             }
 
             // Вычисление общей суммы заказа

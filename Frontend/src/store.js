@@ -1049,7 +1049,7 @@ export const useUserStore = create((set) => ({
     fetchMe: async (initDataRaw) => {
         set({ loading: true })
         try {
-            const response = await fetch(`http://localhost:5000/user/me`, {
+            const response = await fetch(`http://localhost:5000/users/me`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

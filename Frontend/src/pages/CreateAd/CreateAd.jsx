@@ -198,7 +198,7 @@ const CreateAd = () => {
                                         <p className="text-base">
                                             Выберите верифицированный канал:
                                         </p>
-                                        <div className="flex gap-3 max-md:hidden">
+                                        <div className="flex gap-3">
                                             <button onClick={scrollLeft}>
                                                 <img
                                                     src={ArrowLeft}
@@ -215,7 +215,7 @@ const CreateAd = () => {
                                     </div>
                                     <div
                                         ref={sliderRef}
-                                        className="flex overflow-x-scroll py-3 no-scrollbar snap-x -scroll-m-3 gap-3"
+                                        className="flex overflow-x-scroll py-3 snap-x -scroll-m-3 gap-3"
                                     >
                                         {verifiedChannels.map((channel) => (
                                             <div
@@ -229,7 +229,7 @@ const CreateAd = () => {
                                                     selectedChannel ===
                                                     channel.channel_id
                                                         ? 'bg-blue text-white'
-                                                        : 'bg-white'
+                                                        : 'bg-background'
                                                 } ${channel.has_product ? 'opacity-50 pointer-events-none' : ''}`} //Скрытие каналов для котрых есть продукты
                                             >
                                                 <div className="relative">

@@ -238,7 +238,7 @@ const Home = () => {
 
                             <div className="bg-gray w-full h-[1px] my-8"></div>
                             <div>
-                                <p className="bg">Статистика</p>
+                                <p className="text-white p-2">Статистика</p>
                                 <div className="flex justify-between gap-3 text-nowrap ">
                                     <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
@@ -334,7 +334,7 @@ const Home = () => {
 
                             <div className="bg-gray w-full h-[1px] my-8"></div>
                             <div>
-                                <p className="bg">Статистика</p>
+                                <p className="text-white p-2">Статистика</p>
                                 <div className="flex justify-between gap-3 text-nowrap">
                                     <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
@@ -494,7 +494,7 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                <div className="px-16 py-20">
+                <div className="px-16 py-20 bg-background">
                     <h1 className="text-5xl">Часто задаваемые вопросы</h1>
                     <div className="flex flex-col gap-6 mt-8">
                         <div className="px-5 py-8 bg-blue rounded-3xl">
@@ -532,7 +532,7 @@ const Home = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center text-center py-10 relative">
+                <div className="flex flex-col items-center text-center py-10 relative bg-background">
                     {/* Фоновое изображение */}
                     <img
                         src={Ellipse}
@@ -593,8 +593,7 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex justify-between px-16 py-8 items-center">
-                    {' '}
+                <div className="flex justify-center px-16 py-8 items-center bg-background">
                     <div className="max-w-[540px] flex flex-col max-lg:items-center">
                         <div className="flex gap-2 ">
                             <img src={Logo} alt="" className="w-[50px] " />

@@ -8,31 +8,36 @@ class CartController {
         try {
             const result = await db.query(
                 `SELECT
-                ci.cart_item_id,
-                ci.product_id,
-                ci.quantity,
-                ci.format,
-                cat.category_name,
-                p.title,
-                p.description,
-                p.price,
-                ci.post_time,
-                v.channel_tg_id,
-                u.rating
-            FROM
-                Cart c
-            JOIN
-                CartItems ci ON c.cart_id = ci.cart_id
-            JOIN
-                Products p ON ci.product_id = p.product_id
-            JOIN 
-                Categories cat ON cat.category_id = p.category_id
-            JOIN 
-                verifiedchannels v ON p.channel_id = v.channel_id
-            JOIN 
-                users u ON u.user_id = c.user_id
-            WHERE
-                c.user_id = $1`,
+                    ci.cart_item_id,
+                    ci.product_id,
+                    ci.quantity,
+                    ci.format,
+                    cat.category_name,
+                    p.title,
+                    p.description,
+                    p.price,
+                    ci.post_time,
+                    v.channel_tg_id,
+                    u.rating
+                FROM
+                    Cart c
+                JOIN
+                    CartItems ci ON c.cart_id = ci.cart_id
+                JOIN
+                    Products p ON ci.product_id = p.product_id
+                JOIN 
+                    Categories cat ON cat.category_id = p.category_id
+                JOIN 
+                    verifiedchannels v ON p.channel_id = v.channel_id 
+                JOIN 
+                    users u ON u.user_id = c.user_id
+                LEFT JOIN 
+                    orderitems oi ON ci.product_id = oi.product_id AND ci.post_time = oi.post_time
+                LEFT JOIN 
+                    orders o ON oi.order_id = o.order_id
+                WHERE
+                    c.user_id = $1
+                    AND (o.status IS NULL OR o.status != 'completed')`,
                 [user_id]
             )
 

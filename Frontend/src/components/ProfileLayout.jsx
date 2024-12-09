@@ -49,7 +49,7 @@ const ProfileLayout = () => {
                                     <p>Pop478</p>
                                     <div className="flex gap-2 items-center">
                                         <p className="text-lg font-semibold">
-                                            4.8
+                                            {user.rating}
                                         </p>
                                         <img src={StarFull} alt="" />
                                     </div>

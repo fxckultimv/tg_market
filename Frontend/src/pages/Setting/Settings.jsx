@@ -50,12 +50,12 @@ const Setting = () => {
             </div>
 
             {/* Выбор языка */}
-            <div className="mb-6">
+            <div className=" mb-6">
                 <label className="mr-4 font-medium">Язык сайта:</label>
                 <select
                     value={language}
                     onChange={handleLanguageChange}
-                    className="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-text border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="px-4 py-2 rounded-lg font-semibold bg-background text-text border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                     <option value="ru">Русский</option>
                     <option value="en">English</option>

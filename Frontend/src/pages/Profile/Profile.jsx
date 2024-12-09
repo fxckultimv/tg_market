@@ -54,7 +54,7 @@ const Profile = () => {
                                 className="rounded-full w-24 h-24 m-2"
                             />
                             <p className="text-lg font-semibold">
-                                Рейтинг: 4.8⭐️
+                                Рейтинг: {user.rating}⭐️
                             </p>
                         </div>
                         <p className=" border-2 border-green-400 rounded-xl p-4 m-2 text-xl">
