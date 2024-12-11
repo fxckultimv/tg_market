@@ -14,6 +14,8 @@ import { Link } from 'react-router-dom'
 import Error from '../../Error'
 import Loading from '../../Loading'
 import InfoBox from '../../components/InfoBox'
+import Ton from '../../assets/ton_symbol.svg'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 
 const ChannelDetails = () => {
     const backButton = useBackButton()
@@ -82,7 +84,7 @@ const ChannelDetails = () => {
 
         // Установка параметров кнопки
         mainButton.setParams({
-            text: `Купить за ${productDetails.price * selectedDates.length} руб.`,
+            text: `Купить за ${nanoTonToTon(productDetails.price * selectedDates.length)} Ton.`,
             backgroundColor: '#22C55E',
             textColor: '#ffffff',
             isVisible: isFormFilled,
@@ -290,17 +292,19 @@ const ChannelDetails = () => {
                     </p>
                 </div>
             </div>
-            <div className="bg-card-white p-8 rounded-xl">
+            <div className="bg-card-white p-8 rounded-xl ">
                 <p className="text-lg mb-3 rounded-lg">
                     <span className="font-bold">Описание:</span>{' '}
                     {productDetails.description}
                 </p>
             </div>
             <div className="flex bg-card-white p-8 rounded-xl">
-                <p className="bg-blue text-lg p-3 rounded-lg">
-                    <span className="font-bold">Цена:</span>{' '}
-                    {productDetails.price}₽
-                </p>
+                <div className="bg-blue flex items-center justify-between rounded-lg p-2">
+                    <img src={Ton} alt="" className="h-[2em]" />
+                    <p className="text-lg p-3 rounded-lg text-white">
+                        {nanoTonToTon(productDetails.price)} Ton
+                    </p>
+                </div>
             </div>
             <div className="bg-card-white p-8">
                 <InfoBox product={productDetails} />

@@ -606,7 +606,7 @@ export const useUserStore = create((set) => ({
     history: [],
     reviews: [],
     balance: 0,
-    status: false,
+    orderInfo: [],
     fetchAuth: async (initDataRaw) => {
         set({ loading: true, error: null })
         console.log('initDateRaw ', initDataRaw)
@@ -1017,7 +1017,7 @@ export const useUserStore = create((set) => ({
 
             const data = await response.json()
 
-            set({ status: data.status, loading: false, error: null }) // Обновляем статус
+            set({ orderInfo: data, loading: false, error: null }) // Обновляем статус
             return data
         } catch (error) {
             set({ error: error.message, loading: false })

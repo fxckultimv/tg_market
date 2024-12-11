@@ -111,7 +111,7 @@ const History = () => {
                 </button>
                 <button
                     className="rounded-md bg-blue p-2 text-white hover:text-gray"
-                    value="awaiting payment"
+                    value="pending_payment"
                     onClick={handlerSubmit}
                 >
                     ожидает оплаты

@@ -27,7 +27,7 @@ class ordersController {
 
         try {
             const result = await db.query(
-                `SELECT status FROM orders WHERE order_id = $1`,
+                `SELECT status, total_price FROM orders WHERE order_id = $1`,
                 [id]
             )
 

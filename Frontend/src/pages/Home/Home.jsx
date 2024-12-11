@@ -21,6 +21,7 @@ import tg from '../../assets/tg.svg'
 import Logo from '../../assets/logo.svg'
 import Name from '../../assets/TeleAdMarket.svg'
 import lucky from '../../assets/lucky.svg'
+import Ton from '../../assets/ton_symbol.svg'
 
 const Home = () => {
     const { initDataRaw } = useLaunchParams()
@@ -282,9 +283,17 @@ const Home = () => {
                                     <p className="text-white text-sm">
                                         Стоимость
                                     </p>
-                                    <h2 className="text-white text-3xl">
-                                        4500 ₽
-                                    </h2>
+                                    <div className="flex items-center gap-2">
+                                        <img
+                                            src={Ton}
+                                            alt=""
+                                            className="h-[3em] w-auto inline-block align-middle"
+                                            style={{ verticalAlign: 'middle' }}
+                                        />
+                                        <p className="text-white text-3xl">
+                                            45 Ton
+                                        </p>
+                                    </div>
                                 </div>
                                 <div className="bg-blue  rounded-2xl items-center ">
                                     <a

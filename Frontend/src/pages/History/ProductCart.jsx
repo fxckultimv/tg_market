@@ -1,8 +1,12 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import Ton from '../../assets/ton_symbol.svg'
 
 const ProductCart = ({ order }) => {
     return (
-        <div
+        <Link
+            to={`/buy/${order.order_id}`}
             key={order.order_id}
             className="bg-card-white flex flex-col justify-center p-8 h-full rounded-xl"
         >
@@ -37,7 +41,12 @@ const ProductCart = ({ order }) => {
                 <p className="">
                     От: {new Date(order.created_at).toLocaleDateString()}
                 </p>
-                <p className="font-bold text-2xl">{order.total_price}₽</p>
+                <div className="flex items-center gap-2">
+                    <img src={Ton} alt="" className="h-[2em]" />
+                    <p className="text-2xl">
+                        {nanoTonToTon(order.total_price)} Ton
+                    </p>
+                </div>
             </div>
 
             {/* <div className="flex-shrink-0">
@@ -47,7 +56,7 @@ const ProductCart = ({ order }) => {
                     alt={order.channel_name}
                 />
             </div> */}
-        </div>
+        </Link>
     )
 }
 

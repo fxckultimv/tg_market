@@ -409,6 +409,7 @@ class productController {
         const user_id = initData.user.id
         const {
             channel_id,
+            product_id: reqProduct_id,
             category_id,
             description,
             price,
@@ -437,14 +438,14 @@ class productController {
             const result = await db.query(
                 `UPDATE products
                 SET category_id = $1, description = $2, price = $3, post_time = $4
-                WHERE channel_id = $5 AND user_id = $6
+                WHERE product_id = $5 AND user_id = $6
                 RETURNING *`,
                 [
                     category_id,
                     description,
                     price,
                     post_time[0],
-                    channel_id,
+                    reqProduct_id,
                     user_id,
                 ]
             )

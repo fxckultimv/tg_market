@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { useProductStore } from '../../store'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import Ton from '../../assets/ton_symbol.svg'
 import { Link } from 'react-router-dom'
 import Loading from '../../Loading'
 import Error from '../../Error'
@@ -205,10 +207,21 @@ const ProductCard = ({ product }) => {
                     <InfoBox product={product} />
                 </div>
                 <div className="bg-gray w-full h-[1px] my-8"></div>
+                <p className="max-sm:text-xs">Стоимость:</p>
                 <div className="flex justify-between items-center">
                     <div>
-                        <p className="text- max-sm:text-xs">Стоимость:</p>
-                        <h2 className="text-3xl">{product.price} ₽</h2>
+                        <div className="flex items-center gap-2">
+                            <img
+                                src={Ton}
+                                alt=""
+                                className="h-[2em] w-auto inline-block align-middle"
+                                style={{ verticalAlign: 'middle' }}
+                            />
+                            <p className="text-3xl max-md:text-xl ">
+                                {nanoTonToTon(product.price)} Ton
+                            </p>
+                        </div>
+                        {/* <h2 className="text-3xl">{product.price} ₽</h2> */}
                     </div>
                     <div className="bg-blue rounded-2xl flex items-center">
                         <div className="px-4 py-3 text-xl text-white flex items-center gap-2">

@@ -1,4 +1,6 @@
 import React from 'react'
+import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
+import Ton from '../../../assets/ton_symbol.svg'
 
 const ProductCard = ({ product }) => {
     return (
@@ -24,9 +26,12 @@ const ProductCard = ({ product }) => {
                 <p className="">
                     От: {new Date(product.created_at).toLocaleDateString()}
                 </p>
-                <p className="font-bold text-2xl text-accent-green">
-                    {product.price}₽
-                </p>
+                <div className="flex items-center gap-2">
+                    <img src={Ton} alt="" className="h-[2em]" />
+                    <p className="text-2xl">
+                        {nanoTonToTon(product.price)} Ton
+                    </p>
+                </div>
             </div>
 
             <div className="flex-shrink-0">

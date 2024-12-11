@@ -13,6 +13,8 @@ import CTRChart from './CTRChart'
 import ConversionChart from './ConversionChart'
 import CPMChart from './CPMChart'
 import SubscribersChart from './SubscribersChart'
+import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
+import Ton from '../../../assets/ton_symbol.svg'
 
 const ChannelStats = () => {
     const { initDataRaw } = useLaunchParams()
@@ -32,6 +34,7 @@ const ChannelStats = () => {
         deleteProduct, // Функция для удаления
     } = useProductStore()
 
+    const [product_id, setProduct_id] = useState('')
     const [description, setDescription] = useState('')
     const [publicationTimes, setPublicationTimes] = useState([])
     const [selectedFormats, setSelectedFormats] = useState([])
@@ -60,6 +63,7 @@ const ChannelStats = () => {
 
     useEffect(() => {
         if (productDetails) {
+            setProduct_id(productDetails.product_id)
             setDescription(productDetails.description)
             setPublicationTimes(
                 (productDetails.post_times || []).map(formatTime) // Преобразуем время с сервера в "HH:MM"
@@ -94,10 +98,11 @@ const ChannelStats = () => {
 
     const handleSave = async () => {
         const updatedDetails = {
+            product_id: product_id,
             channel_id: productDetails.channel_id, // ID канала
             category_id: category,
             description,
-            price,
+            price: tonToNanoTon(price),
             post_time: publicationTimes, // Массив с временем публикации
             format: selectedFormats, // Массив с форматами
         }
@@ -200,7 +205,7 @@ const ChannelStats = () => {
                         id="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray"
+                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray text-black p-2"
                     />
                 </div>
 
@@ -216,7 +221,7 @@ const ChannelStats = () => {
                         <div key={index} className="flex items-center mb-2">
                             <input
                                 type="time"
-                                className="w-full p-3 bg-medium-gray bg-white rounded"
+                                className="w-full p-3 bg-medium-gray bg-white rounded text-black"
                                 value={time}
                                 onChange={(e) =>
                                     handleTimeChange(e.target.value, index)
@@ -224,7 +229,7 @@ const ChannelStats = () => {
                             />
                             <button
                                 onClick={() => removePublicationTime(index)}
-                                className="ml-2 bg-red-500 bg-white p-2 rounded"
+                                className="ml-2 bg-red text-white p-2 rounded"
                             >
                                 Удалить
                             </button>
@@ -232,7 +237,7 @@ const ChannelStats = () => {
                     ))}
                     <button
                         onClick={addPublicationTime}
-                        className="mt-2 bg-accent-green bg-white p-2 rounded"
+                        className="bg-green px-4 py-2 rounded-md"
                     >
                         Добавить время
                     </button>
@@ -288,7 +293,7 @@ const ChannelStats = () => {
                     </label>
                     <select
                         id="categories-select"
-                        className="w-full p-3 bg-medium-gray bg-white rounded"
+                        className="w-full p-3 bg-medium-gray bg-white rounded text-black"
                         value={categories || ''}
                         onChange={(e) => {
                             setCategory(e.target.value)
@@ -320,28 +325,29 @@ const ChannelStats = () => {
                     <input
                         type="number"
                         id="price"
-                        value={price}
+                        value={nanoTonToTon(price)}
                         onChange={(e) => setPrice(e.target.value)}
-                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray"
+                        className="p-1 mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray text-black"
                     />
                 </div>
 
-                {/* Кнопки */}
-                <button
-                    type="submit"
-                    className="mt-4 bg-accent-green bg-white px-4 py-2 rounded-md"
-                    onClick={handleSave}
-                >
-                    Сохранить изменения
-                </button>
+                <div className="flex justify-between gap-3">
+                    <button
+                        type="submit"
+                        className="bg-green px-4 py-2 rounded-md"
+                        onClick={handleSave}
+                    >
+                        Сохранить изменения
+                    </button>
 
-                <button
-                    type="button"
-                    onClick={handleDelete}
-                    className="mt-4 bg-red-500 bg-white px-4 py-2 rounded-md ml-4"
-                >
-                    Удалить продукт
-                </button>
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="bg-red px-4 py-2 rounded-md"
+                    >
+                        Удалить продукт
+                    </button>
+                </div>
             </form>
             <SalesChart ordersData={order_stats} />
             <AverageViewsChart />

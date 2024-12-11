@@ -7,6 +7,8 @@ import { useLaunchParams, useMainButton } from '@tma.js/sdk-react'
 import { useProductStore, useUserStore } from '../../store'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/ToastProvider'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import Ton from '../../assets/ton_symbol.svg'
 
 const CartItem = ({ cart }) => {
     const { initDataRaw } = useLaunchParams()
@@ -24,7 +26,7 @@ const CartItem = ({ cart }) => {
             if (mainButton) {
                 if (selectedProductId) {
                     mainButton.setParams({
-                        text: `Заказать ${totalPrice} руб.`,
+                        text: `Заказать ${totalPrice} Ton.`,
                         isVisible: true,
                         isEnabled: true,
                         backgroundColor: '#22C55E',
@@ -129,7 +131,7 @@ const CartItem = ({ cart }) => {
             })
         }
 
-        setTotalPrice(updatedTotalPrice)
+        setTotalPrice(nanoTonToTon(updatedTotalPrice))
     }
 
     const handleDeleteItem = (productId) => {
@@ -216,9 +218,17 @@ const CartItem = ({ cart }) => {
                                 </div>
                                 <div className="bg-gray w-full h-[1px] "></div>
                                 <div className="flex justify-between items-center">
-                                    <p className=" text-2xl text-accent-green">
-                                        {product.price}₽
-                                    </p>
+                                    <div className="flex items-center gap-1">
+                                        <img
+                                            src={Ton}
+                                            alt=""
+                                            className="h-[2em]"
+                                        />
+                                        <p className=" text-2xl text-accent-green">
+                                            {nanoTonToTon(product.price)} Ton
+                                        </p>
+                                    </div>
+
                                     <button
                                         onClick={() =>
                                             handleDeleteItem(productId)
@@ -258,11 +268,14 @@ const CartItem = ({ cart }) => {
                                         (total, item) =>
                                             total +
                                             item.quantity *
-                                                cart.products[selectedProductId]
-                                                    .price,
+                                                nanoTonToTon(
+                                                    cart.products[
+                                                        selectedProductId
+                                                    ].price
+                                                ),
                                         0
                                     )}{' '}
-                                    ₽
+                                    Ton
                                 </p>
                             </div>
                         )}
@@ -270,7 +283,7 @@ const CartItem = ({ cart }) => {
                     <div className="border-t border-gray my-4"></div>
                     <div className="flex justify-between text-lg ">
                         <p>Итого:</p>
-                        <p>{totalPrice} ₽</p>
+                        <p>{totalPrice} Ton</p>
                     </div>
                     <button
                         className="w-full bg-white py-2 mt-4 rounded-lg  hover:bg-blue transition duration-300"

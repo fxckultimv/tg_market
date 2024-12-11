@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useUserStore } from '../../store'
 import { useLaunchParams, useMainButton } from '@tma.js/sdk-react'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import Ton from '../../assets/ton_symbol.svg'
 import { Link } from 'react-router-dom'
 import Loading from '../../Loading'
 import Error from '../../Error'
@@ -68,7 +70,7 @@ const CreateAd = () => {
                 !timeError
 
             mainButton.setParams({
-                text: `Создать предложение за ${price} руб.`,
+                text: `Создать предложение за ${price} Ton.`,
                 backgroundColor: '#22C55E',
                 textColor: '#ffffff',
                 isVisible: isFormFilled,
@@ -81,7 +83,7 @@ const CreateAd = () => {
                         channel_id: selectedChannel,
                         category_id: selectedCategories,
                         description: description,
-                        price: price,
+                        price: tonToNanoTon(price),
                         format: selectedFormat,
                         post_time: publicationTimes,
                     })
@@ -417,10 +419,16 @@ const CreateAd = () => {
                                     >
                                         Установите цену за размещение:
                                     </label>
+
                                     <div className="flex justify-between items-center rounded-md border-2 bg-info-box border-gray">
-                                        <p className="px-4 py-2 border-r-2 border-gray">
+                                        {/* <p className="px-4 py-2 border-r-2 border-gray">
                                             ₽
-                                        </p>
+                                        </p> */}
+                                        <img
+                                            src={Ton}
+                                            alt=""
+                                            className="px-2 h-6 border-r-2 border-gray"
+                                        />
                                         <input
                                             id="price"
                                             className="bg-info-box w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"

@@ -7,7 +7,9 @@ const buyController = require('../controllers/buyController')
 
 router.use(authMiddleware)
 
+// router.get('/', buyController.infoForBuy)
+
 // Обработка нажатия на кнопку оплатить
-router.post('/', buyController.buy)
+router.post('/', buyController.buyOrder)
 
 module.exports = router
