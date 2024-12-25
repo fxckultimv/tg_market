@@ -21,8 +21,8 @@ const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS
 const TRANSACTION_FEE_PERCENTAGE =
     parseFloat(process.env.TRANSACTION_FEE_PERCENTAGE) / 100
 
-const GAS_LIMIT = TonWeb.utils.toNano('0.1') // Adjust as needed
-const STORAGE_FEE = TonWeb.utils.toNano('0.01') // Adjust as needed
+const GAS_LIMIT = TonWeb.utils.toNano('0.1')
+const STORAGE_FEE = TonWeb.utils.toNano('0.01')
 
 async function verifyTonPayment(amount, transactionHash) {
     try {

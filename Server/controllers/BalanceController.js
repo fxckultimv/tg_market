@@ -189,7 +189,7 @@ class BalanceController {
                     userId: buyerId,
                     type: 'purchase',
                     amount: -totalWithFees,
-                    fee: fee + parseFloat(feeEstimation.fees),
+                    fee: 0, // No fee
                     status: 'completed',
                     details: { productId, sellerId },
                 }),
@@ -203,15 +203,8 @@ class BalanceController {
                 }),
             ])
 
-            const feeSent = await sendFee(fee)
-            if (!feeSent.success) {
-                logger.error(
-                    `Не удалось отправить комиссию рынка: ${feeSent.error}`
-                )
-            }
-
             logger.info(
-                `Покупка завершена. ID покупателя: ${buyerId}, ID продавца: ${sellerId}, Сумма: ${amount} TON, Комиссия: ${fee} TON`
+                `Покупка завершена. ID покупателя: ${buyerId}, ID продавца: ${sellerId}, Сумма: ${amount} TON`
             )
             res.json({
                 message: 'Покупка успешно завершена',
@@ -223,83 +216,82 @@ class BalanceController {
         }
     }
 
-    async handleWithdrawal(req, res) {
-        try {
-            const { amount, toAddress } = req.body
-            const userId = req.user._id
+    // async handleWithdrawal(req, res) {
+    //     try {
+    //         const { amount, toAddress } = req.body
+    //         const userId = req.user._id
 
-            const userBalance = await UserBalance.findOne({ userId })
-            if (!userBalance) {
-                return res
-                    .status(404)
-                    .json({ error: 'Баланс пользователя не найден' })
-            }
+    //         const userBalance = await UserBalance.findOne({ userId })
+    //         if (!userBalance) {
+    //             return res
+    //                 .status(404)
+    //                 .json({ error: 'Баланс пользователя не найден' })
+    //         }
 
-            const feeEstimation = await estimateTransactionFees(
-                MARKET_WALLET_ADDRESS,
-                toAddress,
-                amount
-            )
-            if (!feeEstimation.success) {
-                return res.status(500).json({
-                    error: 'Не удалось оценить комиссию за транзакцию',
-                    details: feeEstimation.error,
-                })
-            }
+    //         const feeEstimation = await estimateTransactionFees(
+    //             MARKET_WALLET_ADDRESS,
+    //             toAddress,
+    //             amount
+    //         )
+    //         if (!feeEstimation.success) {
+    //             return res.status(500).json({
+    //                 error: 'Не удалось оценить комиссию за транзакцию',
+    //                 details: feeEstimation.error,
+    //             })
+    //         }
 
-            const totalAmount =
-                parseFloat(amount) + parseFloat(feeEstimation.fees)
+    //         const totalAmount = amount + parseFloat(feeEstimation.fees)
 
-            if (!userBalance.hasSufficientBalance(totalAmount)) {
-                return res.status(400).json({ error: 'Недостаточный баланс' })
-            }
+    //         if (userBalance.balance < totalAmount) {
+    //             return res.status(400).json({ error: 'Недостаточный баланс' })
+    //         }
 
-            const transaction = new Transaction({
-                userId,
-                type: 'withdrawal',
-                amount: -totalAmount,
-                fee: parseFloat(feeEstimation.fees),
-                status: 'pending',
-                details: { toAddress },
-            })
+    //         const transaction = new Transaction({
+    //             userId,
+    //             type: 'withdrawal',
+    //             amount: -totalAmount,
+    //             fee: parseFloat(feeEstimation.fees),
+    //             status: 'pending',
+    //             details: { toAddress },
+    //         })
 
-            try {
-                const deducted = await userBalance.deductBalance(totalAmount)
-                if (!deducted) {
-                    throw new Error('Не удалось вычесть баланс пользователя')
-                }
+    //         try {
+    //             const deducted = await userBalance.deductBalance(totalAmount)
+    //             if (!deducted) {
+    //                 throw new Error('Не удалось вычесть баланс пользователя')
+    //             }
 
-                const sent = await sendTon(
-                    MARKET_WALLET_ADDRESS,
-                    toAddress,
-                    amount
-                )
-                if (!sent.success) {
-                    await userBalance.addBalance(totalAmount)
-                    throw new Error(`Не удалось отправить TON: ${sent.error}`)
-                }
+    //             const sent = await sendTon(
+    //                 MARKET_WALLET_ADDRESS,
+    //                 toAddress,
+    //                 amount
+    //             )
+    //             if (!sent.success) {
+    //                 await userBalance.addBalance(totalAmount)
+    //                 throw new Error(`Не удалось отправить TON: ${sent.error}`)
+    //             }
 
-                transaction.status = 'completed'
-                transaction.transactionHash = sent.transactionHash
-                await transaction.save()
+    //             transaction.status = 'completed'
+    //             transaction.transactionHash = sent.transactionHash
+    //             await transaction.save()
 
-                logger.info(
-                    `Вывод средств завершен. ID пользователя: ${userId}, Сумма: ${amount} TON`
-                )
-                res.json({
-                    message: 'Вывод средств успешно завершен',
-                    transaction: transaction._id,
-                    transactionHash: sent.transactionHash,
-                })
-            } catch (error) {
-                transaction.status = 'failed'
-                await transaction.save()
-                throw error
-            }
-        } catch (error) {
-            this.handleError(res, error)
-        }
-    }
+    //             logger.info(
+    //                 `Вывод средств завершен. ID пользователя: ${userId}, Сумма: ${amount} TON`
+    //             )
+    //             res.json({
+    //                 message: 'Вывод средств успешно завершен',
+    //                 transaction: transaction._id,
+    //                 transactionHash: sent.transactionHash,
+    //             })
+    //         } catch (error) {
+    //             transaction.status = 'failed'
+    //             await transaction.save()
+    //             throw error
+    //         }
+    //     } catch (error) {
+    //         this.handleError(res, error)
+    //     }
+    // }
 
     handleError(res, error) {
         logger.error(`Ошибка обработки запроса: ${error.message}`)
