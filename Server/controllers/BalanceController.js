@@ -86,10 +86,14 @@ class BalanceController {
                 })
             }
 
-            const verificationResult = await verifyTonPayment(
-                tonAmount,
-                transactionHash
-            )
+            const existingTransaction = await Transaction.findOne({ transactionHash })
+            if (existingTransaction) {
+                return res.status(400).json({
+                    error: 'Транзакция с таким хешем уже существует',
+                })
+            }
+
+            const verificationResult = await verifyTonPayment(tonAmount, transactionHash)
             if (!verificationResult.valid) {
                 logger.warn(
                     `Недействительный платеж TON для пользователя ${userId}: ${verificationResult.error}`
@@ -107,27 +111,24 @@ class BalanceController {
                     .json({ error: 'Баланс пользователя не найден' })
             }
 
-            const success = await userBalance.addBalance(parseFloat(tonAmount))
-            if (!success) {
-                return res
-                    .status(500)
-                    .json({ error: 'Не удалось обновить баланс' })
-            }
-
+            userBalance.balance += tonAmount
             const transaction = new Transaction({
                 userId,
                 type: 'topup',
-                amount: parseFloat(tonAmount),
+                amount: tonAmount,
                 fee: 0,
                 status: 'completed',
                 transactionHash,
             })
+
             await transaction.save()
 
+            logger.info(
+                `Баланс пополнен для пользователя ${userId}: +${tonAmount} TON`
+            )
             res.json({
-                message: 'Баланс успешно обновлен',
+                message: 'Баланс успешно пополнен',
                 balance: userBalance.balance,
-                currency: userBalance.currency,
             })
         } catch (error) {
             this.handleError(res, error)
