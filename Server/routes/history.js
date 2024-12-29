@@ -10,4 +10,7 @@ router.use(authMiddleware)
 // Получение истории
 router.get('/', historyController.history)
 
+// Получении истории заказа
+router.get('/:id', historyController.orderHistory)
+
 module.exports = router

@@ -46,7 +46,7 @@ import { useLocation } from 'react-router-dom'
 // import { useStore } from '../store'
 
 const App = () => {
-    const { isAdmin, loading, checkAdmin } = useAdminStore()
+    const { isAdmin } = useAdminStore()
     const { initDataRaw } = useLaunchParams()
     const navigate = useNavigate()
     const settingsButton = useSettingsButton()
@@ -91,11 +91,6 @@ const App = () => {
             }
         }
     }, [settingsButton, navigate])
-
-    // Проверка прав администратора при загрузке
-    useEffect(() => {
-        checkAdmin(initDataRaw)
-    }, [checkAdmin, initDataRaw])
 
     useEffect(() => {
         // Получаем тему из localStorage при загрузке компонента
@@ -220,7 +215,7 @@ const App = () => {
                             />
 
                             <Route
-                                path="history/:id"
+                                path="history/:order_id"
                                 element={
                                     <AnimatedPage>
                                         <SingleHistory />

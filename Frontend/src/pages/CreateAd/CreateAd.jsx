@@ -303,7 +303,7 @@ const CreateAd = () => {
                             {/* Выбор формата размещения */}
                             <div className="bg-card-white rounded-xl p-6">
                                 <p className="text-base">
-                                    Выберите типы публикации:
+                                    Выберите формат публикации:
                                 </p>
                                 <div className="flex gap-2 p-6 flex-wrap">
                                     {formats.map((format) => (

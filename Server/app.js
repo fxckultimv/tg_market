@@ -5,6 +5,7 @@ const logger = require('./config/logging')
 const express = require('express')
 const cors = require('cors')
 const path = require('path')
+const { startScheduler } = require('./scheduler')
 
 const authMiddleware = require('./middleware/authMiddleware')
 const authRoutes = require('./routes/auth')
@@ -67,7 +68,7 @@ const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`)
     // раскоментить чтобы запустить шедулю
-    // startScheduler();
+    // startScheduler()
 })
 
 module.exports = app

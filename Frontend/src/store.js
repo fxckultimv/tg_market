@@ -604,6 +604,7 @@ export const useUserStore = create((set) => ({
     categories: [],
     formats: [],
     history: [],
+    singleHistory: [],
     reviews: [],
     balance: 0,
     orderInfo: [],
@@ -842,7 +843,35 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-
+    fetchSingleHistory: async (initDataRaw, order_id) => {
+        set({ loading: true, error: null })
+        try {
+            const response = await fetch(
+                `http://localhost:5000/history/${order_id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+            if (response.status === 204) {
+                // Если сервер вернул 204, устанавливаем пустой массив
+                set({ singleHistory: [], loading: false })
+                return []
+            }
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+            const data = await response.json()
+            set({ singleHistory: data, loading: false, error: null })
+        } catch (error) {
+            set({ error: error.message, loading: false })
+            console.error('Error:', error)
+            return null
+        }
+    },
     addProduct: async (
         initDataRaw,
         { channel_id, category_id, description, price, post_time, format }

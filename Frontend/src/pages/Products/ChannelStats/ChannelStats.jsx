@@ -15,6 +15,8 @@ import CPMChart from './CPMChart'
 import SubscribersChart from './SubscribersChart'
 import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 import Ton from '../../../assets/ton_symbol.svg'
+import { div } from 'framer-motion/client'
+import check from '../../../assets/check.svg'
 
 const ChannelStats = () => {
     const { initDataRaw } = useLaunchParams()
@@ -70,7 +72,7 @@ const ChannelStats = () => {
             )
             setSelectedFormats(productDetails.format_ids || [])
             setCategory(productDetails.category_id)
-            setPrice(productDetails.price)
+            setPrice(nanoTonToTon(productDetails.price))
         }
     }, [productDetails])
 
@@ -95,6 +97,19 @@ const ChannelStats = () => {
             }
         }
     }, [backButton])
+
+    // Функция для обработки клика по кнопке
+    const handleButtonClick = (formatId) => {
+        if (selectedFormats.includes(formatId)) {
+            // Если формат уже выбран, убираем его из состояния
+            setSelectedFormats(
+                selectedFormats.filter((format) => format !== formatId)
+            )
+        } else {
+            // Если формат не выбран, добавляем его в состояние
+            setSelectedFormats([...selectedFormats, formatId])
+        }
+    }
 
     const handleSave = async () => {
         const updatedDetails = {
@@ -174,190 +189,211 @@ const ChannelStats = () => {
     }
 
     return (
-        <div className="container mx-auto p-4">
-            <h2 className="text-3xl font-extrabold text-main-green mb-8">
-                Редактировать продукт:
-            </h2>
-            <h3 className="text-xl font-bold mb-2">{productDetails.title}</h3>
-            <div className="flex-shrink-0">
-                <img
-                    className="rounded-full w-32 h-32 object-cover border-main-green border-2"
-                    src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
-                    alt={productDetails.channel_name}
-                />
+        <div className="basis-2/3">
+            <div className="w-full">
+                <h2 className="text-3xl text-main-green mb-8 ">
+                    Редактировать продукт:
+                </h2>
             </div>
 
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault()
-                    // handleSave()
-                }}
-            >
-                {/* Описание */}
-                <div className="mb-4">
-                    <label
-                        htmlFor="description"
-                        className="block text-sm font-medium text-gray-300"
-                    >
-                        Описание
-                    </label>
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray text-black p-2"
-                    />
+            <div className="flex flex-col gap-6 mx-auto justify-center  ">
+                <div className="flex justify-between">
+                    <h3 className="text-xl mb-2">{productDetails.title}</h3>
+                    <div className="">
+                        <img
+                            className="rounded-full w-32 h-32 object-cover border-main-green border-2"
+                            src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
+                            alt={productDetails.channel_name}
+                        />
+                    </div>
                 </div>
 
-                {/* Выбор времени публикации */}
-                <div className="mb-4">
-                    <label
-                        htmlFor="publication-times"
-                        className="block text-sm font-medium text-gray-300"
-                    >
-                        Время публикации
-                    </label>
-                    {publicationTimes.map((time, index) => (
-                        <div key={index} className="flex items-center mb-2">
-                            <input
-                                type="time"
-                                className="w-full p-3 bg-medium-gray bg-white rounded text-black"
-                                value={time}
-                                onChange={(e) =>
-                                    handleTimeChange(e.target.value, index)
-                                }
-                            />
-                            <button
-                                onClick={() => removePublicationTime(index)}
-                                className="ml-2 bg-red text-white p-2 rounded"
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        // handleSave()
+                    }}
+                >
+                    {/* Описание */}
+                    <div className="bg-card-white p-6 rounded-xl mb-6">
+                        <label
+                            htmlFor="description"
+                            className="block text-base mb-2"
+                        >
+                            Описание
+                        </label>
+                        <textarea
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full p-3 rounded bg-info-box"
+                        />
+                    </div>
+
+                    {/* Выбор форматов публикации */}
+                    <div className="bg-card-white rounded-xl p-6 mb-6">
+                        <p className="text-base">Выберите формат публикации:</p>
+                        <div className="flex gap-2 p-6 flex-wrap">
+                            {availableFormats.map((format) => (
+                                <button
+                                    key={format.format_id}
+                                    className={`flex gap-2 justify-between items-center px-4 py-2 rounded ${
+                                        selectedFormats.includes(
+                                            format.format_id
+                                        )
+                                            ? 'bg-blue bg'
+                                            : 'bg-white text-black'
+                                    }`}
+                                    onClick={() =>
+                                        handleButtonClick(format.format_id)
+                                    }
+                                >
+                                    {selectedFormats.includes(
+                                        format.format_id
+                                    ) && (
+                                        <img
+                                            src={check}
+                                            alt="Selected"
+                                            className="w-4 h-4"
+                                        />
+                                    )}
+                                    {format.format_name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mb-6 bg-card-white rounded-xl p-6">
+                        <label
+                            htmlFor="categories-select"
+                            className="block mb-2"
+                        >
+                            <p className="text-base">
+                                Выберите категорию публикации:
+                            </p>
+                        </label>
+                        <select
+                            id="categories-select"
+                            className="w-full p-3 bg-info-box rounded"
+                            value={categories || ''}
+                            onChange={(e) => {
+                                setCategory(e.target.value)
+                                console.log(e.target.value)
+                            }}
+                        >
+                            <option value="" disabled>
+                                -- Выберите категорию --
+                            </option>
+                            {categories.map((category) => (
+                                <option
+                                    key={category.category_id}
+                                    value={category.category_id}
+                                >
+                                    {category.category_name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex justify-between bg-card-white p-6 mb-6 rounded-xl">
+                        {/* Выбор времени публикации */}
+                        <div className="mb-4">
+                            <label
+                                htmlFor="publication-times"
+                                className="block text-sm font-medium"
                             >
-                                Удалить
+                                <p className="text-base">Время публикации</p>
+                            </label>
+                            {publicationTimes.map((time, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center mb-2"
+                                >
+                                    <input
+                                        type="time"
+                                        className="w-full p-3 bg-medium-gray bg-white rounded text-black"
+                                        value={time}
+                                        onChange={(e) =>
+                                            handleTimeChange(
+                                                e.target.value,
+                                                index
+                                            )
+                                        }
+                                    />
+                                    <button
+                                        onClick={() =>
+                                            removePublicationTime(index)
+                                        }
+                                        className="ml-4 bg-red text-white p-2 rounded"
+                                    >
+                                        Удалить
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                onClick={addPublicationTime}
+                                className="bg-green px-4 py-2 rounded-md"
+                            >
+                                Добавить время
                             </button>
                         </div>
-                    ))}
-                    <button
-                        onClick={addPublicationTime}
-                        className="bg-green px-4 py-2 rounded-md"
-                    >
-                        Добавить время
-                    </button>
-                </div>
 
-                {/* Выбор форматов публикации */}
-                <div className="mb-4">
-                    <label
-                        htmlFor="formats"
-                        className="block text-sm font-medium text-gray-300"
-                    >
-                        Формат публикации
-                    </label>
-                    {availableFormats.map((format) => (
-                        <div key={format.format_id} className="mb-2">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    value={format.format_id}
-                                    checked={selectedFormats.includes(
-                                        format.format_id
-                                    )}
-                                    onChange={handleFormatChange}
-                                    className="mr-2"
-                                />
-                                {format.format_name}
-                            </label>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Категория */}
-                {/* <div className="mb-4">
-                    <label
-                        htmlFor="category"
-                        className="block text-sm font-medium text-gray-300"
-                    >
-                        Категория
-                    </label>
-                    <input
-                        id="category"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray"
-                    />
-                </div> */}
-                <div className="mb-6">
-                    <label
-                        htmlFor="categories-select"
-                        className="block text-xl font-semibold mb-2"
-                    >
-                        Выберите категорию:
-                    </label>
-                    <select
-                        id="categories-select"
-                        className="w-full p-3 bg-medium-gray bg-white rounded text-black"
-                        value={categories || ''}
-                        onChange={(e) => {
-                            setCategory(e.target.value)
-                            console.log(e.target.value)
-                        }}
-                    >
-                        <option value="" disabled>
-                            -- Выберите категорию --
-                        </option>
-                        {categories.map((category) => (
-                            <option
-                                key={category.category_id}
-                                value={category.category_id}
+                        {/*Цена*/}
+                        <div className="mb-6 rounded-xl">
+                            <label
+                                htmlFor="price"
+                                className="block text-sm font-medium"
                             >
-                                {category.category_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                                <p className="text-base">Цена</p>
+                            </label>
 
-                {/* Цена */}
-                <div className="mb-4">
-                    <label
-                        htmlFor="price"
-                        className="block text-sm font-medium text-gray-300"
-                    >
-                        Цена
-                    </label>
-                    <input
-                        type="number"
-                        id="price"
-                        value={nanoTonToTon(price)}
-                        onChange={(e) => setPrice(e.target.value)}
-                        className="p-1 mt-1 block w-full rounded-md bg-medium-gray bg-white border-main-gray text-black"
-                    />
-                </div>
+                            <div className="flex justify-between items-center rounded-md border-2 bg-info-box border-gray">
+                                <img
+                                    src={Ton}
+                                    alt=""
+                                    className="px-2 h-6 border-r-2 border-gray"
+                                />
+                                <input
+                                    id="price"
+                                    className="bg-info-box w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
+                                    placeholder="Введите цену"
+                                    value={price ? price : ''}
+                                    onChange={(e) => setPrice(e.target.value)}
+                                    style={{
+                                        appearance: 'textfield',
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
 
-                <div className="flex justify-between gap-3">
-                    <button
-                        type="submit"
-                        className="bg-green px-4 py-2 rounded-md"
-                        onClick={handleSave}
-                    >
-                        Сохранить изменения
-                    </button>
+                    <div className="flex justify-between gap-3">
+                        <button
+                            type="submit"
+                            className="bg-green px-4 py-2 rounded-md"
+                            onClick={handleSave}
+                        >
+                            Сохранить изменения
+                        </button>
 
-                    <button
-                        type="button"
-                        onClick={handleDelete}
-                        className="bg-red px-4 py-2 rounded-md"
-                    >
-                        Удалить продукт
-                    </button>
-                </div>
-            </form>
-            <SalesChart ordersData={order_stats} />
-            <AverageViewsChart />
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            className="bg-red px-4 py-2 rounded-md"
+                        >
+                            Удалить продукт
+                        </button>
+                    </div>
+                </form>
+                <SalesChart ordersData={order_stats} />
+                {/* <AverageViewsChart />
             <EngagementRateChart />
             <AdPostsChart />
             <PostingFrequencyChart />
             <CTRChart />
             <ConversionChart />
             <CPMChart />
-            <SubscribersChart />
+            <SubscribersChart /> */}
+            </div>
         </div>
     )
 }

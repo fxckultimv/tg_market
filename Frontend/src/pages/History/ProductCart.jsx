@@ -2,19 +2,18 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
+import { log10 } from 'chart.js/helpers'
 
 const ProductCart = ({ order }) => {
     return (
-        <Link
+        <div
             to={`/buy/${order.order_id}`}
             key={order.order_id}
             className="bg-card-white flex flex-col justify-center p-8 h-full rounded-xl"
         >
             <div className="flex justify-between">
                 <div>
-                    <h3 className="text-xl font-extrabold mb-2">
-                        {order.title}
-                    </h3>
+                    <h3 className="text-xl mb-2">{order.title}</h3>
                     <p className=" mb-2">{order.status}</p>
                 </div>
                 <div className="aspect-square">
@@ -56,7 +55,7 @@ const ProductCart = ({ order }) => {
                     alt={order.channel_name}
                 />
             </div> */}
-        </Link>
+        </div>
     )
 }
 

@@ -10,15 +10,20 @@ import Balance from './Balance'
 import Ton from './Ton'
 
 const ProfileLayout = () => {
-    const { isAdmin } = useAdminStore()
     const { initDataRaw } = useLaunchParams()
     const { user, fetchMe, fetchBalance, balance, error, loading } =
         useUserStore()
+    const { isAdmin, checkAdmin } = useAdminStore()
 
     useEffect(() => {
         fetchMe(initDataRaw)
         fetchBalance(initDataRaw)
     }, [initDataRaw, fetchMe])
+
+    // Проверка прав администратора при загрузке
+    useEffect(() => {
+        checkAdmin(initDataRaw)
+    }, [checkAdmin, initDataRaw])
 
     return (
         <>
