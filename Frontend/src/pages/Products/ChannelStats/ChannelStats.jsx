@@ -43,12 +43,6 @@ const ChannelStats = () => {
     const [category, setCategory] = useState('')
     const [price, setPrice] = useState('')
 
-    console.log('description:', description)
-    console.log('publicationTimes:', publicationTimes)
-    console.log('selectedFormats:', selectedFormats)
-    console.log('category:', category)
-    console.log('price:', price)
-
     const availableFormats = [
         { format_id: 1, format_name: '1/24' },
         { format_id: 2, format_name: '2/48' },
@@ -384,7 +378,7 @@ const ChannelStats = () => {
                         </button>
                     </div>
                 </form>
-                <SalesChart ordersData={order_stats} />
+                {/* <SalesChart ordersData={order_stats} /> */}
                 {/* <AverageViewsChart />
             <EngagementRateChart />
             <AdPostsChart />
