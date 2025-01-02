@@ -1,12 +1,13 @@
 import React from 'react'
 import { useUserStore } from '../../store'
 import { useEffect } from 'react'
-import { useLaunchParams } from '@tma.js/sdk-react'
+import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useParams } from 'react-router-dom'
 import StatusBar from './StatusBar'
 
 const SingleHistory = () => {
     const { initDataRaw } = useLaunchParams()
+    const backButton = useBackButton()
     const { order_id } = useParams()
     const { singleHistory, fetchSingleHistory, loading, error } = useUserStore()
 
@@ -15,6 +16,22 @@ const SingleHistory = () => {
             fetchSingleHistory(initDataRaw, order_id)
         }
     }, [initDataRaw, order_id, fetchSingleHistory])
+
+    useEffect(() => {
+        const handleBackClick = () => {
+            window.history.back()
+        }
+
+        if (backButton) {
+            backButton.show()
+            backButton.on('click', handleBackClick)
+
+            return () => {
+                backButton.hide()
+                backButton.off('click', handleBackClick)
+            }
+        }
+    }, [backButton])
 
     return (
         <>
@@ -62,6 +79,9 @@ const SingleHistory = () => {
                     {singleHistory.post_times?.length || 0}
                 </p>
             </div>
+            <p className="text-lg mx-2 my-2">
+                Информация о времени размещении рекламы
+            </p>
             <div className="bg-card-white rounded-xl">
                 {singleHistory.post_times &&
                     singleHistory.post_times.map((time, index) => (

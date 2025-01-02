@@ -33,7 +33,8 @@ const ChannelStats = () => {
         updateProductDetails,
         fetchCategories,
         fetchOrderStats, // Функция для обновления
-        deleteProduct, // Функция для удаления
+        deleteProduct,
+        pauseProduct,
     } = useProductStore()
 
     const [product_id, setProduct_id] = useState('')
@@ -42,6 +43,7 @@ const ChannelStats = () => {
     const [selectedFormats, setSelectedFormats] = useState([])
     const [category, setCategory] = useState('')
     const [price, setPrice] = useState('')
+    const [pauseChange, setPauseChange] = useState()
 
     const availableFormats = [
         { format_id: 1, format_name: '1/24' },
@@ -67,14 +69,15 @@ const ChannelStats = () => {
             setSelectedFormats(productDetails.format_ids || [])
             setCategory(productDetails.category_id)
             setPrice(nanoTonToTon(productDetails.price))
+            setPauseChange(productDetails.status)
         }
-    }, [productDetails])
+    }, [productDetails, pauseChange])
 
     useEffect(() => {
         fetchProductDetails(initDataRaw, id)
         fetchCategories(initDataRaw)
         fetchOrderStats(initDataRaw, id)
-    }, [initDataRaw, fetchProductDetails])
+    }, [initDataRaw, pauseChange])
 
     useEffect(() => {
         const handleBackClick = () => {
@@ -106,34 +109,46 @@ const ChannelStats = () => {
     }
 
     const handleSave = async () => {
-        const updatedDetails = {
-            product_id: product_id,
-            channel_id: productDetails.channel_id, // ID канала
-            category_id: category,
-            description,
-            price: tonToNanoTon(price),
-            post_time: publicationTimes, // Массив с временем публикации
-            format: selectedFormats, // Массив с форматами
-        }
-
-        try {
-            const result = await updateProductDetails(
-                initDataRaw,
-                updatedDetails
-            )
-            if (result) {
-                console.log('Изменения успешно сохранены!')
-            } else {
-                console.error('Ошибка при сохранении данных')
+        if (window.confirm('Вы хотите сохранить изменения?')) {
+            const updatedDetails = {
+                product_id: product_id,
+                channel_id: productDetails.channel_id, // ID канала
+                category_id: category,
+                description,
+                price: tonToNanoTon(price),
+                post_time: publicationTimes, // Массив с временем публикации
+                format: selectedFormats, // Массив с форматами
             }
-        } catch (error) {
-            console.error('Ошибка:', error)
+
+            try {
+                const result = await updateProductDetails(
+                    initDataRaw,
+                    updatedDetails
+                )
+                if (result) {
+                    console.log('Изменения успешно сохранены!')
+                } else {
+                    console.error('Ошибка при сохранении данных')
+                }
+            } catch (error) {
+                console.error('Ошибка:', error)
+            }
         }
     }
 
     const handleDelete = () => {
         if (window.confirm('Вы уверены, что хотите удалить этот продукт?')) {
             deleteProduct(id)
+        }
+    }
+    const handlePause = () => {
+        if (window.confirm('Вы уверены, что хотите удалить этот продукт?')) {
+            pauseProduct(
+                initDataRaw,
+                id,
+                productDetails.status === 'work' ? 'pause' : 'work'
+            )
+            setPauseChange(productDetails.status === 'work' ? 'pause' : 'work')
         }
     }
 
@@ -163,8 +178,6 @@ const ChannelStats = () => {
         newTimes[index] = time
         setPublicationTimes(newTimes)
     }
-
-    console.log(order_stats)
 
     if (loading) {
         return <Loading />
@@ -201,6 +214,10 @@ const ChannelStats = () => {
                         />
                     </div>
                 </div>
+                <p>
+                    Статус товара:{' '}
+                    {productDetails.status === 'work' ? 'Активен' : 'На паузе'}
+                </p>
 
                 <form
                     onSubmit={(e) => {
@@ -367,6 +384,16 @@ const ChannelStats = () => {
                             onClick={handleSave}
                         >
                             Сохранить изменения
+                        </button>
+
+                        <button
+                            type="submit"
+                            className={`px-4 py-2 rounded-md ${productDetails.status === 'work' ? 'bg-yellow' : 'bg-green'}`}
+                            onClick={handlePause}
+                        >
+                            {productDetails.status === 'work'
+                                ? 'Пауза'
+                                : 'Запустить'}
                         </button>
 
                         <button

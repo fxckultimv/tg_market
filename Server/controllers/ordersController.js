@@ -79,7 +79,7 @@ class ordersController {
             // Создание нового заказа
             const orderResult = await db.query(
                 `INSERT INTO orders (user_id, total_price, status)
-            VALUES ($1, $2, 'pending')
+            VALUES ($1, $2, 'wait')
             RETURNING order_id`,
                 [user_id, total_price]
             )

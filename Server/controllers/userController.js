@@ -3,7 +3,6 @@ const db = require('../db')
 class userController {
     async user(req, res) {
         const { uuid } = req.params
-
         try {
             const result = await db.query(
                 'SELECT username, rating, created_at  FROM users WHERE user_uuid = $1',

@@ -100,7 +100,7 @@ async def my_orders(message: types.Message):
         async with db_pool.acquire() as connection:
             orders = await connection.fetch(
                 """SELECT o.order_id, o.total_price, o.status, o.created_at
-                   FROM Orders o WHERE o.user_id = $1 AND status = 'pending'
+                   FROM Orders o WHERE o.user_id = $1 AND status = 'wait'
                    ORDER BY o.created_at DESC""", user_id
             )
 

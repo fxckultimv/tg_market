@@ -115,7 +115,7 @@ class productController {
         // 2. Запрос для получения общего количества товаров
 
         let baseQuery =
-            'FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id JOIN publication_formats pf ON pf.format_id = ppf.format_id JOIN categories c ON p.category_id = c.category_id JOIN products_post_time ppt ON p.product_id = ppt.product_id  WHERE 1=1'
+            "FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id JOIN publication_formats pf ON pf.format_id = ppf.format_id JOIN categories c ON p.category_id = c.category_id JOIN products_post_time ppt ON p.product_id = ppt.product_id  WHERE 1=1 AND p.status = 'work'"
         const params = []
 
         // Фильтрация по поисковому запросу
@@ -214,7 +214,7 @@ class productController {
         // 1. Основной запрос для получения товаров с учетом пагинации
         // 2. Запрос для получения общего количества товаров
 
-        let baseQuery = `FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id WHERE u.user_uuid = $1`
+        let baseQuery = `FROM products p JOIN verifiedchannels v ON p.channel_id = v.channel_id JOIN users u ON p.user_id = u.user_id JOIN product_publication_formats ppf ON ppf.product_id = p.product_id WHERE u.user_uuid = $1 AND p.status = 'work'`
         const params = [user_uuid]
 
         // Фильтрация по поисковому запросу
@@ -301,14 +301,15 @@ class productController {
 
         try {
             const result = await db.query(
-                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, ARRAY_AGG(DISTINCT ppf.format_id) AS format_ids, ARRAY_AGG(DISTINCT ppt.post_time) AS post_times
+                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, 
+                COALESCE(ARRAY_AGG(DISTINCT ppf.format_id), ARRAY[]::INTEGER[]) AS format_ids, COALESCE(ARRAY_AGG(DISTINCT ppt.post_time), ARRAY[]::time with time zone[]) AS post_times
                 FROM products p
-                JOIN verifiedchannels v ON p.channel_id = v.channel_id
-                JOIN users u ON p.user_id = u.user_id
-                JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
-                JOIN products_post_time ppt ON p.product_id = ppt.product_id
+                LEFT JOIN verifiedchannels v ON p.channel_id = v.channel_id
+                LEFT JOIN users u ON p.user_id = u.user_id
+                LEFT JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
+                LEFT JOIN products_post_time ppt ON p.product_id = ppt.product_id
                 WHERE p.product_id = $1
-                GROUP BY p.product_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, u.rating, u.user_uuid, v.views, v.subscribers_count `,
+                GROUP BY p.product_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, u.rating, u.user_uuid, v.views, v.subscribers_count`,
                 [id]
             )
 
@@ -526,6 +527,27 @@ class productController {
             )
             if (result.rowCount > 0) {
                 res.status(200).json({ message: 'Successfully deleted' })
+            } else {
+                res.status(404).json({ error: 'Product not found' })
+            }
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+    async pauseProduct(req, res) {
+        const initData = res.locals.initData
+        const user_id = initData.user.id
+        const { id } = req.params
+        const { status } = req.body
+
+        try {
+            const result = await db.query(
+                'UPDATE products SET status = $1 WHERE product_id = $2 AND user_id = $3',
+                [status, id, user_id]
+            )
+            if (result.rowCount > 0) {
+                res.status(200).json({ message: 'Successfully product pause' })
             } else {
                 res.status(404).json({ error: 'Product not found' })
             }

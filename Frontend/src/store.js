@@ -294,7 +294,6 @@ export const useAdminStore = create((set) => ({
             set({ error: 'Ошибка при удалении продукта', loading: false })
         }
     },
-
     // fetchOrders: async (initDataRaw) => {
     //     set({ loading: true })
     //     try {
@@ -350,7 +349,6 @@ export const useAdminStore = create((set) => ({
             return null
         }
     },
-
     fetchOrdersForUser: async (initDataRaw, user_id) => {
         set({ loading: true })
         try {
@@ -915,7 +913,6 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-
     createOrder: async (initDataRaw, cart_item_ids) => {
         try {
             const response = await fetch('http://localhost:5000/orders/buy', {
@@ -1057,7 +1054,7 @@ export const useUserStore = create((set) => ({
     fetchUser: async (initDataRaw, id) => {
         set({ loading: true })
         try {
-            const response = await fetch(`http://localhost:5000/user/${id}`, {
+            const response = await fetch(`http://localhost:5000/users/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1359,7 +1356,6 @@ export const useProductStore = create((set, get) => ({
             set({ error: error.message, loading: false })
         }
     },
-
     fetchCategories: async (initDataRaw) => {
         set({ loading: true })
         try {
@@ -1488,6 +1484,65 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+        }
+    },
+    pauseProduct: async (initDataRaw, id, status) => {
+        set({ loading: true, error: null })
+        console.log(id)
+
+        try {
+            const response = await fetch(
+                `http://localhost:5000/products/${id}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({ id, status }), // Объект, а не строка
+                }
+            )
+            if (!response.ok) {
+                throw new Error('Ошибка при изменении статуса продукта')
+            }
+            const data = await response.json()
+            set({ loading: false })
+            return data
+        } catch (error) {
+            console.error('Ошибка при изменении статуса продукта:', error)
+            set({
+                error: 'Ошибка при изменении статуса продукта',
+                loading: false,
+            })
+        }
+    },
+    deleteProduct: async (initDataRaw, id) => {
+        set({ loading: true, error: null })
+        console.log('delete', id)
+
+        try {
+            const response = await fetch(
+                `http://localhost:5000/products/${id}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+            if (!response.ok) {
+                throw new Error('Ошибка при удалении продукта')
+            }
+            set((state) => ({
+                products: state.products.filter(
+                    (product) => product.product_id !== productID
+                ),
+                loading: false,
+            }))
+        } catch (error) {
+            console.error('Ошибка при удалении продукта:', error)
+            set({ error: 'Ошибка при удалении продукта', loading: false })
         }
     },
 }))
