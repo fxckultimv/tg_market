@@ -60,7 +60,7 @@ class ordersController {
             LEFT JOIN orders o ON oi.order_id = o.order_id
             WHERE ci.cart_item_id = ANY($1)
               AND ci.cart_id = (SELECT cart_id FROM cart WHERE user_id = $2)
-              AND (o.status IS NULL OR o.status != 'completed')`,
+              AND (o.status IS NULL OR o.status != 'completed' OR o.status != 'paid')`,
                 [cart_item_id, user_id]
             )
 

@@ -80,7 +80,7 @@ const History = () => {
     if (!history) {
         return (
             <div className="bg-dark-gray flex min-h-screen items-center justify-center bg">
-                <div className="text-red-500 text-xl">Данные не найдены</div>
+                <div className="text-red-500 text-xl">Заказов ещё нет!</div>
             </div>
         )
     }
@@ -97,7 +97,7 @@ const History = () => {
                 </button>
                 <button
                     className="rounded-md bg-blue p-2 text-white hover:text-gray"
-                    value="completed"
+                    value="paid"
                     onClick={handlerSubmit}
                 >
                     в процессе

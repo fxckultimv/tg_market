@@ -43,6 +43,7 @@ import ChannelStats from './pages/Products/ChannelStats/ChannelStats'
 import { AnimatePresence } from 'framer-motion'
 import AnimatedPage from './components/AnimatedPage'
 import { useLocation } from 'react-router-dom'
+import SessionExpiredModal from './SessionExpiredModal'
 // import { useStore } from '../store'
 
 const App = () => {
@@ -60,6 +61,8 @@ const App = () => {
     }, [])
 
     const location = useLocation()
+
+    const { sessionExpired } = useUserStore()
 
     //кастомный хук для того чтобы убать закрытие приложения при скроле
     usePreventCollapse()
@@ -340,6 +343,7 @@ const App = () => {
                     </Route>
                 </Routes>
             </AnimatePresence>
+            {sessionExpired && <SessionExpiredModal />}
         </div>
     )
 }

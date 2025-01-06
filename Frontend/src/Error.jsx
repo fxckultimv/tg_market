@@ -7,7 +7,11 @@ const Error = ({ error }) => {
             <div className="max-w-32">
                 <img src={StarError} alt="" />
             </div>
-            <div className="text-xl">{error}</div>
+            <div className="text-xl">
+                {error?.message ||
+                    String(error) ||
+                    'Произошла неизвестная ошибка'}
+            </div>
         </div>
     )
 }

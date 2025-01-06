@@ -1,5 +1,21 @@
+import { data } from 'autoprefixer'
 import { DecadeView } from 'react-calendar'
 import { create } from 'zustand'
+
+export const handleServerResponse = async (response, set) => {
+    const { setSessionExpired } = useUserStore.getState() // Получаем метод из хранилища
+
+    if (response.status === 401) {
+        setSessionExpired(true) // Устанавливаем состояние истечения сессии
+        return null
+    }
+
+    if (!response.ok) {
+        throw new Error(`Ошибка сервера: ${response.status}`)
+    }
+
+    return await response.json()
+}
 
 export const useAdminStore = create((set) => ({
     isAdmin: false,
@@ -25,7 +41,7 @@ export const useAdminStore = create((set) => ({
                     Authorization: `tma ${initDataRaw}`,
                 },
             })
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
 
             if (data.isAdmin) {
                 set({ isAdmin: true, loading: false })
@@ -60,7 +76,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ stats: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -88,7 +104,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ users: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -116,7 +132,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ users: data.users, loading: false })
             return data
         } catch (error) {
@@ -142,7 +158,7 @@ export const useAdminStore = create((set) => ({
                 set({ user: [], loading: false })
                 return []
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -167,7 +183,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ products: data.products, loading: false })
             return data
         } catch (error) {
@@ -197,7 +213,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ products: data.products, loading: false })
             return data
         } catch (error) {
@@ -224,7 +240,7 @@ export const useAdminStore = create((set) => ({
                 set({ product: [], loading: false })
                 return []
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ product: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -254,7 +270,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ products: data, loading: false })
             return data
         } catch (error) {
@@ -282,6 +298,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Ошибка при удалении продукта')
             }
+            const data = await handleServerResponse(response, set)
 
             set((state) => ({
                 products: state.products.filter(
@@ -340,7 +357,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ orders: data.orders, loading: false })
             return data
         } catch (error) {
@@ -370,7 +387,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ orders: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -398,7 +415,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ order: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -426,7 +443,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ orderDetails: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -455,7 +472,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ categories: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -481,9 +498,9 @@ export const useAdminStore = create((set) => ({
                 throw new Error('Ошибка при добавлении категории')
             }
 
-            const newCategory = await response.json()
+            const data = await handleServerResponse(response, set)
             set((state) => ({
-                categories: [...state.categories, newCategory],
+                categories: [...state.categories, data],
                 loading: false,
             }))
         } catch (error) {
@@ -511,6 +528,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Ошибка при удалении категории')
             }
+            const data = await handleServerResponse(response, set)
 
             set((state) => ({
                 categories: state.categories.filter(
@@ -546,6 +564,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Ошибка при удалении категории')
             }
+            const data = await handleServerResponse(response, set)
 
             set((state) => ({
                 categories: state.categories.filter(
@@ -580,7 +599,7 @@ export const useAdminStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ carts: data, loading: false })
             return data
         } catch (error) {
@@ -592,6 +611,8 @@ export const useAdminStore = create((set) => ({
 }))
 
 export const useUserStore = create((set) => ({
+    sessionExpired: false, // Состояние для модального окна сессии
+    setSessionExpired: (value) => set({ sessionExpired: value }), // Метод для обновления состояния сиссии
     initData: [],
     setInitData: (data) => set({ initData: data }),
     theme: 'light', // начальное значение темы по умолчанию
@@ -618,12 +639,8 @@ export const useUserStore = create((set) => ({
                     Authorization: `tma ${initDataRaw}`,
                 },
             })
-            // Проверяем, был ли запрос успешным
-            if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
-            }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             console.log(data)
             set({ loading: false })
         } catch (error) {
@@ -647,16 +664,10 @@ export const useUserStore = create((set) => ({
                 },
             })
             if (response.status === 204) {
-                // Если сервер вернул 204, устанавливаем пустой массив
                 set({ cart: [], loading: false })
                 return []
             }
-            // Проверяем, был ли запрос успешным
-            if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
-            }
-
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ cart: data, loading: false })
             return data
         } catch (error) {
@@ -684,7 +695,7 @@ export const useUserStore = create((set) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ balance: data.balance, loading: false })
         } catch (error) {
             console.error('Ошибка при авторизации:', error)
@@ -713,7 +724,7 @@ export const useUserStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ categories: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -738,7 +749,7 @@ export const useUserStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ formats: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -767,7 +778,7 @@ export const useUserStore = create((set) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ verifiedChannels: data, loading: false })
             return data
         } catch (error) {
@@ -800,7 +811,7 @@ export const useUserStore = create((set) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ history: data, loading: false })
             return data
         } catch (error) {
@@ -829,7 +840,7 @@ export const useUserStore = create((set) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set((state) => ({
                 history: [...state.history, ...data],
                 loading: false,
@@ -862,7 +873,7 @@ export const useUserStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ singleHistory: data, loading: false, error: null })
         } catch (error) {
             set({ error: error.message, loading: false })
@@ -904,7 +915,7 @@ export const useUserStore = create((set) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ loading: false })
             return data // Вернем добавленный продукт
         } catch (error) {
@@ -928,7 +939,7 @@ export const useUserStore = create((set) => ({
                 throw new Error('Ошибка при создании заказа')
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             return data
         } catch (error) {
             console.error('Error creating order:', error)
@@ -950,7 +961,7 @@ export const useUserStore = create((set) => ({
                 throw new Error('Ошибка при удалении товара')
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             return data
         } catch (error) {
             console.error('Error creating order:', error)
@@ -982,7 +993,7 @@ export const useUserStore = create((set) => ({
                 throw new Error('Ошибка при удалении даты товара')
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             return data
         } catch (error) {
             console.error('Error creating order:', error)
@@ -1006,11 +1017,18 @@ export const useUserStore = create((set) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ loading: false, error: null })
             return data
         } catch (error) {
-            set({ error: error.message, loading: false })
+            set((state) => {
+                console.log('Setting state:', {
+                    error: error.message,
+                    loading: false,
+                })
+                return { error: error.message, loading: false }
+            })
+
             console.error('Error:', error)
             return null
         }
@@ -1041,7 +1059,7 @@ export const useUserStore = create((set) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
 
             set({ orderInfo: data, loading: false, error: null }) // Обновляем статус
             return data
@@ -1065,7 +1083,7 @@ export const useUserStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -1086,7 +1104,7 @@ export const useUserStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -1110,8 +1128,32 @@ export const useUserStore = create((set) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ reviews: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+        }
+    },
+    confirmationOrder: async (initDataRaw, id) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                `http://localhost:5000/products/confirmation/${id}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok')
+            }
+            const data = await handleServerResponse(response, set)
+            set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
@@ -1185,7 +1227,7 @@ export const useProductStore = create((set, get) => ({
                 }
             )
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
 
             set({
                 products: data.products,
@@ -1215,7 +1257,7 @@ export const useProductStore = create((set, get) => ({
                 throw new Error('Failed to fetch product details')
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ productDetails: data, loading: false })
         } catch (error) {
             console.error('Error fetching product details:', error)
@@ -1242,7 +1284,7 @@ export const useProductStore = create((set, get) => ({
                 throw new Error(`Ошибка сервера: ${response.status}`)
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ loading: false })
             return data // Вернем добавленный продукт
         } catch (error) {
@@ -1285,7 +1327,7 @@ export const useProductStore = create((set, get) => ({
                 }
             )
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
 
             set({
                 userProducts: data.products,
@@ -1308,7 +1350,7 @@ export const useProductStore = create((set, get) => ({
                 },
             })
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
 
             set({
                 myProducts: data,
@@ -1344,7 +1386,7 @@ export const useProductStore = create((set, get) => ({
                 throw new Error('Failed to fetch product details')
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             // Преобразование данных: извлекаем даты из каждого объекта
             const busyDaysArray = data.flatMap((item) => item.post_time) // Собираем все даты из массива post_time
 
@@ -1374,7 +1416,7 @@ export const useProductStore = create((set, get) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ categories: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -1402,7 +1444,7 @@ export const useProductStore = create((set, get) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ order_stats: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -1432,7 +1474,7 @@ export const useProductStore = create((set, get) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             console.log(data)
             set({ loading: false })
         } catch (error) {
@@ -1455,7 +1497,7 @@ export const useProductStore = create((set, get) => ({
                 throw new Error('Ошибка при создании заказа')
             }
 
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             return data
         } catch (error) {
             console.error('Error creating order:', error)
@@ -1479,7 +1521,7 @@ export const useProductStore = create((set, get) => ({
             if (!response.ok) {
                 throw new Error('Network response was not ok')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ reviews: data, loading: false })
         } catch (error) {
             set({ loading: false })
@@ -1505,7 +1547,7 @@ export const useProductStore = create((set, get) => ({
             if (!response.ok) {
                 throw new Error('Ошибка при изменении статуса продукта')
             }
-            const data = await response.json()
+            const data = await handleServerResponse(response, set)
             set({ loading: false })
             return data
         } catch (error) {
@@ -1534,6 +1576,7 @@ export const useProductStore = create((set, get) => ({
             if (!response.ok) {
                 throw new Error('Ошибка при удалении продукта')
             }
+            const data = await handleServerResponse(response, set)
             set((state) => ({
                 products: state.products.filter(
                     (product) => product.product_id !== productID

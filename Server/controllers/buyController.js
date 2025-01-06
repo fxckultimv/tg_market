@@ -154,7 +154,7 @@ class buyController {
 
             // Логика обновления статуса заказа
             const result = await db.query(
-                `UPDATE orders SET status = 'completed' WHERE order_id = $1 AND user_id = $2`,
+                `UPDATE orders SET status = 'paid' WHERE order_id = $1 AND user_id = $2`,
                 [order_id, user_id]
             )
 

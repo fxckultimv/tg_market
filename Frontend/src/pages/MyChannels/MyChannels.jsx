@@ -47,10 +47,11 @@ const MyChannels = () => {
         )
     }
 
-    if (!verifiedChannels) {
+    if (!verifiedChannels || verifiedChannels.length === 0) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
-                <div className="text-xl text-red-500">Данные не найдены</div>
+            <div className="flex flex-col items-center justify-center mt-4">
+                <div className="text-xl text-text">Каналов пока нету</div>
+                <p className="text-text m-2">Добавте свой канал через бота!</p>
             </div>
         )
     }

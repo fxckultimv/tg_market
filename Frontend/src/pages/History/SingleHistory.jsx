@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useParams } from 'react-router-dom'
 import StatusBar from './StatusBar'
+import Loading from '../../Loading'
+import Error from '../../Error'
 
 const SingleHistory = () => {
     const { initDataRaw } = useLaunchParams()
@@ -33,6 +35,14 @@ const SingleHistory = () => {
         }
     }, [backButton])
 
+    if (loading) {
+        return <Loading />
+    }
+
+    if (error) {
+        return <Error error={error} />
+    }
+
     return (
         <>
             <div className="mb-6">
@@ -55,6 +65,7 @@ const SingleHistory = () => {
                 status={singleHistory.status}
                 order_id={order_id}
                 created_at={singleHistory.created_at}
+                post_times={singleHistory.post_times || []}
             />
 
             {/* Данные о товаре */}

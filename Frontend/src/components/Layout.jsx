@@ -75,10 +75,10 @@ const Layout = () => {
                     to="channels"
                     className="bg-blue rounded-2xl items-center hidden lg:block"
                 >
-                    <a href="#" className="p-3 text-base text-white gap-3 flex">
+                    <p href="#" className="p-3 text-base text-white gap-3 flex">
                         <img src={Arrow} alt="Arrow" />
                         Начать сейчас
-                    </a>
+                    </p>
                 </Link>
 
                 {/* Бургер-иконка (видимая только на маленьких экранах) */}

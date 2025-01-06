@@ -40,10 +40,16 @@ const Products = () => {
         return <Error />
     }
 
-    if (!myProducts) {
+    if (!myProducts || myProducts.length === 0) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-dark-gray bg">
-                <div className="text-xl text-red-500">Данные не найдены</div>
+            <div className="flex flex-col items-center justify-center mt-4">
+                <div className="text-xl text-red-500">Продуктов пока нету</div>
+                <Link
+                    to={'/create-ad'}
+                    className="bg-blue text-white m-2 p-1 rounded-lg"
+                >
+                    Добавить продукт
+                </Link>
             </div>
         )
     }

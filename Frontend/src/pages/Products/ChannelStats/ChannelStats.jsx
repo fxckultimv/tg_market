@@ -17,11 +17,13 @@ import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 import Ton from '../../../assets/ton_symbol.svg'
 import { div } from 'framer-motion/client'
 import check from '../../../assets/check.svg'
+import { useToast } from '../../../components/ToastProvider'
 
 const ChannelStats = () => {
     const { initDataRaw } = useLaunchParams()
     const backButton = useBackButton()
     const { id } = useParams()
+    const { addToast } = useToast()
 
     const {
         productDetails,
@@ -32,7 +34,7 @@ const ChannelStats = () => {
         fetchProductDetails,
         updateProductDetails,
         fetchCategories,
-        fetchOrderStats, // Функция для обновления
+        fetchOrderStats,
         deleteProduct,
         pauseProduct,
     } = useProductStore()
@@ -95,7 +97,6 @@ const ChannelStats = () => {
         }
     }, [backButton])
 
-    // Функция для обработки клика по кнопке
     const handleButtonClick = (formatId) => {
         if (selectedFormats.includes(formatId)) {
             // Если формат уже выбран, убираем его из состояния
@@ -127,8 +128,10 @@ const ChannelStats = () => {
                 )
                 if (result) {
                     console.log('Изменения успешно сохранены!')
+                    addToast('Изменения сохранены!')
                 } else {
                     console.error('Ошибка при сохранении данных')
+                    addToast('Ошибка при сохранении', 'error')
                 }
             } catch (error) {
                 console.error('Ошибка:', error)
@@ -136,19 +139,43 @@ const ChannelStats = () => {
         }
     }
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (window.confirm('Вы уверены, что хотите удалить этот продукт?')) {
-            deleteProduct(id)
+            try {
+                deleteProduct(id)
+                addToast('Товар удален!')
+            } catch (err) {
+                console.log('Ошибка при удалении товара', err)
+            }
         }
     }
-    const handlePause = () => {
-        if (window.confirm('Вы уверены, что хотите удалить этот продукт?')) {
-            pauseProduct(
-                initDataRaw,
-                id,
-                productDetails.status === 'work' ? 'pause' : 'work'
+    const handlePause = async () => {
+        if (
+            window.confirm(
+                'Вы уверены, что хотите изменить статус этого продукта?'
             )
-            setPauseChange(productDetails.status === 'work' ? 'pause' : 'work')
+        ) {
+            try {
+                const newStatus =
+                    productDetails.status === 'work' ? 'pause' : 'work'
+                const result = await pauseProduct(initDataRaw, id, newStatus)
+                if (result) {
+                    // Если успешно, обновляем локальное состояние
+                    setPauseChange(newStatus)
+                    if (productDetails.status === 'work') {
+                        addToast(`Товар на паузе!`, 'warning')
+                    } else {
+                        addToast(`Товар запущен!`)
+                    }
+                } else {
+                    // Если результат неуспешен, уведомляем об ошибке
+                    addToast('Не удалось изменить статус.', 'error')
+                }
+            } catch (error) {
+                // Обрабатываем ошибку и уведомляем пользователя
+                console.error('Ошибка при установке паузы:', error)
+                addToast('Произошла ошибка.', 'error')
+            }
         }
     }
 
@@ -286,7 +313,7 @@ const ChannelStats = () => {
                         <select
                             id="categories-select"
                             className="w-full p-3 bg-info-box rounded"
-                            value={categories || ''}
+                            value={category || ''}
                             onChange={(e) => {
                                 setCategory(e.target.value)
                                 console.log(e.target.value)

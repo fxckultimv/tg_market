@@ -3,8 +3,47 @@ import { Link } from 'react-router-dom'
 import done from '../../assets/done.svg'
 import block from '../../assets/block.svg'
 import cancel from '../../assets/cancel.svg'
+import paid from '../../assets/paid.svg'
+import { useUserStore } from '../../store'
+import Loading from '../../Loading'
+import Error from '../../Error'
+import { useLaunchParams } from '@tma.js/sdk-react'
+import { useToast } from '../../components/ToastProvider'
 
-const StatusBar = ({ status, order_id, created_at }) => {
+const StatusBar = ({ status, order_id, created_at, post_times }) => {
+    const { initDataRaw } = useLaunchParams()
+    const { confirmationOrder, fetchSingleHistory, error, loading } =
+        useUserStore()
+    const { addToast } = useToast()
+    const now = new Date()
+
+    let allDatesInPast
+    if (post_times != undefined) {
+        allDatesInPast =
+            Array.isArray(post_times) &&
+            post_times.every((time) => new Date(time) < now)
+    }
+
+    const handlerConfirmationOrder = async () => {
+        if (window.confirm('Подтвердить выполнение?')) {
+            try {
+                await confirmationOrder(initDataRaw, order_id)
+                fetchSingleHistory(initDataRaw, order_id)
+                addToast('Заказ подтверждён!')
+            } catch (err) {
+                console.error('Ошибка:', err)
+            }
+        }
+    }
+
+    if (loading) {
+        return <Loading />
+    }
+
+    if (error) {
+        return <Error error={error} />
+    }
+
     return (
         <div className="flex flex-col gap-6 relative">
             {/* Этап 1: Заказ создан */}
@@ -27,7 +66,9 @@ const StatusBar = ({ status, order_id, created_at }) => {
             </div>
 
             {/* Этап 2: Заказ одобрен и ждет оплаты */}
-            {(status === 'pending_payment' || status === 'completed') && (
+            {(status === 'pending_payment' ||
+                status === 'completed' ||
+                status === 'paid') && (
                 <div className="status-item border-green border-[1px] rounded-xl">
                     <div className="flex gap-2 p-2">
                         <img src={done} alt="pending_payment" />
@@ -57,11 +98,37 @@ const StatusBar = ({ status, order_id, created_at }) => {
             )}
 
             {/* Этап 4: Заказ оплачен */}
+            {(status === 'paid' || status === 'completed') && (
+                <div className="status-item border-green border-[1px] rounded-xl">
+                    <div className="flex gap-2 p-2">
+                        <img src={paid} alt="paid" />
+                        <p>Заказ оплачен</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Подтверждение выполнения заказа */}
+            {(status === 'paid' || status === 'completed') &&
+                allDatesInPast && (
+                    <>
+                        {status === 'paid' && (
+                            <button
+                                type="submit"
+                                className="bg-green px-4 py-2 rounded-md"
+                                onClick={handlerConfirmationOrder}
+                            >
+                                Сохранить изменения
+                            </button>
+                        )}
+                    </>
+                )}
+
+            {/* Этап 5: Заказ выполнен*/}
             {status === 'completed' && (
                 <div className="status-item border-green border-[1px] rounded-xl">
                     <div className="flex gap-2 p-2">
                         <img src={done} alt="completed" />
-                        <p>Заказ оплачен</p>
+                        <p>Заказ выполнен</p>
                     </div>
                 </div>
             )}

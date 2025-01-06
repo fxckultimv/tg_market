@@ -40,6 +40,9 @@ router.patch('/:id', productsController.pauseProduct)
 //Получение продукта
 router.get('/:id', productsController.product)
 
+//Подтверждение размещения
+router.get('/confirmation/:id', productsController.confirmation)
+
 //Получение похожих товаров
 router.post('/similar', productsController.similarProduct)
 

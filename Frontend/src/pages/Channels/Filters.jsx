@@ -3,6 +3,7 @@ import { useProductStore } from '../../store'
 import { useLaunchParams } from '@tma.js/sdk-react'
 import Document from '../../assets/document.svg'
 import settings from '../../assets/settings.svg'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 
 const Filters = () => {
     const {
@@ -22,7 +23,7 @@ const Filters = () => {
 
     const [isExpanded, setIsExpanded] = useState(false)
     const [minPrice, setMinPrice] = useState(0)
-    const [maxPrice, setMaxPrice] = useState(1000000)
+    const [maxPrice, setMaxPrice] = useState(100000000)
 
     // Fetch categories from the server when initDataRaw changes
     useEffect(() => {
@@ -50,16 +51,18 @@ const Filters = () => {
     }
 
     const handleMinPriceChange = (e) => {
-        const value = parseInt(e.target.value, 10)
+        const value = parseFloat(e.target.value) // Используем parseFloat для работы с числами с плавающей точкой
+        const nanoValue = tonToNanoTon(value) // Преобразуем в nanoTON
         setMinPrice(value)
-        setFilters({ ...filters, priceRange: [value, maxPrice] })
+        setFilters({ ...filters, priceRange: [nanoValue, maxPrice] })
         setPage(1) // Сброс на первую страницу при изменении цены
     }
 
     const handleMaxPriceChange = (e) => {
-        const value = parseInt(e.target.value, 10)
+        const value = parseFloat(e.target.value) // Используем parseFloat для работы с числами с плавающей точкой
+        const nanoValue = tonToNanoTon(value) // Преобразуем в nanoTON
         setMaxPrice(value)
-        setFilters({ ...filters, priceRange: [minPrice, value] })
+        setFilters({ ...filters, priceRange: [minPrice, nanoValue] })
         setPage(1) // Сброс на первую страницу при изменении цены
     }
 

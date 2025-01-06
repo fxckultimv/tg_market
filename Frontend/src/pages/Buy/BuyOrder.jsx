@@ -6,6 +6,7 @@ import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
 import Loading from '../../Loading'
 import Error from '../../Error'
+import { useToast } from '../../components/ToastProvider'
 
 const BuyOrder = () => {
     const { id } = useParams() // Получаем ID заказа из URL
@@ -13,6 +14,7 @@ const BuyOrder = () => {
         useUserStore() // Получаем функции из состояния
     const { initDataRaw } = useLaunchParams() // Получаем параметры запуска
     const [isOrderProcessing, setIsOrderProcessing] = useState(false)
+    const { addToast } = useToast()
 
     // При загрузке компонента проверяем статус заказа
     useEffect(() => {
@@ -23,10 +25,16 @@ const BuyOrder = () => {
         setIsOrderProcessing(true)
         try {
             await buyProduct(initDataRaw, id)
-            // После успешной покупки, обновляем статус заказа
+            const result = await buyProduct(initDataRaw, id)
+            if (!result) {
+                throw new Error('Покупка не удалась, сервер вернул null')
+            }
+            // После успешной покупки обновляем статус заказа
             await checkingStatus(initDataRaw, id)
+            addToast('Успешно куплено!')
         } catch (err) {
             console.error('Ошибка при покупке:', err)
+            addToast('Ошибка при покупке, попробуйте снова.', 'error')
         } finally {
             setIsOrderProcessing(false)
         }
@@ -41,7 +49,7 @@ const BuyOrder = () => {
     }
 
     // Если заказ уже оплачен, отображаем сообщение
-    if (orderInfo.status === 'completed') {
+    if (['completed', 'paid'].includes(orderInfo.status)) {
         return (
             <div className="container mx-auto p-4">
                 <div className="text-xl font-semibold text-green-600">

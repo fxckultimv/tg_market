@@ -37,7 +37,7 @@ class CartController {
                     orders o ON oi.order_id = o.order_id
                 WHERE
                     c.user_id = $1
-                    AND (o.status IS NULL OR o.status != 'completed')`,
+                    AND (o.status IS NULL OR o.status != 'completed'OR o.status != 'paid')`,
                 [user_id]
             )
 

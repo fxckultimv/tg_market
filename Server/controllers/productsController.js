@@ -500,7 +500,7 @@ class productController {
                 `SELECT oi.post_time  FROM products p
                 JOIN orderitems oi ON p.product_id = oi.product_id
                 JOIN orders o ON oi.order_id = o.order_id
-                WHERE p.product_id = $1 AND o.status = 'completed' AND oi.post_time IS NOT NULL`,
+                WHERE p.product_id = $1 AND o.status IN ('completed', 'paid') AND oi.post_time IS NOT NULL`,
                 [id]
             )
 
@@ -580,6 +580,65 @@ class productController {
             }
         } catch (err) {
             console.error('Error fetching product details from database:', err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async confirmation(req, res) {
+        const initData = res.locals.initData
+        const user_id = initData.user.id
+        const { id } = req.params
+
+        try {
+            // Первичная проверка в базе данных
+            const checkResult = await db.query(
+                `SELECT o.order_id, o.status, 
+                    ARRAY_AGG(DISTINCT oi.post_time) as post_times
+                FROM orders AS o
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                WHERE o.order_id = $1 AND o.user_id = $2
+                GROUP BY o.order_id, o.status`,
+                [id, user_id]
+            )
+
+            if (checkResult.rows.length > 0) {
+                const order = checkResult.rows[0]
+
+                // Проверяем, что статус 'paid' и все даты позже текущего времени
+                const now = new Date()
+                const allDatesInFuture =
+                    Array.isArray(order.post_times) &&
+                    order.post_times.every((time) => new Date(time) < now)
+
+                if (order.status === 'paid' && allDatesInFuture) {
+                    // Если проверки выполнены, обновляем статус заказа
+                    const result = await db.query(
+                        `UPDATE orders 
+                         SET status = 'completed' 
+                         WHERE user_id = $1 AND order_id = $2 AND status = 'paid'`,
+                        [user_id, id]
+                    )
+
+                    if (result.rowCount > 0) {
+                        res.json({
+                            success: true,
+                            message: 'Order status updated to completed',
+                        })
+                    } else {
+                        res.status(404).json({
+                            error: 'Order not found or already completed',
+                        })
+                    }
+                } else {
+                    res.status(403).json({
+                        error: 'Invalid status or post times not valid',
+                    })
+                }
+            } else {
+                res.status(403).json({ error: 'Unauthorized or not found' })
+            }
+        } catch (err) {
+            console.error(err)
             res.status(500).json({ error: 'Database error' })
         }
     }
