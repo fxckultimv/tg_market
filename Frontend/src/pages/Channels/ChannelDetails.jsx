@@ -264,9 +264,10 @@ const ChannelDetails = () => {
                         </h3>
                         <Link
                             to={`/user/${productDetails.user_uuid}`}
-                            className="block text-lg text-blue-500 hover:underline mb-4"
+                            className="block text-lg text-blue mb-4 items-center hover:font-bold"
                         >
-                            ⭐️ {productDetails.rating} (Рейтинг)
+                            @{productDetails.username} ⭐️{' '}
+                            {productDetails.rating} (Рейтинг)
                         </Link>
                     </div>
                 </div>

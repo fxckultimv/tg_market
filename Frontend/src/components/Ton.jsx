@@ -21,7 +21,6 @@ const Ton = () => {
     const [tonConnectUI, setOptions] = useTonConnectUI()
     useEffect(() => {
         setOptions({ language: languageCode })
-        console.log(languageCode)
     }, [])
 
     // Объект с данными для транзакции

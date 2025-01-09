@@ -53,9 +53,10 @@ const CartItem = ({ cart }) => {
                         setSelectedProductId(null)
 
                         await fetchCart(initDataRaw)
-
-                        navigate('/basket')
+                        addToast('Товар заказан!')
+                        // navigate('/basket')
                     } catch (error) {
+                        addToast('Ошибка при создании заказа!', 'error')
                         console.error('Ошибка при создании заказа:', error)
                     }
                 }
@@ -95,10 +96,12 @@ const CartItem = ({ cart }) => {
             setSelectedProductId(null)
             // Обновляем корзину
             await fetchCart(initDataRaw)
+            addToast('Товар заказан!')
 
             // Перенаправляем пользователя на страницу корзины
-            navigate('/basket')
+            // navigate('/basket')
         } catch (err) {
+            addToast('Ошибка при создании заказа!', 'error')
             console.log('Ошибка при создании заказа:', error)
         }
     }

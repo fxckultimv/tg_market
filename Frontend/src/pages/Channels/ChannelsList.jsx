@@ -94,7 +94,7 @@ const ProductCard = ({ product }) => {
         <div className="flex gap-4 flex-col">
             <Link
                 to={product.product_id}
-                className="bg-card-white  shadow-card basis-1/3 p-8 rounded-3xl"
+                className="bg-card-white  shadow-card p-8 rounded-3xl"
             >
                 <div className="flex justify-between">
                     <div className="flex flex-col gap-4">

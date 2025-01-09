@@ -2,8 +2,6 @@ import React from 'react'
 import InfoBox from '../../components/InfoBox'
 
 const Chennel = ({ channel }) => {
-    console.log(channel)
-
     return (
         <div
             key={channel.channel_id}

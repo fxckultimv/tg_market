@@ -1,6 +1,7 @@
 import { data } from 'autoprefixer'
 import { DecadeView } from 'react-calendar'
 import { create } from 'zustand'
+import { nanoTonToTon, tonToNanoTon } from './utils/tonConversion'
 
 export const handleServerResponse = async (response, set) => {
     const { setSessionExpired } = useUserStore.getState() // Получаем метод из хранилища
@@ -629,8 +630,6 @@ export const useUserStore = create((set) => ({
     orderInfo: [],
     fetchAuth: async (initDataRaw) => {
         set({ loading: true, error: null })
-        console.log('initDateRaw ', initDataRaw)
-
         try {
             const response = await fetch('http://localhost:5000/auth', {
                 method: 'GET',
@@ -641,7 +640,6 @@ export const useUserStore = create((set) => ({
             })
 
             const data = await handleServerResponse(response, set)
-            console.log(data)
             set({ loading: false })
         } catch (error) {
             console.error('Ошибка при авторизации:', error)
@@ -758,7 +756,6 @@ export const useUserStore = create((set) => ({
     },
     fetchVerifiedChannels: async (initDataRaw) => {
         set({ loading: true, error: null })
-        console.log('initDateRaw ', initDataRaw)
 
         try {
             const response = await fetch('http://localhost:5000/channels', {
@@ -1115,7 +1112,7 @@ export const useUserStore = create((set) => ({
         set({ loading: true })
         try {
             const response = await fetch(
-                `http://localhost:5000/user/reviews/${id}`,
+                `http://localhost:5000/users/reviews/${id}`,
                 {
                     method: 'GET',
                     headers: {
@@ -1176,7 +1173,8 @@ export const useProductStore = create((set, get) => ({
     totalPages: 1,
     filters: {
         category: '',
-        priceRange: [0, 1000000],
+        priceRange: [0, 10000],
+        sort: 'desc',
     },
     formatNames: {
         1: '1/24',
@@ -1193,7 +1191,6 @@ export const useProductStore = create((set, get) => ({
     setSearchQuery: (query) => set({ searchQuery: query }),
     setFilters: (filters) =>
         set((state) => ({ filters: { ...state.filters, ...filters } })),
-
     fetchProducts: async (initDataRaw) => {
         set({ isLoading: true })
         const { searchQuery, filters, page } = get()
@@ -1207,13 +1204,14 @@ export const useProductStore = create((set, get) => ({
                 category: filters.category || '',
                 format: filters.format || '',
                 minPrice: filters.priceRange
-                    ? filters.priceRange[0].toString()
+                    ? tonToNanoTon(filters.priceRange[0].toString())
                     : '',
                 maxPrice: filters.priceRange
-                    ? filters.priceRange[1].toString()
+                    ? tonToNanoTon(filters.priceRange[1].toString())
                     : '',
                 skip: skip.toString(),
                 limit: limit.toString(),
+                sort: filters.sort || '',
             }).toString()
 
             const response = await fetch(
@@ -1508,7 +1506,7 @@ export const useProductStore = create((set, get) => ({
         set({ loading: true })
         try {
             const response = await fetch(
-                `http://localhost:5000/user/reviews/${id}`,
+                `http://localhost:5000/users/reviews/${id}`,
                 {
                     method: 'GET',
                     headers: {

@@ -46,7 +46,7 @@ const User = () => {
 
     return (
         <div className="min-h-screen bg-dark-gray ">
-            <div className="container mx-auto px-2 py-4">
+            <div className="container m-8">
                 <div className="mb-2">
                     <img
                         className="rounded-full w-32 h-32 object-cover border-main-green border-2 "

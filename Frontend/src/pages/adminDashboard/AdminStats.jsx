@@ -2,6 +2,9 @@ import React, { useEffect } from 'react'
 import { useAdminStore } from '../../store'
 import { useLaunchParams } from '@tma.js/sdk-react'
 import { Link } from 'react-router-dom'
+import Users from '../../assets/admin/users.svg'
+import Cart from '../../assets/admin/cart.svg'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 
 const AdminStats = () => {
     const { initDataRaw } = useLaunchParams()
@@ -34,26 +37,57 @@ const AdminStats = () => {
             <h1 className="text-2xl font-bold mb-4 text-main-green">
                 Административная статистика
             </h1>
-            <div className="flex flex-wrap gap-4">
-                <Link to={'users'}>
-                    <StatCard
-                        title="Всего пользователей"
-                        value={stats.totalUsers}
-                    />
+            <div className="grid grid-cols-4  gap-2 max-md:grid-cols-2 max-sm:grid-cols-1">
+                <Link to={'users'} className="bg-card-white rounded-lg">
+                    <div>
+                        <div className="flex justify-between items-center p-2">
+                            <p>Пользователей</p> <p>+4%</p>
+                        </div>
+                        <div className="flex justify-between items-center p-2">
+                            <img src={Users} alt="" className="h-[50px]" />
+                            <p className="text-2xl">{stats.totalUsers}</p>
+                        </div>
+                        <p className="bg-gray p-2 rounded-b-lg">Подробнее...</p>
+                    </div>
                 </Link>
-                <StatCard
-                    title="Общий оборот"
-                    value={`₽${stats.totalRevenue}`}
-                />
-                <Link to={'products'}>
-                    <StatCard
-                        title="Всего продуктов"
-                        value={stats.totalProducts}
-                    />
+                <Link to={'users'} className="bg-card-white rounded-lg">
+                    <div>
+                        <div className="flex justify-between items-center p-2">
+                            <p>Всего продаж</p> <p>+3%</p>
+                        </div>
+                        <div className="flex justify-between items-center p-2">
+                            <img src={Users} alt="" className="h-[50px]" />
+                            <p className="text-2xl">
+                                {nanoTonToTon(stats.totalRevenue).toFixed(2)}{' '}
+                                ton
+                            </p>
+                        </div>
+                        <p className="bg-gray p-2 rounded-b-lg">Подробнее...</p>
+                    </div>
                 </Link>
-
-                <Link to={'orders'}>
-                    <StatCard title="Всего заказов" value={stats.totalOrders} />
+                <Link to={'products'} className="bg-card-white rounded-lg">
+                    <div>
+                        <div className="flex justify-between items-center p-2">
+                            <p>Продуктов</p> <p>+4%</p>
+                        </div>
+                        <div className="flex justify-between items-center p-2">
+                            <img src={Cart} alt="" className="h-[50px]" />
+                            <p className="text-2xl">{stats.totalProducts}</p>
+                        </div>
+                        <p className="bg-gray p-2 rounded-b-lg">Подробнее...</p>
+                    </div>
+                </Link>
+                <Link to={'orders'} className="bg-card-white rounded-lg">
+                    <div>
+                        <div className="flex justify-between items-center p-2">
+                            <p>Продуктов</p> <p>+4%</p>
+                        </div>
+                        <div className="flex justify-between items-center p-2">
+                            <img src={Cart} alt="" className="h-[50px]" />
+                            <p className="text-2xl">{stats.totalOrders}</p>
+                        </div>
+                        <p className="bg-gray p-2 rounded-b-lg">Подробнее...</p>
+                    </div>
                 </Link>
             </div>
             <div className="w-full h-5 my-5 bg-slate-400 rounded-full"></div>

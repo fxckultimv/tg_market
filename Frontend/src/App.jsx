@@ -47,7 +47,6 @@ import SessionExpiredModal from './SessionExpiredModal'
 // import { useStore } from '../store'
 
 const App = () => {
-    const { isAdmin } = useAdminStore()
     const { initDataRaw } = useLaunchParams()
     const navigate = useNavigate()
     const settingsButton = useSettingsButton()
@@ -61,6 +60,7 @@ const App = () => {
     }, [])
 
     const location = useLocation()
+    const { isAdmin, checkAdmin } = useAdminStore()
 
     const { sessionExpired } = useUserStore()
 
@@ -69,6 +69,11 @@ const App = () => {
 
     //Открытие приложения на всё высоту при запуске
     const viewport = useViewport()
+
+    // Проверка прав администратора при загрузке
+    useEffect(() => {
+        checkAdmin(initDataRaw)
+    }, [checkAdmin, initDataRaw])
 
     useEffect(() => {
         if (viewport) {

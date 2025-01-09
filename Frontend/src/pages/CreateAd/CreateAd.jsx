@@ -356,7 +356,6 @@ const CreateAd = () => {
                                     rows="4"
                                 ></textarea>
                             </div>
-                            {console.log(publicationTimes)}
                             <div className="flex justify-between bg-card-white p-6 rounded-xl gap-7 max-md:flex-col">
                                 {/* Выбор времени публикации */}
                                 <div className="flex flex-col gap-3 justify-start">

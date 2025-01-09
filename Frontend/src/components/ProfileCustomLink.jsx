@@ -3,6 +3,7 @@ import React from 'react'
 
 const ProfileCustomLink = ({ to, children, ...props }) => {
     const match = useMatch(to)
+    console.log(match)
 
     return (
         <Link

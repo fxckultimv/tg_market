@@ -4,6 +4,12 @@ import { useProductStore } from '../../store'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import InfoBox from '../../components/InfoBox'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import arrowDown from '../../assets/chevron-down-gray.svg'
+import star from '../../assets/star.svg'
+import Arrow from '../../assets/Arrow.svg'
+import Ton from '../../assets/ton_symbol.svg'
 
 const UserProducts = () => {
     const { initDataRaw } = useLaunchParams()
@@ -48,68 +54,149 @@ const UserProducts = () => {
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-16 max-md:p-5 max-xl:p-8 w-screen">
             {userProducts.map((product) => (
                 <Link
                     to={`/channels/${product.product_id}`}
                     key={product.product_id}
+                    className="bg-card-white  shadow-card basis-1/3 p-8 rounded-3xl"
                 >
-                    <div
-                        key={product.product_id}
-                        className="bg-gradient-to-r from-dark-gray to-medium-gray p-6 rounded-xl shadow-2x flex justify-between items-center space-x-6 transform hover:scale-105 transition duration-300 ease-in-out bg-card-white"
-                    >
-                        <div className="flex-1">
-                            <h3 className="text-xl font-extrabold mb-2 text-blue">
-                                {product.title}
-                            </h3>
-                            <div className="mb-2">
-                                <p className="text-sm">⭐️ {product.rating}</p>
-                                <div className="border border-main-gray rounded-lg p-3 bg-medium-gray">
-                                    <p className="text-sm">
-                                        Подписчики:{' '}
-                                        <span className="text-main-green">
-                                            {product.subscribers_count}
-                                        </span>
-                                    </p>
-                                    <p className="text-sm text-gray-300">
-                                        Просмотров:{' '}
-                                        <span className="text-main-green">
-                                            {Math.round(product.views)}
-                                        </span>
-                                    </p>
-                                    <p className="text-sm text-gray-300">
-                                        ER:{' '}
-                                        <span className="text-main-green">
-                                            {(
-                                                (100 /
-                                                    product.subscribers_count) *
-                                                product.views
-                                            ).toFixed(1)}
-                                            %
-                                        </span>
-                                    </p>
-                                    <p className="text-sm">
-                                        CPV:{' '}
-                                        <span className="text-blue">
-                                            {Math.round(
-                                                product.price / product.views
-                                            )}{' '}
-                                            р
-                                        </span>
-                                    </p>
-                                </div>
+                    <div className="flex justify-between">
+                        <div className="flex flex-col gap-4">
+                            <h2 className=" text-2xl">{product.title}</h2>
+                            <div className="flex gap-2 items-center">
+                                <img src={star} alt="" />
+                                <p className=" text-base max-sm:text-xs">
+                                    {product.rating}
+                                </p>
                             </div>
-                            <p className="font-bold text-2xl text-blue">
-                                {product.price}₽
-                            </p>
+                            {/* <div className="flex">
+                                <p className=" text-base border-2 border-gray rounded-full px-3 max-sm:text-xs">
+                                    {product.category_name}
+                                </p>
+                            </div> */}
                         </div>
-
-                        <div className="flex-shrink-0">
+                        <div className="aspect-square">
                             <img
-                                className="rounded-full w-28 h-28 object-cover border-2 border-accent-green shadow-lg"
                                 src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                                 alt={product.title}
+                                className="rounded-full max-h-[111px]"
                             />
+                        </div>
+                    </div>
+                    <div className="bg-gray w-full h-[1px] my-8"></div>
+                    {/* <p className="text-base mb-3 max-sm:text-xs">
+                        Время публикации:
+                    </p>
+                    <div className="flex justify-between gap-4">
+                        <div className="relative w-full text-center">
+                            <button
+                                onClick={(e) =>
+                                    handleButtonClick(e, () =>
+                                        setIsOpenFormat(!isOpenFormat)
+                                    )
+                                }
+                                className="flex justify-between items-center w-full p-3 border-2 rounded-full border-gray text-gray hover:border-gray-400 transition-all duration-200"
+                            >
+                                <p className="flex-grow text-left">
+                                    {firstFormatName}
+                                </p>
+                                <img
+                                    src={arrowDown}
+                                    alt="Toggle"
+                                    className={`transform transition-transform duration-300 ${isOpenFormat ? 'rotate-180' : 'rotate-0'}`}
+                                />
+                            </button>
+                            <div
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenFormat ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                            >
+                                <ul className="bg-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
+                                    {product.format_names.map(
+                                        (format, index) => (
+                                            <li
+                                                key={index}
+                                                className="p-2 hover:text-gray cursor-pointer transition-all"
+                                                onClick={() => {
+                                                    console.log(format)
+                                                    setIsOpenFormat(false)
+                                                }}
+                                            >
+                                                {format}
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="relative w-full text-center">
+                            <button
+                                onClick={(e) =>
+                                    handleButtonClick(e, () =>
+                                        setIsOpenPostTime(!isOpenPostTime)
+                                    )
+                                }
+                                className="flex justify-between items-center w-full p-3 border-2 rounded-full border-gray text text-gray hover:border-gray-400 transition-all duration-200"
+                            >
+                                <p className="flex-grow text-left">
+                                    {firstPostTime}
+                                </p>
+                                <img
+                                    src={arrowDown}
+                                    alt="Toggle"
+                                    className={`transform transition-transform duration-300 ${isOpenPostTime ? 'rotate-180' : 'rotate-0'}`}
+                                />
+                            </button>
+                            <div
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenPostTime ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                            >
+                                <ul className="bg-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
+                                    {product.post_times.map((time, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 hover:text-gray cursor-pointer transition-all"
+                                            onClick={() => {
+                                                console.log(time)
+                                                setIsOpenPostTime(false)
+                                            }}
+                                        >
+                                            {time.slice(0, 5)}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div> */}
+                    {/* 
+                    <div className="bg-gray w-full h-[1px] my-8"></div> */}
+                    <div>
+                        <p className="text-base max-sm:text-xs">Статистика</p>
+                        <InfoBox product={product} />
+                    </div>
+                    <div className="bg-gray w-full h-[1px] my-8"></div>
+                    <p className="max-sm:text-xs">Стоимость:</p>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <img
+                                    src={Ton}
+                                    alt=""
+                                    className="h-[2em] w-auto inline-block align-middle"
+                                    style={{ verticalAlign: 'middle' }}
+                                />
+                                <p className="text-3xl max-md:text-xl ">
+                                    {nanoTonToTon(product.price)} Ton
+                                </p>
+                            </div>
+                            {/* <h2 className="text-3xl">{product.price} ₽</h2> */}
+                        </div>
+                        <div className="bg-blue rounded-2xl flex items-center">
+                            <div className="px-4 py-3 text-xl text-white flex items-center gap-2">
+                                <img src={Arrow} alt="" />
+                                <p className="text-base font-normal">
+                                    Начать сейчас
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </Link>

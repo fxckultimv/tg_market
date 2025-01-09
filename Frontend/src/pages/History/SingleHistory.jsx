@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import StatusBar from './StatusBar'
 import Loading from '../../Loading'
 import Error from '../../Error'
+import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 
 const SingleHistory = () => {
     const { initDataRaw } = useLaunchParams()
@@ -83,7 +84,7 @@ const SingleHistory = () => {
                 </p>
                 <p>
                     <strong>Общая стоимость:</strong>{' '}
-                    {singleHistory.total_price} руб.
+                    {nanoTonToTon(singleHistory.total_price)} ton.
                 </p>
                 <p>
                     <strong>Количество реклам:</strong>{' '}
@@ -108,8 +109,8 @@ const SingleHistory = () => {
                                 })}
                             </p>
                             <p>
-                                <strong>Цена:</strong> {singleHistory.price}{' '}
-                                руб.
+                                <strong>Цена:</strong>{' '}
+                                {nanoTonToTon(singleHistory.price)} ton.
                             </p>
                         </div>
                     ))}

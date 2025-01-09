@@ -30,7 +30,7 @@ const UserReviews = () => {
 
     return (
         <div className="min-h-screen bg-card-white">
-            <h2 className="text-3xl font-bold mb-2 text-main-green">Отзывы</h2>
+            <h2 className="text-3xl font-bold mb-2 text-text">Отзывы</h2>
             {reviews.length > 0 ? (
                 <div className="space-y-6">
                     {reviews.map((review) => (
@@ -48,7 +48,7 @@ const UserReviews = () => {
                                     ).toLocaleDateString()}
                                 </span>
                             </div>
-                            <p className="text-blue">{review.comment}</p>
+                            <p className="text-text">{review.comment}</p>
                         </div>
                     ))}
                 </div>
