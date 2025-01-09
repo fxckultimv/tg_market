@@ -594,11 +594,6 @@ async def process_not_completion_seller(callback_query: types.CallbackQuery):
     order_id = callback_query.data.split('_')[2]
     pass
 
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(create_db_pool())
-    executor.start_polling(dp, skip_updates=True)
-
 @dp.message_handler(lambda message: message.text == "Мои заказы")
 async def my_orders(message: types.Message):
     user_id = message.from_user.id
