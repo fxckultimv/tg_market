@@ -99,25 +99,19 @@ async def my_orders(message: types.Message):
     try:
         async with db_pool.acquire() as connection:
             orders = await connection.fetch(
-                """SELECT DISTINCT o.user_id, o.order_id, p.product_id, p.title 
-                   FROM orders AS o
-                   JOIN orderitems oi ON o.order_id = oi.order_id
-                   JOIN products p ON p.product_id = oi.product_id
-                   WHERE o.user_id = $1 AND o.status = 'completed'
-                   ORDER BY o.order_id desc""",
-                user_id
+                """SELECT o.order_id, o.total_price, o.status, o.created_at
+                   FROM Orders o WHERE o.user_id = $1 AND status = 'pending'
+                   ORDER BY o.created_at DESC""", user_id
             )
 
             if orders:
                 response = "Ваши заказы:"
                 keyboard = InlineKeyboardMarkup()
                 for order in orders:
-                    button_text = f"Заказ №{order['order_id']} - {order['title']}"
+                    formatted_price = f"{order['total_price']:,.0f}".replace(",", " ")
+                    button_text = f"Заказ №{order['order_id']} - {formatted_price} руб."
                     callback_data = f"order_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
-
-                survey_button = InlineKeyboardButton("Отправить опрос", callback_data="send_survey")
-                keyboard.add(survey_button)
 
                 await message.answer(response, reply_markup=keyboard)
             else:
@@ -726,61 +720,6 @@ async def process_seller_order_callback(callback_query: types.CallbackQuery):
 async def process_not_completion_seller(callback_query: types.CallbackQuery):
     order_id = callback_query.data.split('_')[2]
     pass
-
-@dp.message_handler(lambda message: message.text == "Мои рекламы")
-async def my_ads(message: types.Message):
-    user_id = message.from_user.id
-    try:
-        async with db_pool.acquire() as connection:
-            ads = await connection.fetch(
-                """SELECT a.ad_id, a.title, a.created_at, a.status
-                   FROM advertisements a
-                   WHERE a.user_id = $1
-                   ORDER BY a.created_at DESC""",
-                user_id
-            )
-
-            if ads:
-                response = "Ваши рекламы:"
-                keyboard = InlineKeyboardMarkup()
-                for ad in ads:
-                    button_text = f"Реклама №{ad['ad_id']} - {ad['title']} ({ad['status']})"
-                    callback_data = f"ad_{ad['ad_id']}"
-                    keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
-
-                await message.answer(response, reply_markup=keyboard)
-            else:
-                await message.answer("У вас пока нет реклам.")
-    except Exception as e:
-        logging.error(f"Ошибка получения реклам: {e}")
-        await message.answer("Произошла ошибка при получении реклам.")
-
-@dp.callback_query_handler(lambda query: query.data.startswith("ad_"))
-async def process_ad_callback(callback_query: types.CallbackQuery):
-    ad_id = int(callback_query.data.split('_')[1])
-    try:
-        async with db_pool.acquire() as connection:
-            ad_info = await connection.fetchrow(
-                """SELECT a.ad_id, a.title, a.content, a.created_at, a.status
-                   FROM advertisements a
-                   WHERE a.ad_id = $1""",
-                ad_id
-            )
-
-            if ad_info:
-                response = (
-                    f"Реклама №{ad_info['ad_id']}\n"
-                    f"Название: {ad_info['title']}\n"
-                    f"Содержание: {ad_info['content']}\n"
-                    f"Дата создания: {ad_info['created_at']}\n"
-                    f"Статус: {ad_info['status']}"
-                )
-                await callback_query.message.answer(response)
-            else:
-                await callback_query.message.answer("Информация о рекламе не найдена.")
-    except Exception as e:
-        logging.error(f"Ошибка получения информации о рекламе: {e}")
-        await callback_query.message.answer("Произошла ошибка при получении информации о рекламе.")
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
