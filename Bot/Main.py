@@ -99,17 +99,20 @@ async def my_orders(message: types.Message):
     try:
         async with db_pool.acquire() as connection:
             orders = await connection.fetch(
-                """SELECT o.order_id, o.total_price, o.status, o.created_at
-                   FROM Orders o WHERE o.user_id = $1 AND status = 'pending'
-                   ORDER BY o.created_at DESC""", user_id
+                """SELECT DISTINCT o.user_id, o.order_id, p.product_id, p.title 
+                   FROM orders AS o
+                   JOIN orderitems oi ON o.order_id = oi.order_id
+                   JOIN products p ON p.product_id = oi.product_id
+                   WHERE o.user_id = $1 AND o.status = 'completed'
+                   ORDER BY o.order_id desc""",
+                user_id
             )
 
             if orders:
                 response = "Ваши заказы:"
                 keyboard = InlineKeyboardMarkup()
                 for order in orders:
-                    formatted_price = f"{order['total_price']:,.0f}".replace(",", " ")
-                    button_text = f"Заказ №{order['order_id']} - {formatted_price} руб."
+                    button_text = f"Заказ №{order['order_id']} - {order['title']}"
                     callback_data = f"order_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
@@ -520,136 +523,92 @@ async def handle_order():
         logging.error(f"Ошибка при обработке запроса: {e}")
         return jsonify({"status": "failure", "message": str(e)}), 500
 
-async def send_survey():
-    async with db_pool.acquire() as connection:
-        now = datetime.now()
-        last_day = now - timedelta(days=1)
-        print("Отправка запроса на подтверждение выполнения условий сделки:", now)
 
-        results_now = await connection.fetch(
-            """SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id AS seller_id, 
-                      o.user_id AS buyer_id, vc.channel_name, vc.channel_url
-               FROM orderitems oi
-               JOIN orders o ON oi.order_id = o.order_id
-               JOIN products p ON oi.product_id = p.product_id
-               JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
-               WHERE DATE_TRUNC('minute', oi.post_time::timestamp) = DATE_TRUNC('minute', $1::timestamp)
-                 AND o.status = 'completed'""", last_day
-        )
-
-        for record in results_now:
-            seller_message = (
-                f"📊 <b>Вы опубликовали рекламное объявление?</b>\n\n"
-                f"📢 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
-                f"🕒 <b>Время публикации:</b> {record['post_time']}\n\n"
-                f"Выполнили ли вы свои условия?"
-            )
-
-            seller_keyboard = InlineKeyboardMarkup(row_width=2)
-            seller_keyboard.add(
-                InlineKeyboardButton("✅Выполнил", callback_data=f"completed_seller_{record['order_id']}"),
-                InlineKeyboardButton("❌Не выполнил", callback_data=f"not_completed_seller_{record['order_id']}")
-            )
-
-            await bot.send_message(
-                chat_id=record['seller_id'],
-                text=seller_message,
-                reply_markup=seller_keyboard,
-                parse_mode="HTML"
-            )
-
-            buyer_message = (
-                f"📢 <b>Продавец опубликовал рекламу?</b>\n\n"
-                f"📊 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
-                f"🕒 <b>Время публикации:</b> {record['post_time']}\n\n"
-                f"Выполнил ли продавец свои условия?"
-            )
-
-            buyer_keyboard = InlineKeyboardMarkup(row_width=2)
-            buyer_keyboard.add(
-                InlineKeyboardButton("✅Выполнил", callback_data=f"completed_buyer_{record['order_id']}"),
-                InlineKeyboardButton("❌Не выполнил", callback_data=f"not_completed_buyer_{record['order_id']}")
-            )
-
-            await bot.send_message(
-                chat_id=record['buyer_id'],
-                text=buyer_message,
-                reply_markup=buyer_keyboard,
-                parse_mode="HTML"
-            )
-
-@dp.callback_query_handler(lambda query: query.data.startswith('completed_seller_'))
-async def process_completion_seller(callback_query: types.CallbackQuery):
-    order_id = callback_query.data.split('_')[2]
-    await bot.edit_message_text(
-        chat_id=callback_query.message.chat.id,
-        message_id=callback_query.message.message_id,
-        text=f"✅ Вы подтвердили, что выполнили условия для заказа {order_id}.",
-        parse_mode="HTML"
-    )
-    await bot.answer_callback_query(callback_query.id)
-
-@dp.callback_query_handler(lambda query: query.data.startswith('not_completed_seller_'))
-async def process_not_completion_seller(callback_query: types.CallbackQuery):
-    order_id = callback_query.data.split('_')[2]
-    pass
-
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(create_db_pool())
-    executor.start_polling(dp, skip_updates=True)
-
-@dp.message_handler(lambda message: message.text == "Мои заказы")
-async def my_orders(message: types.Message):
+@dp.message_handler(lambda message: message.text == "Мои рекламы")
+async def my_ads(message: types.Message):
     user_id = message.from_user.id
     try:
         async with db_pool.acquire() as connection:
-            orders = await connection.fetch(
-                """SELECT DISTINCT o.user_id, o.order_id, p.product_id, p.title 
-                   FROM orders AS o
-                   JOIN orderitems oi ON o.order_id = oi.order_id
-                   JOIN products p ON p.product_id = oi.product_id
-                   WHERE o.user_id = $1 AND o.status = 'completed'
-                   ORDER BY o.order_id desc""",
-                user_id
+            ads = await connection.fetch(
+                """SELECT ad_id, content, status
+                   FROM ads
+                   WHERE user_id = $1
+                   ORDER BY created_at DESC""", user_id
             )
 
-            if orders:
-                response = "Ваши заказы:"
+            if ads:
+                response = "Ваши рекламы:"
                 keyboard = InlineKeyboardMarkup()
-                for order in orders:
-                    button_text = f"Заказ №{order['order_id']} - {order['title']}"
-                    callback_data = f"order_{order['order_id']}"
+                for ad in ads:
+                    button_text = f"Реклама №{ad['ad_id']} - {ad['content']}"
+                    callback_data = f"ad_{ad['ad_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
                 await message.answer(response, reply_markup=keyboard)
             else:
-                await message.answer("У вас пока нет заказов.")
+                await message.answer("У вас пока нет реклам.")
     except Exception as e:
-        logging.error(f"Ошибка получения заказов: {e}")
-        await message.answer("Произошла ошибка при получении заказов.")
+        logging.error(f"Ошибка получения реклам: {e}")
+        await message.answer("Произошла ошибка при получении реклам.")
+
+@dp.callback_query_handler(lambda query: query.data.startswith("ad_"))
+async def process_ad_callback(callback_query: types.CallbackQuery):
+    ad_id = int(callback_query.data.split('_')[1])
+    try:
+        async with db_pool.acquire() as connection:
+            ad_info = await connection.fetchrow(
+                """SELECT ad_id, content, status
+                   FROM ads
+                   WHERE ad_id = $1""", ad_id
+            )
+
+            if ad_info:
+                response = f"Реклама №{ad_info['ad_id']}\nСодержание: {ad_info['content']}\nСтатус: {ad_info['status']}"
+                if ad_info['status'] == 'pending_confirmation':
+                    keyboard = InlineKeyboardMarkup()
+                    keyboard.add(
+                        InlineKeyboardButton("Выполнено", callback_data=f"ad_done_{ad_info['ad_id']}"),
+                        InlineKeyboardButton("Не выполнено", callback_data=f"ad_not_done_{ad_info['ad_id']}")
+                    )
+                    await callback_query.message.answer(response, reply_markup=keyboard)
+                else:
+                    await callback_query.message.answer(response)
+            else:
+                await callback_query.message.answer("Информация о рекламе не найдена.")
+    except Exception as e:
+        logging.error(f"Ошибка получения информации о рекламе: {e}")
+        await callback_query.message.answer("Произошла ошибка при получении информации о рекламе.")
+
+
+@dp.callback_query_handler(lambda call: call.data.startswith('ad_done_') or call.data.startswith('ad_not_done_'))
+async def ad_confirmation_handler(call: CallbackQuery):
+    ad_id = call.data.split('_')[2]
+    if call.data.startswith('ad_done_'):
+        await confirm_ad_done(ad_id)
+        await call.message.answer("Реклама отмечена как выполненная.")
+    elif call.data.startswith('ad_not_done_'):
+        await confirm_ad_not_done(ad_id)
+        await call.message.answer("Реклама отмечена как невыполненная.")
+
 
 @dp.message_handler(lambda message: message.text == "Заказы на выполнение")
-async def seller_orders(message: types.Message):
+async def orders_to_execute(message: types.Message):
     user_id = message.from_user.id
     try:
         async with db_pool.acquire() as connection:
             orders = await connection.fetch(
-                """SELECT DISTINCT oi.order_item_id, oi.post_time, p.product_id, p.title 
-                   FROM orders AS o
-                   JOIN orderitems oi ON o.order_id = oi.order_id
-                   JOIN products p ON p.product_id = oi.product_id
-                   WHERE p.user_id = $1 AND o.status = 'completed'
-                   ORDER BY oi.order_item_id desc""",
-                user_id
+                """SELECT order_id, content, post_time, location
+                   FROM orders
+                   WHERE executor_id = $1 AND status = 'pending'
+                   ORDER BY post_time DESC""", user_id
             )
 
             if orders:
                 response = "Заказы на выполнение:"
                 keyboard = InlineKeyboardMarkup()
                 for order in orders:
-                    button_text = f"Заказ №{order['order_item_id']} - {order['title']}"
-                    callback_data = f"seller_order_{order['order_item_id']}"
+                    button_text = f"Заказ №{order['order_id']} - {order['content']}"
+                    callback_data = f"order_done_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
                 await message.answer(response, reply_markup=keyboard)
@@ -659,72 +618,33 @@ async def seller_orders(message: types.Message):
         logging.error(f"Ошибка получения заказов на выполнение: {e}")
         await message.answer("Произошла ошибка при получении заказов на выполнение.")
 
-@dp.callback_query_handler(lambda query: query.data.startswith("order_"))
-async def process_order_callback(callback_query: types.CallbackQuery):
-    order_id = int(callback_query.data.split('_')[1])
-    try:
-        async with db_pool.acquire() as connection:
-            order_info = await connection.fetchrow(
-                """SELECT o.user_id, o.order_id, o.total_price, array_agg(oi.post_time) AS post_times, 
-                          oi.message_id, p.product_id, p.title, p.post_time, pf.format_name 
-                   FROM orders AS o
-                   JOIN orderitems oi ON o.order_id = oi.order_id
-                   JOIN products p ON p.product_id = oi.product_id
-                   JOIN publication_formats pf ON oi.format = pf.format_id
-                   WHERE o.order_id = $1
-                   GROUP BY o.user_id, o.order_id, o.total_price, oi.message_id, 
-                            p.product_id, p.title, p.post_time, pf.format_name""",
-                order_id
-            )
 
-            if order_info:
-                response = (
-                    f"Заказ №{order_info['order_id']}\n"
-                    f"Продукт: {order_info['title']}\n"
-                    f"Цена: {order_info['total_price']}\n"
-                    f"Время публикации: {', '.join(order_info['post_times'])}\n"
-                    f"Формат: {order_info['format_name']}"
-                )
-                await callback_query.message.answer(response)
-            else:
-                await callback_query.message.answer("Информация о заказе не найдена.")
-    except Exception as e:
-        logging.error(f"Ошибка получения информации о заказе: {e}")
-        await callback_query.message.answer("Произошла ошибка при получении информации о заказе.")
+@dp.callback_query_handler(lambda call: call.data.startswith('order_done_'))
+async def order_done_handler(call: CallbackQuery):
+    order_id = call.data.split('_')[2]
+    await mark_order_as_done(order_id)
+    await call.message.answer("Заказ отмечен как выполненный.")
 
-@dp.callback_query_handler(lambda query: query.data.startswith("seller_order_"))
-async def process_seller_order_callback(callback_query: types.CallbackQuery):
-    order_item_id = int(callback_query.data.split('_')[2])
-    try:
-        async with db_pool.acquire() as connection:
-            order_info = await connection.fetchrow(
-                """SELECT o.user_id, oi.order_id, oi.post_time, oi.message_id, 
-                          p.product_id, p.title, p.post_time, pf.format_name 
-                   FROM orders AS o
-                   JOIN orderitems oi ON o.order_id = oi.order_id
-                   JOIN products p ON p.product_id = oi.product_id
-                   JOIN publication_formats pf ON oi.format = pf.format_id
-                   WHERE oi.order_item_id = $1""",
-                order_item_id
-            )
 
-            if order_info:
-                response = (
-                    f"Заказ №{order_info['order_id']}\n"
-                    f"Продукт: {order_info['title']}\n"
-                    f"Время публикации: {order_info['post_time']}\n"
-                    f"Формат: {order_info['format_name']}"
-                )
-                await callback_query.message.answer(response)
-            else:
-                await callback_query.message.answer("Информация о заказе не найдена.")
-    except Exception as e:
-        logging.error(f"Ошибка получения информации о заказе: {e}")
-        await callback_query.message.answer("Произошла ошибка при получении информации о заказе.")
+async def confirm_ad_done(ad_id):
+    async with db_pool.acquire() as connection:
+        await connection.execute(
+            "UPDATE ads SET status = 'done' WHERE ad_id = $1", ad_id
+        )
 
-async def process_not_completion_seller(callback_query: types.CallbackQuery):
-    order_id = callback_query.data.split('_')[2]
-    pass
+
+async def confirm_ad_not_done(ad_id):
+    async with db_pool.acquire() as connection:
+        await connection.execute(
+            "UPDATE ads SET status = 'not_done' WHERE ad_id = $1", ad_id
+        )
+
+
+async def mark_order_as_done(order_id):
+    async with db_pool.acquire() as connection:
+        await connection.execute(
+            "UPDATE orders SET status = 'done' WHERE order_id = $1", order_id
+        )
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
