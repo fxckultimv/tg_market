@@ -23,11 +23,11 @@ router.post(
     authMiddleware,
     balanceController.handlePurchase.bind(balanceController)
 )
-router.post(
-    '/withdraw',
-    authMiddleware,
-    balanceController.handleWithdrawal.bind(balanceController)
-)
+// router.post(
+//     '/withdraw',
+//     authMiddleware,
+//     balanceController.handleWithdrawal.bind(balanceController)
+// )
 // router.post('/handle-payment-notification', balanceController.handlePaymentNotification.bind(balanceController));
 
 module.exports = router

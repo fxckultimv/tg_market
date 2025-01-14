@@ -8,6 +8,8 @@ import {
 } from '@tonconnect/ui-react'
 import { useUserStore } from '../store'
 import { useEffect } from 'react'
+import { nanoTonToTon, tonToNanoTon } from '../utils/tonConversion'
+import { useState } from 'react'
 
 const Ton = () => {
     const { initData } = useUserStore()
@@ -17,6 +19,7 @@ const Ton = () => {
     const rawAddress = useTonAddress(false)
 
     const wallet = useTonWallet()
+    const [amount, setAmount] = useState('')
 
     const [tonConnectUI, setOptions] = useTonConnectUI()
     useEffect(() => {
@@ -24,30 +27,53 @@ const Ton = () => {
     }, [])
 
     // Объект с данными для транзакции
-    const myTransaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 60, // Срок действия - 60 сек
-        messages: [
-            {
-                address: '0QDHqPLXVrZvdbH-RzSgLFgPokwqLLU78Jbsq8pgPV3LOZdY', // адрес получателя
-                amount: '50000000', // сумма в нанотонах (например, 0.02 TON)
-                // опционально: stateInit, payload и другие параметры
-            },
-        ],
+    // const myTransaction = {
+    //     validUntil: Math.floor(Date.now() / 1000) + 60, // Срок действия - 60 сек
+    //     messages: [
+    //         {
+    //             address: '0QDHqPLXVrZvdbH-RzSgLFgPokwqLLU78Jbsq8pgPV3LOZdY', // адрес получателя
+    //             amount: tonToNanoTon(amount).toString, // сумма в нанотонах (например, 0.02 TON)
+    //             // опционально: stateInit, payload и другие параметры
+    //         },
+    //     ],
+    // }
+
+    const handleTransaction = () => {
+        if (!amount || isNaN(amount) || Number(amount) <= 0) {
+            alert('Введите корректную сумму.')
+            return
+        }
+
+        const myTransaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 60, // Срок действия - 60 сек
+            messages: [
+                {
+                    address: '0QDHqPLXVrZvdbH-RzSgLFgPokwqLLU78Jbsq8pgPV3LOZdY', // адрес получателя
+                    amount: tonToNanoTon(amount).toString(), // переводим в нанотоны
+                },
+            ],
+        }
+
+        tonConnectUI
+            .sendTransaction(myTransaction)
+            .then(() => {
+                alert('Транзакция отправлена успешно!')
+            })
+            .catch((error) => {
+                alert(`Ошибка при отправке транзакции: ${error.message}`)
+            })
     }
     return (
         <>
-            <div className="flex justify-center m-2">
+            <div className="flex justify-between m-2">
                 <TonConnectButton />
-            </div>
-
-            <div className="flex justify-between items-center ">
                 <div
-                    className={`p-3 m-2 rounded-xl ${
+                    className={`px-4 py-3 text-base rounded-xl h-[40px] items-baseline ${
                         wallet
                             ? wallet.account.chain === CHAIN.MAINNET
                                 ? 'bg-green'
                                 : 'bg-red'
-                            : 'bg-gray-300'
+                            : 'bg-gray'
                     }`}
                 >
                     {wallet
@@ -56,12 +82,22 @@ const Ton = () => {
                             : 'TestNet'
                         : 'N/A'}
                 </div>
+            </div>
+
+            <div className="flex justify-between items-center m-2 gap-1">
                 {/* Кнопка для отправки транзакции */}
+                <input
+                    type="number"
+                    placeholder="Введите сумму"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="border p-2 rounded-lg min-w-10"
+                />
                 <button
-                    onClick={() => tonConnectUI.sendTransaction(myTransaction)}
-                    className="bg-blue rounded-xl m-2 p-3"
+                    onClick={handleTransaction}
+                    className="bg-blue rounded-xl p-3"
                 >
-                    Send transaction
+                    Пополнить
                 </button>
             </div>
         </>

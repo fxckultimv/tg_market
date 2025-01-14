@@ -44,6 +44,8 @@ import { AnimatePresence } from 'framer-motion'
 import AnimatedPage from './components/AnimatedPage'
 import { useLocation } from 'react-router-dom'
 import SessionExpiredModal from './SessionExpiredModal'
+import Rulers from './pages/Rules/Rules'
+import AdminTransactions from './pages/adminDashboard/AdminTransactions/AdminTransactions'
 // import { useStore } from '../store'
 
 const App = () => {
@@ -267,6 +269,14 @@ const App = () => {
                                 </AnimatedPage>
                             }
                         />
+                        <Route
+                            path="rules"
+                            element={
+                                <AnimatedPage>
+                                    <Rulers />
+                                </AnimatedPage>
+                            }
+                        />
 
                         {isAdmin && (
                             <Route path="admin" element={<AdminLayout />}>
@@ -331,6 +341,14 @@ const App = () => {
                                     element={
                                         <AnimatedPage>
                                             <AdminCategories />
+                                        </AnimatedPage>
+                                    }
+                                />
+                                <Route
+                                    path="transactions"
+                                    element={
+                                        <AnimatedPage>
+                                            <AdminTransactions />
                                         </AnimatedPage>
                                     }
                                 />

@@ -158,9 +158,11 @@ const Filters = () => {
                     </div>
                 </div>
             </div>
-            <div className="flex justify-start mx-3 relative">
+            <div className="flex justify-start mx-3 relative pr-16 max-md:pr-5 max-xl:pr-8">
                 <div className="p-1 rounded-full bg-gray" onClick={toggleSort}>
-                    <img
+                    <motion.img
+                        animate={sort ? { rotate: 360 } : {}}
+                        transition={{ duration: 0.5 }}
                         src={settings}
                         alt="Tune icon"
                         className="w-5 h-5 m-2"

@@ -24,7 +24,7 @@ const Cart = () => {
 
     if (!cart || !cart.products || Object.keys(cart.products).length === 0) {
         return (
-            <div className="h-max flex flex-col justify-center gap-3 items-center">
+            <div className="min-h-screen flex flex-col justify-center gap-3 items-center">
                 <div className="text-2xl font-bold mb-4">
                     Ваша корзина пуста
                 </div>

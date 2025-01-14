@@ -58,7 +58,7 @@ const ProfileLayout = () => {
                                         </p>
                                         <img src={StarFull} alt="" />
                                     </div>
-                                    <Balance balance={balance / 1000000000} />
+                                    <Balance balance={balance} />
                                 </div>
                             </div>
 

@@ -19,85 +19,32 @@ class AdminController {
 
             // Запросы для пользователей
             const totalUsers = await db.query('SELECT COUNT(*) FROM users')
-            const newUsersToday = await db.query(
-                'SELECT COUNT(*) FROM users WHERE created_at >= $1',
-                [startOfDay]
-            )
-            const newUsersThisWeek = await db.query(
-                'SELECT COUNT(*) FROM users WHERE created_at >= $1',
-                [startOfWeek]
-            )
-            const newUsersThisMonth = await db.query(
-                'SELECT COUNT(*) FROM users WHERE created_at >= $1',
-                [startOfMonth]
-            )
-            const newUsersThisYear = await db.query(
-                'SELECT COUNT(*) FROM users WHERE created_at >= $1',
-                [startOfYear]
-            )
-
             // Запросы для продуктов
             const totalProducts = await db.query(
                 'SELECT COUNT(*) FROM products'
             )
-            const newProductsToday = await db.query(
-                'SELECT COUNT(*) FROM products WHERE created_at >= $1',
-                [startOfDay]
-            )
-            const newProductsThisWeek = await db.query(
-                'SELECT COUNT(*) FROM products WHERE created_at >= $1',
-                [startOfWeek]
-            )
-            const newProductsThisMonth = await db.query(
-                'SELECT COUNT(*) FROM products WHERE created_at >= $1',
-                [startOfMonth]
-            )
-            const newProductsThisYear = await db.query(
-                'SELECT COUNT(*) FROM products WHERE created_at >= $1',
-                [startOfYear]
-            )
-
             // Запросы для заказов
             const totalOrders = await db.query('SELECT COUNT(*) FROM orders')
-            const newOrdersToday = await db.query(
-                'SELECT COUNT(*) FROM orders WHERE created_at >= $1',
-                [startOfDay]
-            )
-            const newOrdersThisWeek = await db.query(
-                'SELECT COUNT(*) FROM orders WHERE created_at >= $1',
-                [startOfWeek]
-            )
-            const newOrdersThisMonth = await db.query(
-                'SELECT COUNT(*) FROM orders WHERE created_at >= $1',
-                [startOfMonth]
-            )
-            const newOrdersThisYear = await db.query(
-                'SELECT COUNT(*) FROM orders WHERE created_at >= $1',
-                [startOfYear]
-            )
-
             // Запрос для общего оборота
             const totalRevenue = await db.query(
                 'SELECT SUM(total_price) FROM orders'
             )
+            const OrderInTheMounth = await db.query(
+                `
+                SELECT  o.order_id, o.total_price, o.created_at
+                FROM orders AS o
+                WHERE EXTRACT(YEAR FROM o.created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
+                    AND EXTRACT(MONTH FROM o.created_at) = EXTRACT(MONTH FROM CURRENT_DATE) AND o.status = 'completed'
+                ORDER BY o.created_at `,
+                []
+            )
 
             res.json({
                 totalUsers: totalUsers.rows[0].count,
-                newUsersToday: newUsersToday.rows[0].count,
-                newUsersThisWeek: newUsersThisWeek.rows[0].count,
-                newUsersThisMonth: newUsersThisMonth.rows[0].count,
-                newUsersThisYear: newUsersThisYear.rows[0].count,
                 totalProducts: totalProducts.rows[0].count,
-                newProductsToday: newProductsToday.rows[0].count,
-                newProductsThisWeek: newProductsThisWeek.rows[0].count,
-                newProductsThisMonth: newProductsThisMonth.rows[0].count,
-                newProductsThisYear: newProductsThisYear.rows[0].count,
                 totalOrders: totalOrders.rows[0].count,
-                newOrdersToday: newOrdersToday.rows[0].count,
-                newOrdersThisWeek: newOrdersThisWeek.rows[0].count,
-                newOrdersThisMonth: newOrdersThisMonth.rows[0].count,
-                newOrdersThisYear: newOrdersThisYear.rows[0].count,
                 totalRevenue: totalRevenue.rows[0].sum || 0,
+                OrdersMonth: OrderInTheMounth.rows,
             })
         } catch (err) {
             console.error(err)

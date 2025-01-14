@@ -5,6 +5,7 @@ import Users from '../assets/admin/users.svg'
 import Products from '../assets/admin/products.svg'
 import Orders from '../assets/admin/orders.svg'
 import Category from '../assets/admin/category.svg'
+import Money from '../assets/admin/money.svg'
 import Menu from '../assets/admin/menu.svg'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
@@ -52,6 +53,10 @@ const AdminLayout = () => {
                     <AdminCastomLink to="/admin/categories">
                         <img src={Category} alt="" />
                         {menuOpen && <p>Categories</p>}
+                    </AdminCastomLink>
+                    <AdminCastomLink to="/admin/transactions">
+                        <img src={Money} alt="" />
+                        {menuOpen && <p>Transactions</p>}
                     </AdminCastomLink>
                 </div>
                 <div className="mt-auto cursor-pointer" onClick={toggleMenu}>

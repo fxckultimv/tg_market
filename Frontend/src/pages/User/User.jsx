@@ -45,8 +45,8 @@ const User = () => {
     }
 
     return (
-        <div className="min-h-screen bg-dark-gray ">
-            <div className="container m-8">
+        <div className="min-h-screen bg-dark-gray min-w-screen">
+            <div className="m-8">
                 <div className="mb-2">
                     <img
                         className="rounded-full w-32 h-32 object-cover border-main-green border-2 "
@@ -63,22 +63,18 @@ const User = () => {
                     </p>
                 </div>
                 {/* Buttons to toggle between products and reviews */}
-                <div className="mt-8 flex space-x-4">
+                <div className="flex space-x-4">
                     <button
-                        className={`px-4 py-2 font-bold rounded ${
-                            activeTab === 'products'
-                                ? 'bg-card-white '
-                                : 'bg-gray-700 text-blue'
+                        className={`px-4 py-2 font-bold rounded bg-card-white shadow-card ${
+                            activeTab === 'products' ? 'text-blue' : ''
                         }`}
                         onClick={() => setActiveTab('products')}
                     >
                         Продукты
                     </button>
                     <button
-                        className={`px-4 py-2 font-bold rounded ${
-                            activeTab === 'reviews'
-                                ? 'bg-card-white'
-                                : 'bg-gray-700 text-blue'
+                        className={`px-4 py-2 font-bold rounded bg-card-white shadow-card ${
+                            activeTab === 'reviews' ? 'text-blue' : ''
                         }`}
                         onClick={() => setActiveTab('reviews')}
                     >

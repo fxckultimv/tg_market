@@ -4,7 +4,9 @@ import { useLaunchParams } from '@tma.js/sdk-react'
 import { Link } from 'react-router-dom'
 import Users from '../../assets/admin/users.svg'
 import Cart from '../../assets/admin/cart.svg'
+import Orders from '../../assets/admin/orders.svg'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import OrdersInMounthChart from './OrdersInMounthChart'
 
 const AdminStats = () => {
     const { initDataRaw } = useLaunchParams()
@@ -34,9 +36,7 @@ const AdminStats = () => {
 
     return (
         <div className="min-h-screen bg-dark-gray p-4">
-            <h1 className="text-2xl font-bold mb-4 text-main-green">
-                Административная статистика
-            </h1>
+            <h1 className="text-2xl font-bold mb-4 text-main-green">Админка</h1>
             <div className="grid grid-cols-4  gap-2 max-md:grid-cols-2 max-sm:grid-cols-1">
                 <Link to={'users'} className="bg-card-white rounded-lg">
                     <div>
@@ -80,17 +80,18 @@ const AdminStats = () => {
                 <Link to={'orders'} className="bg-card-white rounded-lg">
                     <div>
                         <div className="flex justify-between items-center p-2">
-                            <p>Продуктов</p> <p>+4%</p>
+                            <p>Заказов</p> <p>+4%</p>
                         </div>
                         <div className="flex justify-between items-center p-2">
-                            <img src={Cart} alt="" className="h-[50px]" />
+                            <img src={Orders} alt="" className="h-[50px]" />
                             <p className="text-2xl">{stats.totalOrders}</p>
                         </div>
                         <p className="bg-gray p-2 rounded-b-lg">Подробнее...</p>
                     </div>
                 </Link>
             </div>
-            <div className="w-full h-5 my-5 bg-slate-400 rounded-full"></div>
+            <OrdersInMounthChart orders={stats.OrdersMonth} className={''} />
+            {/* <div className="w-full h-5 my-5 bg-slate-400 rounded-full"></div>
             <div className="flex flex-wrap gap-4">
                 <StatCard
                     title="Новые продукты сегодня"
@@ -146,7 +147,7 @@ const AdminStats = () => {
                     title="Новые пользователи за год"
                     value={stats.newUsersThisYear}
                 />
-            </div>
+            </div> */}
         </div>
     )
 }

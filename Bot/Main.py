@@ -1,6 +1,6 @@
-import logging
 import os
-import threading
+from http.client import HTTPException
+from typing import Union, List
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
@@ -9,15 +9,20 @@ from aiogram.types import (
     ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery,
     KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo
 )
-from aiogram.utils import executor
+from aiogram import types
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import logging
 import asyncpg
-from flask import Flask, jsonify, request
 from datetime import datetime, timedelta
+from pydantic import BaseModel
 from telethon import TelegramClient
-from telethon.tl.functions.messages import GetHistoryRequest
 import asyncio
+from fastapi import FastAPI
+from uvicorn import Config, Server
 
-API_TOKEN = '7741416101:AAERfPXfyjwvIQbIHqZQc5iKFHdHaRk4WWE'
+app = FastAPI()
+
+API_TOKEN = '7248552375:AAEBZiDiwtckvFXvVRv_3Ttqx-p8gc6_1so'
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,8 +32,6 @@ dp = Dispatcher(bot, storage=storage)
 
 db_pool = None
 
-app = Flask(__name__)
-
 api_id = '24463380'
 api_hash = '2d943e94d362db2be40612c00019e381'
 phone_number = '+8562057532284'
@@ -37,6 +40,33 @@ client = TelegramClient('session_name', api_id, api_hash)
 
 class OrderState(StatesGroup):
     waiting_for_advertisement = State()
+
+def nano_ton_to_ton(nano_ton):
+    """
+    Converts nanoTon to TON.
+
+    :param nano_ton: The amount in nanoTon (int, float, or str).
+    :return: The equivalent amount in TON (float).
+    """
+    if isinstance(nano_ton, str):
+        # Удаляем пробелы перед преобразованием
+        nano_ton = float(nano_ton.replace(" ", ""))
+    return nano_ton / 1_000_000_000
+
+
+def ton_to_nano_ton(ton):
+    """
+    Converts TON to nanoTon.
+
+    :param ton: The amount in TON (int, float, or str).
+    :return: The equivalent amount in nanoTon (float).
+    """
+    if isinstance(ton, str):
+        # Удаляем пробелы перед преобразованием
+        ton = float(ton.replace(" ", ""))
+    return ton * 1_000_000_000
+
+
 
 async def create_db_pool():
     global db_pool
@@ -84,12 +114,13 @@ async def send_welcome(message: types.Message):
 
     button_orders = KeyboardButton('Мои заказы')
     button_ads = KeyboardButton('Мои рекламы')
+    button_applications = KeyboardButton('Заказы на выполнение')
     button_verified = KeyboardButton('Добавить канал')
     button_my_channels = KeyboardButton('Мои каналы')
     button_support = KeyboardButton('Поддержка')
 
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(button_orders, button_ads, button_verified, button_my_channels, button_support)
+    keyboard.add(button_orders, button_ads, button_applications, button_verified, button_my_channels, button_support)
 
     await message.answer("Добро пожаловать! Выберите нужный пункт меню:", reply_markup=keyboard)
 
@@ -109,7 +140,7 @@ async def my_orders(message: types.Message):
                 keyboard = InlineKeyboardMarkup()
                 for order in orders:
                     formatted_price = f"{order['total_price']:,.0f}".replace(",", " ")
-                    button_text = f"Заказ №{order['order_id']} - {formatted_price} руб."
+                    button_text = f"Заказ №{order['order_id']} - {nano_ton_to_ton(formatted_price)}ton."
                     callback_data = f"order_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
@@ -119,6 +150,264 @@ async def my_orders(message: types.Message):
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
         await message.answer("Произошла ошибка при получении заказов.")
+@dp.message_handler(lambda message: message.text == "Мои рекламы")
+async def my_orders(message: types.Message):
+    user_id = message.from_user.id
+    try:
+        async with db_pool.acquire() as connection:
+            ads = await connection.fetch(
+                """SELECT DISTINCT o.user_id, o.order_id, p.product_id, total_price ,p.title FROM orders AS o
+JOIN orderitems oi ON o.order_id = oi.order_id
+JOIN products p ON p.product_id = oi.product_id
+WHERE o.user_id = $1 AND o.status = 'paid'
+ORDER BY o.order_id desc""", user_id
+            )
+
+            if ads:
+                response = "Ваши заказы:"
+                keyboard = InlineKeyboardMarkup()
+                for order in ads:
+                    formatted_price = f"{order['total_price']:,.0f}".replace(",", " ")
+                    button_text = f"Заказ №{order['order_id']} - {nano_ton_to_ton(formatted_price)} ton."
+                    callback_data = f"ad_{order['order_id']}"
+                    keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
+
+                await message.answer(response, reply_markup=keyboard)
+            else:
+                await message.answer("У вас пока нет заказов.")
+    except Exception as e:
+        logging.error(f"Ошибка получения заказов: {e}")
+        await message.answer("Произошла ошибка при получении заказов.")
+
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("ad_"))
+async def ad_details(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    try:
+        order_id = int(callback_query.data.split("_")[1])
+        async with db_pool.acquire() as connection:
+            ad_details = await connection.fetchrow(
+                """
+                SELECT o.user_id, o.order_id, o.total_price, array_agg(oi.post_time) AS post_times, 
+                       oi.message_id, p.product_id, p.title, p.post_time, pf.format_name 
+                FROM orders AS o
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON p.product_id = oi.product_id
+                JOIN publication_formats pf ON oi.format = pf.format_id
+                WHERE o.order_id = $1
+                GROUP BY 
+                    o.user_id, 
+                    o.order_id, 
+                    o.total_price, 
+                    oi.message_id, 
+                    p.product_id, 
+                    p.title, 
+                    p.post_time, 
+                    pf.format_name;
+                """,
+                order_id
+            )
+
+            if ad_details:
+                # Преобразование datetime в строки
+                post_times = (
+                    ", ".join(post_time.strftime("%Y-%m-%d %H:%M:%S") for post_time in ad_details['post_times'])
+                    if ad_details['post_times']
+                    else "Нет данных"
+                )
+                price = nano_ton_to_ton(ad_details['total_price'])
+                response = (
+                    f"**Детали рекламы №{ad_details['order_id']}**\n"
+                    f"Название: {ad_details['title']}\n"
+                    f"Общая цена: {price:.2f} ton.\n"
+                    f"Время постинга: {post_times}\n"
+                    f"Формат публикации: {ad_details['format_name']}\n"
+                    f"ID сообщения: {ad_details['message_id']}\n"
+                    f"ID продукта: {ad_details['product_id']}\n"
+                )
+                # Кнопка "Пост"
+                keyboard = InlineKeyboardMarkup().add(
+                    InlineKeyboardButton(
+                        text="Пост",
+                        callback_data=f"post_{ad_details['message_id']}"
+                    ),InlineKeyboardButton("Выполнено", callback_data=f"addone_{ad_details['order_id']}"),
+                        InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
+                )
+                await callback_query.message.edit_text(response, parse_mode="Markdown", reply_markup=keyboard)
+            else:
+                await callback_query.message.edit_text("Детали рекламы не найдены.")
+    except Exception as e:
+        logging.error(f"Ошибка получения деталей рекламы: {e}")
+        await callback_query.message.edit_text("Произошла ошибка при получении деталей рекламы.")
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("post_"))
+async def post_ad(callback_query: CallbackQuery):
+    try:
+        message_id = int(callback_query.data.split("_")[1])
+        chat_id = callback_query.message.chat.id  # ID текущего чата
+
+        await callback_query.bot.copy_message(
+            chat_id=chat_id,
+            from_chat_id=chat_id,
+            message_id=message_id
+        )
+        # await callback_query.answer("Сообщение переслано успешно!", show_alert=True)
+    except Exception as e:
+        logging.error(f"Ошибка пересылки сообщения: {e}")
+        await callback_query.answer("Произошла ошибка при пересылке сообщения.", show_alert=True)
+
+
+@dp.callback_query_handler(lambda call: call.data.startswith("addone_") or call.data.startswith("adnotdone_"))
+async def ad_confirmation_handler(call: CallbackQuery):
+    try:
+        # Извлечение ID рекламы
+        ad_id = int(call.data.split('_')[1])
+
+        async with db_pool.acquire() as connection:
+            if call.data.startswith('addone_'):
+                # Обновление статуса на "completed"
+                await connection.execute(
+                    """
+                    UPDATE orders 
+                    SET status = 'completed' 
+                    WHERE order_id = $1
+                    """,
+                    ad_id
+                )
+                await call.message.edit_reply_markup()  # Убираем клавиатуру
+                await call.message.answer(f"Реклама №{ad_id} отмечена как выполненная.")
+            elif call.data.startswith('adnotdone_'):
+                # Обновление статуса на "problem"
+                await connection.execute(
+                    """
+                    UPDATE orders 
+                    SET status = 'problem' 
+                    WHERE order_id = $1
+                    """,
+                    ad_id
+                )
+                await call.message.edit_reply_markup()  # Убираем клавиатуру
+                await call.message.answer(f"Реклама №{ad_id} отмечена как невыполненная.")
+
+        # Уведомление пользователя об успешном обновлении статуса
+        await call.answer("Статус обновлён.", show_alert=True)
+
+    except ValueError as e:
+        logging.error(f"Ошибка обработки данных callback_data: {e}")
+        await call.answer("Некорректные данные для изменения статуса.", show_alert=True)
+    except Exception as e:
+        logging.error(f"Ошибка изменения статуса в базе данных: {e}")
+        await call.answer("Произошла ошибка при изменении статуса.", show_alert=True)
+
+@dp.message_handler(lambda message: message.text == "Заказы на выполнение")
+async def seller_orders(message: types.Message):
+    user_id = message.from_user.id
+    try:
+        async with db_pool.acquire() as connection:
+            orders = await connection.fetch(
+                """
+                SELECT DISTINCT oi.order_item_id, oi.post_time, p.product_id, p.title 
+                FROM orders AS o
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON p.product_id = oi.product_id
+                WHERE p.user_id = $1 AND o.status = 'paid'
+                ORDER BY oi.order_item_id DESC
+                """,
+                user_id
+            )
+
+            if orders:
+                response = "Ваши заказы на выполнение:"
+                keyboard = InlineKeyboardMarkup()
+                for order in orders:
+                    button_text = f"Заказ №{order['order_item_id']} - {order['title']}"
+                    callback_data = f"seller_order_{order['order_item_id']}"
+                    keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
+
+                await message.answer(response, reply_markup=keyboard)
+            else:
+                await message.answer("У вас пока нет заказов на выполнение.")
+    except Exception as e:
+        logging.error(f"Ошибка получения заказов на выполнение: {e}")
+        await message.answer("Произошла ошибка при получении ваших заказов на выполнение.")
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("seller_order_"))
+async def order_details(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    try:
+        order_item_id = int(callback_query.data.split("_")[2])  # Извлечение ID заказа
+        async with db_pool.acquire() as connection:
+            order_details = await connection.fetchrow(
+                """
+                SELECT o.user_id, oi.order_id, oi.post_time, oi.message_id, oi.chat_id,
+                       p.product_id, p.title, pf.format_name
+                FROM orders AS o
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON p.product_id = oi.product_id
+                JOIN publication_formats pf ON oi.format = pf.format_id
+                WHERE oi.order_item_id = $1
+                """,
+                order_item_id
+            )
+
+            if not order_details:
+                await callback_query.message.edit_text("Детали заказа не найдены.")
+                return
+
+            post_time = (
+                order_details['post_time'].strftime("%Y-%m-%d %H:%M:%S")
+                if order_details['post_time']
+                else "Нет данных"
+            )
+            response = (
+                f"**Детали заказа на выполнение №{order_details['order_id']}**\n"
+                f"Название: {order_details['title']}\n"
+                f"Время выполнения: {post_time}\n"
+                f"Формат публикации: {order_details['format_name']}\n"
+                f"ID сообщения: {order_details['message_id']}\n"
+                f"ID продукта: {order_details['product_id']}\n"
+            )
+            # Кнопка "Пост" с передачей message_id и chat_id
+            callback_data = f"adpost_{order_details['message_id']}_{order_details['chat_id']}"
+            keyboard = InlineKeyboardMarkup().add(
+                InlineKeyboardButton(text="Пост", callback_data=callback_data)
+            )
+            await callback_query.message.edit_text(response, parse_mode="Markdown", reply_markup=keyboard)
+    except ValueError as e:
+        logging.error(f"Некорректные данные callback_data: {e}")
+        await callback_query.message.edit_text("Ошибка: некорректные данные заказа.")
+    except Exception as e:
+        logging.error(f"Ошибка получения деталей заказа: {e}")
+        await callback_query.message.edit_text("Произошла ошибка при получении деталей заказа.")
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("adpost_"))
+async def post_ad(callback_query: CallbackQuery):
+    try:
+        data = callback_query.data.split("_")
+        print(data)
+
+        # Проверка, что в callback_data ожидаемое количество элементов
+        if len(data) != 3:
+            raise ValueError("Некорректные данные в callback_data.")
+
+        message_id = int(data[1])  # Извлечение message_id
+        chat_id = int(data[2])  # Извлечение chat_id (чат заказчика)
+        current_chat_id = callback_query.message.chat.id  # Текущий чат
+
+        # Пересылка сообщения
+        await callback_query.bot.copy_message(
+            chat_id=current_chat_id,  # Пересылка в текущий чат
+            from_chat_id=chat_id,  # Чат заказчика
+            message_id=message_id  # ID сообщения
+        )
+        # await callback_query.answer("Сообщение успешно переслано!", show_alert=True)
+    except ValueError as e:
+        logging.error(f"Ошибка обработки данных callback_data: {e}")
+        await callback_query.answer("Некорректные данные для пересылки сообщения.", show_alert=True)
+    except Exception as e:
+        logging.error(f"Ошибка пересылки сообщения: {e}")
+        await callback_query.answer("Произошла ошибка при пересылке сообщения.", show_alert=True)
+
 
 @dp.message_handler(lambda message: message.text == "Добавить канал")
 async def add_channel(message: types.Message):
@@ -247,7 +536,6 @@ async def my_channels(message: types.Message):
         logging.error(f"Ошибка получения каналов: {e}")
         await message.answer("Произошла ошибка при получении каналов.", parse_mode="HTML")
 
-
 @dp.callback_query_handler(lambda query: query.data.startswith("order_"))
 async def process_order_callback(callback_query: types.CallbackQuery, state: FSMContext):
     order_id = int(callback_query.data.split('_')[1])
@@ -292,8 +580,14 @@ async def forward_message(message: types.Message, state: FSMContext):
 
             async with db_pool.acquire() as connection:
                 await connection.execute(
-                    """UPDATE orderitems SET message_id = $1 WHERE order_id = $2""",
-                    message.message_id, order_id
+                     """
+                    UPDATE orderitems 
+                    SET message_id = $1, chat_id = $2 
+                    WHERE order_id = $3
+                    """,
+                    message.message_id,  # ID сообщения
+                    message.chat.id,     # Chat ID отправителя
+                    order_id
                 )
 
                 order_info = await connection.fetch(
@@ -326,7 +620,7 @@ async def forward_message(message: types.Message, state: FSMContext):
                         f"Пользователь @{message.from_user.username} хочет купить у вас рекламу \n"
                         f"в канале <a href='{channel_url}'>{channel_name}</a> \n"
                         f"на даты: {post_times_str}. \n"
-                        f"По общей цене {formatted_total_price} руб."
+                        f"По общей цене {nano_ton_to_ton(formatted_total_price)} ton."
                     ),
                     parse_mode="HTML",
                     reply_markup=keyboard
@@ -359,7 +653,7 @@ async def accept_ad(callback_query: CallbackQuery):
     try:
         async with db_pool.acquire() as connection:
             await connection.execute(
-                "UPDATE Orders SET status = 'ожидает оплаты' WHERE order_id = $1", order_id
+                "UPDATE Orders SET status = 'pending_payment' WHERE order_id = $1", order_id
             )
 
             order_info = await connection.fetchrow(
@@ -443,43 +737,6 @@ async def decline_ad(callback_query: CallbackQuery):
             text=f"Произошла ошибка при отклонении предложения."
         )
 
-@app.route('/buy', methods=['POST'])
-def handle_buy():
-    try:
-        data = request.json
-        user_id = data.get('user_id')
-        order_id = data.get('order_id')
-        message_id = data.get('message_id')
-        format = data.get('format')
-        post_time = data.get('post_time')
-        channel_name = data.get('channel_name')
-        channel_url = data.get('channel_url')
-
-        if not all([user_id, post_time, channel_name, channel_url]):
-            return jsonify({"status": "failure", "message": "Invalid data provided"}), 400
-
-        formatted_post_times = "\n".join([f"• {time}" for time in post_time]) if isinstance(post_time, list) else post_time
-
-        text_message = (
-            f"🎉 Ваша реклама была куплена!\n\n"
-            f"🕒 Время публикации:\n{formatted_post_times}\n"
-            f"🕒 Формат:\n{format}\n"
-            f"📢 Канал: {channel_name}\n"
-            f"🔗 Ссылка на канал: {channel_url}\n"
-        )
-
-        future = asyncio.run_coroutine_threadsafe(bot.send_message(user_id, text_message), asyncio.get_event_loop())
-        message = future.result()
-
-        state = dp.current_state(user=user_id)
-        asyncio.run_coroutine_threadsafe(state.update_data(message_id=message_id), asyncio.get_event_loop())
-
-        return jsonify({"status": "success", "message": "Message sent to seller", "message_id": message_id}), 200
-
-    except Exception as e:
-        logging.error(f"Ошибка при обработке запроса: {e}")
-        return jsonify({"status": "failure", "message": str(e)}), 500
-
 @dp.message_handler(lambda message: message.text)
 async def forward_specified_message(message: types.Message, state: FSMContext):
     data = await state.get_data()
@@ -495,30 +752,69 @@ async def forward_specified_message(message: types.Message, state: FSMContext):
     else:
         await message.answer("Не удалось найти сохраненный message_id.")
 
-@app.route('/order', methods=['POST'])
-async def handle_order():
+class OrderRequest(BaseModel):
+    user_id: int
+    order_id: int
+
+@app.post('/order')
+async def handle_order(order: OrderRequest):
     try:
-        data = request.json
-        user_id = data.get('user_id')
-        order_id = data.get('order_id')
+        # Получаем данные из тела запроса
+        user_id = order.user_id
+        order_id = order.order_id
 
-        if not user_id or not order_id:
-            return jsonify({"status": "failure", "message": "Invalid data provided"}), 400
+        # Формируем текст сообщения
+        message_text = f"Вы сделали заказ {order_id}"
 
-        message_text = (
-            f"Вы сделали заказ {order_id}"
+        # Отправляем сообщение пользователю
+        await bot.send_message(user_id, message_text, parse_mode=ParseMode.MARKDOWN)
+
+        return {"status": "success", "message": "Message sent and data saved"}
+    except Exception as e:
+        logging.error(f"Ошибка при обработке запроса: {e}")
+        raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
+
+class BuyRequest(BaseModel):
+    user_id: int
+    order_id: Union[int, None] = None
+    message_id: Union[int, None] = None
+    format: str
+    post_time: Union[List[str], str]
+    channel_name: str
+    channel_url: str
+
+@app.post('/buy')
+async def handle_buy(data: BuyRequest):
+    try:
+        # Форматируем время публикации
+        if isinstance(data.post_time, list):
+            formatted_post_times = "\n".join([f"• {time}" for time in data.post_time])
+        else:
+            formatted_post_times = data.post_time
+
+        # Создаем текст сообщения
+        text_message = (
+            f"🎉 Ваша реклама была куплена!\n\n"
+            f"🕒 Время публикации:\n{formatted_post_times}\n"
+            f"🕒 Формат:\n{data.format}\n"
+            f"📢 Канал: {data.channel_name}\n"
+            f"🔗 Ссылка на канал: {data.channel_url}\n"
         )
 
-        asyncio.run_coroutine_threadsafe(
-            bot.send_message(user_id, message_text, parse_mode=ParseMode.MARKDOWN),
-            asyncio.get_event_loop()
-        )
+        # Отправляем сообщение пользователю
+        await bot.send_message(data.user_id, text_message, parse_mode=ParseMode.MARKDOWN)
 
-        return jsonify({"status": "success", "message": "Message sent and data saved"}), 200
+        # Обновляем состояние пользователя, если требуется
+        if data.message_id:
+            state = dp.current_state(user=data.user_id)
+            await state.update_data(message_id=data.message_id)
+
+        # Возвращаем успешный ответ
+        return {"status": "success", "message": "Message sent to seller", "message_id": data.message_id}
 
     except Exception as e:
         logging.error(f"Ошибка при обработке запроса: {e}")
-        return jsonify({"status": "failure", "message": str(e)}), 500
+        raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
 
 async def send_survey():
     async with db_pool.acquire() as connection:
@@ -594,8 +890,26 @@ async def process_not_completion_seller(callback_query: types.CallbackQuery):
     order_id = callback_query.data.split('_')[2]
     pass
 
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(create_db_pool())
-    executor.start_polling(dp, skip_updates=True)
+async def start_fastapi():
+    config = Config(app=app, host="0.0.0.0", port=5001, log_level="info")
+    server = Server(config)
+    await server.serve()
+
+async def start_bot():
+    # Запускаем бота без использования executor.start_polling
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    async def main():
+        # Инициализация базы данных
+        await create_db_pool()
+
+        # Параллельный запуск FastAPI и Aiogram
+        await asyncio.gather(
+            start_fastapi(),  # Запуск FastAPI
+            start_bot()       # Запуск бота
+        )
+
+    asyncio.run(main())
+
 
