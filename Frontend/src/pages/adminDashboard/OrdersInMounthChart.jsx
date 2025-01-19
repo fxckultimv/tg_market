@@ -23,11 +23,13 @@ ChartJS.register(
 
 const OrdersInMounthChart = ({ orders }) => {
     // Преобразование данных
-    const ordersPerDay = orders.reduce((acc, order) => {
-        const day = new Date(order.created_at).getDate() // Получаем день месяца
-        acc[day] = (acc[day] || 0) + 1 // Увеличиваем число заказов на этот день
-        return acc
-    }, {})
+    const ordersPerDay = Array.isArray(orders)
+        ? orders.reduce((acc, order) => {
+              const day = new Date(order.created_at).getDate() // Получаем день месяца
+              acc[day] = (acc[day] || 0) + 1 // Увеличиваем число заказов на этот день
+              return acc
+          }, {})
+        : {}
 
     // Создаем массивы для оси X и Y
     const labels = Array.from({ length: 31 }, (_, i) => i + 1) // Дни месяца

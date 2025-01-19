@@ -59,6 +59,9 @@ const Layout = () => {
                         alt="Name"
                         className="h-28px min-w-[78px]"
                     />
+                    <p className="bg-red text-white rounded-full px-2 flex items-center justify-center">
+                        test
+                    </p>
                 </Link>
 
                 {/* Блок с ссылками (скрывается на маленьких экранах) */}

@@ -26,14 +26,24 @@ const STORAGE_FEE = TonWeb.utils.toNano('0.01') // Adjust as needed
 
 async function verifyTonPayment(amount, transactionHash) {
     try {
-        const transactions = await tonweb.getTransactions(transactionHash)
+        const transactions = await tonweb.provider.getTransactions(
+            MARKET_WALLET_ADDRESS,
+            { limit: 10 }
+        )
 
         if (!transactions || transactions.length === 0) {
             logger.warn(`Транзакция не найдена: ${transactionHash}`)
             return { valid: false, error: 'TRANSACTION_NOT_FOUND' }
         }
 
-        const transaction = transactions[0]
+        const transaction = transactions.find(
+            (tx) => tx.hash === transactionHash
+        )
+
+        if (!transaction) {
+            logger.warn(`Транзакция с хешем ${transactionHash} не найдена.`)
+            return { valid: false, error: 'TRANSACTION_NOT_FOUND' }
+        }
 
         logger.info(`Объект транзакции: ${JSON.stringify(transaction)}`)
 
@@ -59,8 +69,9 @@ async function verifyTonPayment(amount, transactionHash) {
             return { valid: false, error: 'AMOUNT_MISMATCH' }
         }
 
-        const confirmations = await tonweb.getTransactions(transactionHash)
-        if (confirmations.length < (isTestnet ? 1 : 3)) {
+        const confirmations = transaction.utime
+        const requiredConfirmations = isTestnet ? 1 : 3
+        if (confirmations < requiredConfirmations) {
             return { valid: false, error: 'INSUFFICIENT_CONFIRMATIONS' }
         }
 

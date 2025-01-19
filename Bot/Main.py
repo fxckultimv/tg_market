@@ -447,6 +447,14 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
 
             subscribers_count = await bot.get_chat_members_count(my_chat_member.chat.id)
 
+            # Проверка на количество подписчиков
+            if subscribers_count <= 1000:
+                await bot.send_message(
+                    chat_id=my_chat_member.from_user.id,
+                    text="Канал не может быть добавлен, так как количество подписчиков должно быть больше 1000."
+                )
+                return
+
             file_path = "Аватарка отсутствует"
             if chat_info.photo:
                 file = await bot.get_file(chat_info.photo.big_file_id)
@@ -468,15 +476,13 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
 
                 await bot.send_message(
                     chat_id=owner_id,
-                    text=(
-                        f"Бот был добавлен в канал:\n"
-                        f"Название канала: {channel_title}\n"
-                        f"ID канала: {channel_id}\n"
-                        f"Имя пользователя канала: {channel_username}\n"
-                        f"Описание канала: {channel_description}\n"
-                        f"Количество подписчиков: {subscribers_count}\n"
-                        f"Ваш user_id: {owner_id}\n"
-                    )
+                    text=(f"Бот был добавлен в канал:\n"
+                          f"Название канала: {channel_title}\n"
+                          f"ID канала: {channel_id}\n"
+                          f"Имя пользователя канала: {channel_username}\n"
+                          f"Описание канала: {channel_description}\n"
+                          f"Количество подписчиков: {subscribers_count}\n"
+                          f"Ваш user_id: {owner_id}\n")
                 )
 
                 channel_url = f"https://t.me/{channel_username}"
@@ -505,6 +511,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
                 chat_id=my_chat_member.from_user.id,
                 text="Произошла ошибка при получении информации о канале."
             )
+
 
 @dp.message_handler(lambda message: message.text == "Мои каналы")
 async def my_channels(message: types.Message):

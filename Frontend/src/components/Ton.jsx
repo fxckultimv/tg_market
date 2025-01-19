@@ -38,7 +38,7 @@ const Ton = () => {
     //     ],
     // }
 
-    const handleTransaction = () => {
+    const handleTransaction = async () => {
         if (!amount || isNaN(amount) || Number(amount) <= 0) {
             alert('Введите корректную сумму.')
             return
@@ -48,21 +48,28 @@ const Ton = () => {
             validUntil: Math.floor(Date.now() / 1000) + 60, // Срок действия - 60 сек
             messages: [
                 {
-                    address: '0QDHqPLXVrZvdbH-RzSgLFgPokwqLLU78Jbsq8pgPV3LOZdY', // адрес получателя
+                    address: 'EQBgW-Iz5T_hKaYgMnvTF5KATOjvOEtyhKjp_oloGlkZBfjq', // адрес получателя
                     amount: tonToNanoTon(amount).toString(), // переводим в нанотоны
                 },
             ],
         }
 
-        tonConnectUI
-            .sendTransaction(myTransaction)
-            .then(() => {
-                alert('Транзакция отправлена успешно!')
-            })
-            .catch((error) => {
-                alert(`Ошибка при отправке транзакции: ${error.message}`)
-            })
+        try {
+            // Отправляем транзакцию через TonConnect UI
+            const transactionResponse =
+                await tonConnectUI.sendTransaction(myTransaction)
+            console.log(transactionResponse)
+
+            // Получаем хэш транзакции
+            const { hash } = transactionResponse
+
+            console.log('Транзакция успешна, хэш:', hash)
+        } catch (error) {
+            console.error('Ошибка при отправке транзакции:', error)
+            alert('Произошла ошибка при отправке транзакции.')
+        }
     }
+
     return (
         <>
             <div className="flex justify-between m-2">
