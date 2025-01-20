@@ -10,8 +10,15 @@ import { useToast } from '../../components/ToastProvider'
 
 const BuyOrder = () => {
     const { id } = useParams() // Получаем ID заказа из URL
-    const { orderInfo, balance, checkingStatus, buyProduct, loading, error } =
-        useUserStore() // Получаем функции из состояния
+    const {
+        orderInfo,
+        balance,
+        fetchBalance,
+        checkingStatus,
+        buyProduct,
+        loading,
+        error,
+    } = useUserStore() // Получаем функции из состояния
     const { initDataRaw } = useLaunchParams() // Получаем параметры запуска
     const [isOrderProcessing, setIsOrderProcessing] = useState(false)
     const { addToast } = useToast()
@@ -19,6 +26,7 @@ const BuyOrder = () => {
     // При загрузке компонента проверяем статус заказа
     useEffect(() => {
         checkingStatus(initDataRaw, id)
+        fetchBalance(initDataRaw)
     }, [initDataRaw])
 
     const handleBuyProduct = async () => {

@@ -1,9 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const db = require('../db')
 const authMiddleware = require('../middleware/authMiddleware')
-const adminMiddleware = require('../middleware/AdminMiddleware')
-const cartControllers = require('../controllers/cartController')
 const cartController = require('../controllers/cartController')
 
 router.use(authMiddleware)

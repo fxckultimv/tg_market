@@ -1156,6 +1156,71 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
+    topUpBalance: async (initDataRaw, amount, address, boc) => {
+        set({ loading: true, error: null })
+
+        try {
+            const response = await fetch(
+                'http://localhost:5000/balance/top-up',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({
+                        tonAmount: amount,
+                        UserAddress: address,
+                        TransactionBoc: boc,
+                    }),
+                }
+            )
+            // Проверяем, был ли запрос успешным
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const data = await handleServerResponse(response, set)
+            set({ loading: false })
+            return data // Вернем добавленный продукт
+        } catch (error) {
+            set({ error: error.message, loading: false })
+            console.error('Error:', error)
+            return null
+        }
+    },
+    handleWithdrawal: async (initDataRaw, amount, address) => {
+        set({ loading: true, error: null })
+
+        try {
+            const response = await fetch(
+                'http://localhost:5000/balance/withdraw',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({
+                        amount: amount.toString(),
+                        toAddress: address,
+                    }),
+                }
+            )
+            // Проверяем, был ли запрос успешным
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const data = await handleServerResponse(response, set)
+            set({ loading: false })
+            return data // Вернем добавленный продукт
+        } catch (error) {
+            set({ error: error.message, loading: false })
+            console.error('Error:', error)
+            return null
+        }
+    },
 }))
 
 export const useProductStore = create((set, get) => ({

@@ -77,10 +77,10 @@ class BalanceController {
 
     async handleTonTopUp(req, res) {
         try {
-            const { tonAmount, transactionHash } = req.body
+            const { tonAmount, UserAddress, TransactionBoc } = req.body
             const userId = req.user._id
 
-            if (!tonAmount || !transactionHash) {
+            if (!tonAmount || !UserAddress || !TransactionBoc) {
                 return res.status(400).json({
                     error: 'Отсутствует tonAmount или transactionHash',
                 })
@@ -88,8 +88,9 @@ class BalanceController {
 
             const verificationResult = await verifyTonPayment(
                 tonAmount,
-                transactionHash
+                UserAddress
             )
+
             if (!verificationResult.valid) {
                 logger.warn(
                     `Недействительный платеж TON для пользователя ${userId}: ${verificationResult.error}`
@@ -120,7 +121,7 @@ class BalanceController {
                 amount: parseFloat(tonAmount),
                 fee: 0,
                 status: 'completed',
-                transactionHash,
+                transactionHash: verificationResult.transactionHash,
             })
             await transaction.save()
 
@@ -235,36 +236,17 @@ class BalanceController {
                     .json({ error: 'Баланс пользователя не найден' })
             }
 
-            const feeEstimation = await estimateTransactionFees(
-                MARKET_WALLET_ADDRESS,
-                toAddress,
-                amount
-            )
-            if (!feeEstimation.success) {
-                return res.status(500).json({
-                    error: 'Не удалось оценить комиссию за транзакцию',
-                    details: feeEstimation.error,
-                })
-            }
-
-            const totalAmount =
-                parseFloat(amount) + parseFloat(feeEstimation.fees)
-
-            if (!userBalance.hasSufficientBalance(totalAmount)) {
-                return res.status(400).json({ error: 'Недостаточный баланс' })
-            }
-
             const transaction = new Transaction({
                 userId,
                 type: 'withdrawal',
-                amount: -totalAmount,
-                fee: parseFloat(feeEstimation.fees),
+                amount: amount,
+                fee: 0.1,
                 status: 'pending',
                 details: { toAddress },
             })
 
             try {
-                const deducted = await userBalance.deductBalance(totalAmount)
+                const deducted = await userBalance.deductBalance(amount)
                 if (!deducted) {
                     throw new Error('Не удалось вычесть баланс пользователя')
                 }
@@ -275,7 +257,7 @@ class BalanceController {
                     amount
                 )
                 if (!sent.success) {
-                    await userBalance.addBalance(totalAmount)
+                    await userBalance.addBalance(amount)
                     throw new Error(`Не удалось отправить TON: ${sent.error}`)
                 }
 

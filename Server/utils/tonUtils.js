@@ -1,6 +1,7 @@
 require('dotenv').config()
 const TonWeb = require('tonweb')
 const logger = require('../config/logging')
+const { log } = require('winston')
 
 const isTestnet = process.env.NODE_ENV === 'test'
 
@@ -14,8 +15,10 @@ const tonweb = new TonWeb(
 )
 
 const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS
-const MARKET_PRIVATE_KEY = Buffer.from(process.env.MARKET_PRIVATE_KEY, 'hex')
-const MARKET_PUBLIC_KEY = Buffer.from(process.env.MARKET_PUBLIC_KEY, 'hex')
+const MARKET_PUBLIC_KEY = TonWeb.utils.hexToBytes(process.env.MARKET_PUBLIC_KEY)
+const MARKET_PRIVATE_KEY = TonWeb.utils.hexToBytes(
+    process.env.MARKET_PRIVATE_KEY
+)
 
 const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS
 const TRANSACTION_FEE_PERCENTAGE =
@@ -24,67 +27,159 @@ const TRANSACTION_FEE_PERCENTAGE =
 const GAS_LIMIT = TonWeb.utils.toNano('0.1') // Adjust as needed
 const STORAGE_FEE = TonWeb.utils.toNano('0.01') // Adjust as needed
 
-async function verifyTonPayment(amount, transactionHash) {
+// Функция получения транзакций
+const getTransactions = async (address, limit, lt, hash, to_lt) => {
     try {
-        const transactions = await tonweb.provider.getTransactions(
-            MARKET_WALLET_ADDRESS,
-            { limit: 10 }
-        )
-
-        if (!transactions || transactions.length === 0) {
-            logger.warn(`Транзакция не найдена: ${transactionHash}`)
-            return { valid: false, error: 'TRANSACTION_NOT_FOUND' }
-        }
-
-        const transaction = transactions.find(
-            (tx) => tx.hash === transactionHash
-        )
-
-        if (!transaction) {
-            logger.warn(`Транзакция с хешем ${transactionHash} не найдена.`)
-            return { valid: false, error: 'TRANSACTION_NOT_FOUND' }
-        }
-
-        logger.info(`Объект транзакции: ${JSON.stringify(transaction)}`)
-
-        if (!transaction.in_msg || !transaction.in_msg.value) {
-            logger.warn(
-                `Транзакция не содержит входящего сообщения или значения: ${transactionHash}`
-            )
-            return { valid: false, error: 'INVALID_TRANSACTION_DATA' }
-        }
-
-        const receivedAmount = TonWeb.utils.fromNano(transaction.in_msg.value)
-        const expectedAmount = parseFloat(amount)
-
-        logger.info(
-            `Полученная сумма: ${receivedAmount}, Ожидаемая сумма: ${expectedAmount}`
-        )
-
-        const tolerance = 0.01
-        if (Math.abs(receivedAmount - expectedAmount) > tolerance) {
-            logger.warn(
-                `Несоответствие суммы. Ожидалось: ${expectedAmount}, Получено: ${receivedAmount}`
-            )
-            return { valid: false, error: 'AMOUNT_MISMATCH' }
-        }
-
-        const confirmations = transaction.utime
-        const requiredConfirmations = isTestnet ? 1 : 3
-        if (confirmations < requiredConfirmations) {
-            return { valid: false, error: 'INSUFFICIENT_CONFIRMATIONS' }
-        }
-
-        return { valid: true }
+        const params = { address, limit, lt, hash, to_lt, archival: true }
+        return await tonweb.provider.send('getTransactions', params)
     } catch (error) {
-        logger.error(`Ошибка при проверке платежа TON: ${error.message}`)
-        return {
-            valid: false,
-            error: 'VERIFICATION_ERROR',
-            details: error.message,
-        }
+        console.error('Error fetching transactions:', error.message)
+        throw error
     }
 }
+
+// Задержка для ожидания
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+// Функция проверки платежа с ожиданием
+const verifyTonPayment = async (
+    amount,
+    buyerAddress,
+    maxRetries = 5,
+    delayMs = 5000
+) => {
+    await delay(delayMs)
+    try {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            console.log(`Attempt ${attempt}/${maxRetries}: Checking payment...`)
+
+            // Получаем последние транзакции покупателя
+            const transactions = await getTransactions(buyerAddress, 1)
+            if (!transactions.length) {
+                console.error('No transactions found')
+                await delay(delayMs)
+                continue
+            }
+
+            // Берем последнюю транзакцию
+            const lastTransaction = transactions[0]
+
+            // Проверяем сумму и адрес
+            const isAmountMatch =
+                parseFloat(lastTransaction.out_msgs[0]?.value) === amount
+            const isBuyerMatch =
+                lastTransaction.out_msgs[0]?.destination ===
+                process.env.MARKET_WALLET_ADDRESS
+
+            // console.log('value: ', isAmountMatch)
+            // console.log('destination: ', isBuyerMatch)
+
+            if (isAmountMatch && isBuyerMatch) {
+                // Дополнительный запрос на ваш адрес для проверки получения денег
+                const { created_lt, body_hash } = lastTransaction.out_msgs[0]
+                // console.log(body_hash)
+                // console.log(created_lt)
+
+                const walletTransactions = await getTransactions(
+                    process.env.MARKET_WALLET_ADDRESS,
+                    created_lt
+                )
+
+                if (walletTransactions.length > 0) {
+                    return {
+                        valid: true,
+                        transactionHash:
+                            walletTransactions[0].transaction_id.hash,
+                    }
+                    // return {
+                    //     success: true,
+                    //     created_lt: walletTransactions[0].transaction_id.lt,
+                    //     body_hash: walletTransactions[0].transaction_id.hash,
+                    // }
+                } else {
+                    console.error('Payment not found on our wallet.')
+                    return false
+                }
+            } else {
+                console.error(
+                    'Payment verification failed. Amount or address mismatch.'
+                )
+                return false
+            }
+
+            console.log('Payment not found, retrying...')
+            await delay(delayMs)
+        }
+
+        console.error('Payment verification failed after maximum retries.')
+        return false
+    } catch (error) {
+        console.error('Error during payment verification:', error.message)
+        throw error
+    }
+}
+
+// async function verifyTonPayment(amount, transactionHash) {
+//     try {
+//         const transactions = await tonweb.provider.getTransactions(
+//             MARKET_WALLET_ADDRESS,
+//             { limit: 10 }
+//         )
+
+//         if (!transactions || transactions.length === 0) {
+//             logger.warn(`Транзакция не найдена: ${transactionHash}`)
+//             return { valid: false, error: 'TRANSACTION_NOT_FOUND' }
+//         }
+
+//         const transaction = transactions.find(
+//             (tx) => tx.hash === transactionHash
+//         )
+
+//         if (!transaction) {
+//             logger.warn(`Транзакция с хешем ${transactionHash} не найдена.`)
+//             return { valid: false, error: 'TRANSACTION_NOT_FOUND' }
+//         }
+
+//         logger.info(`Объект транзакции: ${JSON.stringify(transaction)}`)
+
+//         if (!transaction.in_msg || !transaction.in_msg.value) {
+//             logger.warn(
+//                 `Транзакция не содержит входящего сообщения или значения: ${transactionHash}`
+//             )
+//             return { valid: false, error: 'INVALID_TRANSACTION_DATA' }
+//         }
+
+//         const receivedAmount = TonWeb.utils.fromNano(transaction.in_msg.value)
+//         const expectedAmount = parseFloat(amount)
+
+//         logger.info(
+//             `Полученная сумма: ${receivedAmount}, Ожидаемая сумма: ${expectedAmount}`
+//         )
+
+//         const tolerance = 0.01
+//         if (Math.abs(receivedAmount - expectedAmount) > tolerance) {
+//             logger.warn(
+//                 `Несоответствие суммы. Ожидалось: ${expectedAmount}, Получено: ${receivedAmount}`
+//             )
+//             return { valid: false, error: 'AMOUNT_MISMATCH' }
+//         }
+
+//         const confirmations = transaction.utime
+//         const requiredConfirmations = isTestnet ? 1 : 3
+//         if (confirmations < requiredConfirmations) {
+//             return { valid: false, error: 'INSUFFICIENT_CONFIRMATIONS' }
+//         }
+
+//         return { valid: true }
+//     } catch (error) {
+//         logger.error(`Ошибка при проверке платежа TON: ${error.message}`)
+//         return {
+//             valid: false,
+//             error: 'VERIFICATION_ERROR',
+//             details: error.message,
+//         }
+//     }
+// }
 
 async function getSeqno(wallet) {
     let retries = 3
@@ -110,13 +205,15 @@ async function getSeqno(wallet) {
 
 async function sendTon(fromAddress, toAddress, amount) {
     try {
-        const WalletClass = tonweb.wallet.all['v3R1']
+        const WalletClass = tonweb.wallet.all['v3R2']
+
         const wallet = new WalletClass(tonweb.provider, {
             publicKey: MARKET_PUBLIC_KEY,
             wc: 0,
         })
 
         const walletAddress = await wallet.getAddress()
+        console.log('Wallet Address:', walletAddress.toString(true, true, true))
         if (walletAddress.toString(true, true, true) !== fromAddress) {
             throw new Error(
                 `Несоответствие адреса кошелька: ожидалось ${fromAddress}, получено ${walletAddress.toString(
@@ -127,7 +224,7 @@ async function sendTon(fromAddress, toAddress, amount) {
             )
         }
 
-        const seqno = await getSeqno(wallet)
+        const seqno = await wallet.methods.seqno().call()
         logger.info(`Получен seqno: ${seqno}`)
 
         const amountNano = TonWeb.utils.toNano(amount)
@@ -137,30 +234,26 @@ async function sendTon(fromAddress, toAddress, amount) {
         )
 
         const balance = await tonweb.getBalance(fromAddress)
-        if (new TonWeb.utils.BN(balance).lt(totalAmount)) {
-            throw new Error(
-                `Недостаточный баланс. Требуется: ${TonWeb.utils.fromNano(
-                    totalAmount
-                )} TON, Доступно: ${TonWeb.utils.fromNano(balance)} TON`
-            )
-        }
+        // if (new TonWeb.utils.BN(balance).lt(totalAmount)) {
+        //     throw new Error(
+        //         `Недостаточный баланс. Требуется: ${TonWeb.utils.fromNano(
+        //             totalAmount
+        //         )} TON, Доступно: ${TonWeb.utils.fromNano(balance)} TON`
+        //     )
+        // }
 
         const transfer = wallet.methods.transfer({
             secretKey: MARKET_PRIVATE_KEY,
             toAddress: toAddress,
-            amount: amountNano,
+            amount: amount,
             seqno: seqno,
-            payload: '',
             sendMode: 3,
-            stateInit: null,
-            gasLimit: GAS_LIMIT,
-            storageFee: STORAGE_FEE,
         })
 
         const sendResult = await transfer.send()
-        if (!sendResult || !sendResult.hash) {
-            throw new Error('Отправка перевода не удалась, хеш не получен')
-        }
+        // if (!sendResult || !sendResult.hash) {
+        //     throw new Error('Отправка перевода не удалась, хеш не получен')
+        // }
 
         logger.info(
             `Перевод TON инициирован: ${amount} TON с ${fromAddress} на ${toAddress}: хеш транзакции: ${sendResult.hash}`
@@ -194,28 +287,31 @@ async function sendFee(amount) {
     return sendTon(MARKET_WALLET_ADDRESS, FEE_WALLET_ADDRESS, amount)
 }
 
-async function estimateTransactionFees(fromAddress, toAddress, amount) {
+async function estimateTransactionFees(toAddress, amount) {
     try {
-        const WalletClass = tonweb.wallet.all['v3R1']
+        const WalletClass = tonweb.wallet.all['v3R2']
+
         const wallet = new WalletClass(tonweb.provider, {
             publicKey: MARKET_PUBLIC_KEY,
             wc: 0,
         })
 
-        const seqno = await getSeqno(wallet)
+        const seqno = await wallet.methods.seqno().call()
+        console.log('address: ', toAddress)
+        console.log('seqno: ', seqno)
+        console.log('amount: ', amount)
+
         const amountNano = TonWeb.utils.toNano(amount)
 
         const transfer = wallet.methods.transfer({
-            secretKey: MARKET_PRIVATE_KEY,
+            secretKey: MARKET_PUBLIC_KEY,
             toAddress: toAddress,
-            amount: amountNano,
-            seqno: seqno,
-            payload: '',
+            amount: TonWeb.utils.toNano(0.01),
+            seqno: toString(seqno),
             sendMode: 3,
-            stateInit: null,
-            gasLimit: GAS_LIMIT,
-            storageFee: STORAGE_FEE,
+            payload: 'Hello',
         })
+        console.log(transfer)
 
         const estimatedFees = await transfer.estimateFee()
         return {

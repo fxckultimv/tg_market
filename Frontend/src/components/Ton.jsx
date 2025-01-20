@@ -10,33 +10,26 @@ import { useUserStore } from '../store'
 import { useEffect } from 'react'
 import { nanoTonToTon, tonToNanoTon } from '../utils/tonConversion'
 import { useState } from 'react'
+import { useLaunchParams } from '@tma.js/sdk-react'
+import { useToast } from '../components/ToastProvider'
 
 const Ton = () => {
-    const { initData } = useUserStore()
-    const languageCode = initData?.result?.user?.languageCode || 'en'
+    const { topUpBalance, handleWithdrawal, fetchBalance } = useUserStore()
+    const { initDataRaw } = useLaunchParams()
+    const { addToast } = useToast()
+    const languageCode = initDataRaw?.result?.user?.languageCode || 'en'
 
     const userFriendlyAddress = useTonAddress()
     const rawAddress = useTonAddress(false)
 
     const wallet = useTonWallet()
     const [amount, setAmount] = useState('')
+    const [amountWithdrawal, setAmountWithdrawal] = useState('')
 
     const [tonConnectUI, setOptions] = useTonConnectUI()
     useEffect(() => {
         setOptions({ language: languageCode })
     }, [])
-
-    // Объект с данными для транзакции
-    // const myTransaction = {
-    //     validUntil: Math.floor(Date.now() / 1000) + 60, // Срок действия - 60 сек
-    //     messages: [
-    //         {
-    //             address: '0QDHqPLXVrZvdbH-RzSgLFgPokwqLLU78Jbsq8pgPV3LOZdY', // адрес получателя
-    //             amount: tonToNanoTon(amount).toString, // сумма в нанотонах (например, 0.02 TON)
-    //             // опционально: stateInit, payload и другие параметры
-    //         },
-    //     ],
-    // }
 
     const handleTransaction = async () => {
         if (!amount || isNaN(amount) || Number(amount) <= 0) {
@@ -59,14 +52,45 @@ const Ton = () => {
             const transactionResponse =
                 await tonConnectUI.sendTransaction(myTransaction)
             console.log(transactionResponse)
+            await topUpBalance(
+                initDataRaw,
+                tonToNanoTon(amount),
+                userFriendlyAddress,
+                transactionResponse.boc
+            )
 
-            // Получаем хэш транзакции
-            const { hash } = transactionResponse
-
-            console.log('Транзакция успешна, хэш:', hash)
+            fetchBalance(initDataRaw)
+            addToast('Баланс пополнен')
+            setAmount('')
         } catch (error) {
             console.error('Ошибка при отправке транзакции:', error)
-            alert('Произошла ошибка при отправке транзакции.')
+            addToast('Ошибка при пополнении', 'error')
+            setAmount('')
+        }
+    }
+
+    const Withdrawal = async () => {
+        if (
+            !amountWithdrawal ||
+            isNaN(amountWithdrawal) ||
+            Number(amountWithdrawal) <= 0
+        ) {
+            alert('Введите корректную сумму.')
+            return
+        }
+
+        try {
+            handleWithdrawal(
+                initDataRaw,
+                tonToNanoTon(amountWithdrawal),
+                userFriendlyAddress
+            )
+            addToast('Деньги выведены')
+            setAmountWithdrawal('')
+        } catch (error) {
+            console.error('Ошибка при отправке транзакции:', error)
+            addToast('Ошибка при выводе денег', 'error')
+            setAmountWithdrawal('')
         }
     }
 
@@ -105,6 +129,19 @@ const Ton = () => {
                     className="bg-blue rounded-xl p-3"
                 >
                     Пополнить
+                </button>
+            </div>
+            <div className="flex justify-between items-center m-2 gap-1">
+                {/* Кнопка для вывода ton */}
+                <input
+                    type="number"
+                    placeholder="Введите сумму"
+                    value={amountWithdrawal}
+                    onChange={(e) => setAmountWithdrawal(e.target.value)}
+                    className="border p-2 rounded-lg min-w-10"
+                />
+                <button onClick={Withdrawal} className="bg-blue rounded-xl p-3">
+                    Вывести
                 </button>
             </div>
         </>
