@@ -124,6 +124,19 @@ async def send_welcome(message: types.Message):
 
     await message.answer("Добро пожаловать! Выберите нужный пункт меню:", reply_markup=keyboard)
 
+
+@dp.message_handler(commands=['myProfile'])
+async def send_welcome(message: types.Message):
+    user_id = message.from_user.id
+
+    pay_button = InlineKeyboardMarkup().add(
+        InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3"))
+    )
+
+    await message.answer("Добро пожаловать! Выберите нужный пункт меню: тут(https://t.me/TeleAdMarketBot/tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3)", reply_markup=pay_button)
+
+
+
 @dp.message_handler(lambda message: message.text == "Мои заказы")
 async def my_orders(message: types.Message):
     user_id = message.from_user.id
@@ -684,7 +697,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             pay_button = InlineKeyboardMarkup().add(
-                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://yourwebapp.com/buy/{order_id}"))
+                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/buy/{order_id}"))
             )
 
             await bot.send_message(
