@@ -283,58 +283,9 @@ async function getWalletBalance(address = MARKET_WALLET_ADDRESS) {
     }
 }
 
-async function sendFee(amount) {
-    return sendTon(MARKET_WALLET_ADDRESS, FEE_WALLET_ADDRESS, amount)
-}
-
-async function estimateTransactionFees(toAddress, amount) {
-    try {
-        const WalletClass = tonweb.wallet.all['v3R2']
-
-        const wallet = new WalletClass(tonweb.provider, {
-            publicKey: MARKET_PUBLIC_KEY,
-            wc: 0,
-        })
-
-        const seqno = await wallet.methods.seqno().call()
-        console.log('address: ', toAddress)
-        console.log('seqno: ', seqno)
-        console.log('amount: ', amount)
-
-        const amountNano = TonWeb.utils.toNano(amount)
-
-        const transfer = wallet.methods.transfer({
-            secretKey: MARKET_PUBLIC_KEY,
-            toAddress: toAddress,
-            amount: TonWeb.utils.toNano(0.01),
-            seqno: toString(seqno),
-            sendMode: 3,
-            payload: 'Hello',
-        })
-        console.log(transfer)
-
-        const estimatedFees = await transfer.estimateFee()
-        return {
-            success: true,
-            fees: TonWeb.utils.fromNano(estimatedFees.total_account_fees),
-        }
-    } catch (error) {
-        logger.error(
-            `Ошибка при оценке комиссии за транзакцию: ${error.message}`
-        )
-        return {
-            success: false,
-            error: 'FEE_ESTIMATION_ERROR',
-            details: error.message,
-        }
-    }
-}
-
 module.exports = {
     verifyTonPayment,
     sendTon,
     getWalletBalance,
-    sendFee,
-    estimateTransactionFees,
     isTestnet,
 }

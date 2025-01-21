@@ -143,23 +143,9 @@ class BalanceController {
             const fee = amount * MARKET_FEE_PERCENTAGE
             const totalAmount = amount + fee
 
-            const feeEstimation = await estimateTransactionFees(
-                MARKET_WALLET_ADDRESS,
-                FEE_WALLET_ADDRESS,
-                fee
-            )
-            if (!feeEstimation.success) {
-                return res.status(500).json({
-                    error: 'Не удалось оценить комиссию за транзакцию',
-                    details: feeEstimation.error,
-                })
-            }
-
-            const totalWithFees = totalAmount + parseFloat(feeEstimation.fees)
-
             const buyerUpdate = await UserBalance.findOneAndUpdate(
-                { userId: buyerId, balance: { $gte: totalWithFees } },
-                { $inc: { balance: -totalWithFees } },
+                { userId: buyerId, balance: { $gte: totalAmount } },
+                { $inc: { balance: -totalAmount } },
                 { new: true, runValidators: true }
             )
 
@@ -178,7 +164,7 @@ class BalanceController {
             if (!sellerUpdate) {
                 await UserBalance.findOneAndUpdate(
                     { userId: buyerId },
-                    { $inc: { balance: totalWithFees } }
+                    { $inc: { balance: totalAmount } }
                 )
                 return res
                     .status(500)
@@ -189,8 +175,8 @@ class BalanceController {
                 Transaction.create({
                     userId: buyerId,
                     type: 'purchase',
-                    amount: -totalWithFees,
-                    fee: fee + parseFloat(feeEstimation.fees),
+                    amount: -totalAmount,
+                    fee: fee,
                     status: 'completed',
                     details: { productId, sellerId },
                 }),
@@ -203,13 +189,6 @@ class BalanceController {
                     details: { productId, buyerId },
                 }),
             ])
-
-            const feeSent = await sendFee(fee)
-            if (!feeSent.success) {
-                logger.error(
-                    `Не удалось отправить комиссию рынка: ${feeSent.error}`
-                )
-            }
 
             logger.info(
                 `Покупка завершена. ID покупателя: ${buyerId}, ID продавца: ${sellerId}, Сумма: ${amount} TON, Комиссия: ${fee} TON`
