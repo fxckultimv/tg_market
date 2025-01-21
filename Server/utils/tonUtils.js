@@ -203,6 +203,23 @@ async function getSeqno(wallet) {
     }
 }
 
+async function estimateGasFees(wallet, toAddress, amount) {
+    try {
+        const transfer = wallet.methods.transfer({
+            secretKey: MARKET_PRIVATE_KEY,
+            toAddress: toAddress,
+            amount: TonWeb.utils.toNano(amount),
+            seqno: await wallet.methods.seqno().call(),
+            sendMode: 3,
+        })
+        const estimatedFees = await transfer.estimateFee()
+        return TonWeb.utils.fromNano(estimatedFees.total_account_fees)
+    } catch (error) {
+        logger.error(`Ошибка при оценке комиссии за газ: ${error.message}`)
+        throw error
+    }
+}
+
 async function sendTon(fromAddress, toAddress, amount) {
     try {
         const WalletClass = tonweb.wallet.all['v3R2']
@@ -227,10 +244,10 @@ async function sendTon(fromAddress, toAddress, amount) {
         const seqno = await wallet.methods.seqno().call()
         logger.info(`Получен seqno: ${seqno}`)
 
+        const gasFees = await estimateGasFees(wallet, toAddress, amount)
         const amountNano = TonWeb.utils.toNano(amount)
-        const fees = TonWeb.utils.toNano('0.05')
-        const totalAmount = new TonWeb.utils.BN(amountNano).add(
-            new TonWeb.utils.BN(fees)
+        const totalAmount = new TonWeb.utils.BN(amountNano).sub(
+            new TonWeb.utils.BN(TonWeb.utils.toNano(gasFees))
         )
 
         const balance = await tonweb.getBalance(fromAddress)
@@ -245,7 +262,7 @@ async function sendTon(fromAddress, toAddress, amount) {
         const transfer = wallet.methods.transfer({
             secretKey: MARKET_PRIVATE_KEY,
             toAddress: toAddress,
-            amount: amount,
+            amount: totalAmount,
             seqno: seqno,
             sendMode: 3,
         })
@@ -256,7 +273,7 @@ async function sendTon(fromAddress, toAddress, amount) {
         // }
 
         logger.info(
-            `Перевод TON инициирован: ${amount} TON с ${fromAddress} на ${toAddress}: хеш транзакции: ${sendResult.hash}`
+            `Перевод TON инициирован: ${TonWeb.utils.fromNano(totalAmount)} TON с ${fromAddress} на ${toAddress}: хеш транзакции: ${sendResult.hash}`
         )
         return { success: true, transactionHash: sendResult.hash }
     } catch (error) {

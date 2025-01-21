@@ -86,10 +86,15 @@ class BalanceController {
                 })
             }
 
-            const verificationResult = await verifyTonPayment(
-                tonAmount,
-                UserAddress
-            )
+            let verificationResult
+            for (let attempt = 1; attempt <= 5; attempt++) {
+                verificationResult = await verifyTonPayment(
+                    tonAmount,
+                    UserAddress
+                )
+                if (verificationResult.valid) break
+                await new Promise((resolve) => setTimeout(resolve, 5000))
+            }
 
             if (!verificationResult.valid) {
                 logger.warn(
