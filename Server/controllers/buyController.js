@@ -100,7 +100,7 @@ class buyController {
             const totalAmount = Number(amount) + Number(fee)
 
             const buyerUpdate = await UserBalance.findOneAndUpdate(
-                { userId: buyerId },
+                { userId: buyerId, balance: { $gte: totalAmount } },
                 { $inc: { balance: -totalAmount } },
                 { new: true, runValidators: true }
             )
