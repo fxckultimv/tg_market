@@ -32,7 +32,6 @@ const BuyOrder = () => {
     const handleBuyProduct = async () => {
         setIsOrderProcessing(true)
         try {
-            await buyProduct(initDataRaw, id)
             const result = await buyProduct(initDataRaw, id)
             if (!result) {
                 throw new Error('Покупка не удалась, сервер вернул null')
@@ -71,7 +70,7 @@ const BuyOrder = () => {
         nanoTonToTon(balance) >= nanoTonToTon(orderInfo.total_price)
 
     return (
-        <div className="container mx-auto p-4 flex-row ">
+        <div className="container mx-auto p-4 flex-row min-h-screen">
             <h1 className="text-2xl font-bold mb-4">Заказ с ID: {id}</h1>
             <p className="mb-4">
                 Для подтверждения покупки нажмите на кнопку ниже.

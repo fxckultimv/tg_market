@@ -3,6 +3,7 @@ const db = require('../db')
 const logger = require('../config/logging')
 const UserBalance = require('../models/UserBalance')
 const Transaction = require('../models/Transaction')
+const User = require('../models/User')
 const {
     verifyTonPayment,
     sendTon,
@@ -13,6 +14,19 @@ const {
 const MARKET_FEE_PERCENTAGE = 0.05 // 5%
 const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS
 const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS
+
+async function getUserIdByTelegramId(telegramId) {
+    try {
+        const user = await User.findOne({ telegramId }) // Ищем пользователя по telegramId
+        if (!user) {
+            throw new Error('User not found')
+        }
+        return user._id.toString() // Возвращаем _id
+    } catch (error) {
+        console.error('Error fetching user by telegramId:', error.message)
+        throw error
+    }
+}
 
 class buyController {
     // async infoForBuy(req, res) {
@@ -76,31 +90,18 @@ class buyController {
             }
 
             const orderRow = orderInfo.rows[0]
-            const sellerId = orderRow.user_id
+            const sellerId = await getUserIdByTelegramId(orderRow.user_id)
             const amount = orderRow.total_price
+            const buyerId = await getUserIdByTelegramId(user_id)
+            console.log(amount)
 
             // Начало логики проведения платежа
-            const buyerId = user_id
             const fee = amount * MARKET_FEE_PERCENTAGE
-            const totalAmount = amount + fee
-
-            const feeEstimation = await estimateTransactionFees(
-                MARKET_WALLET_ADDRESS,
-                FEE_WALLET_ADDRESS,
-                fee
-            )
-            if (!feeEstimation.success) {
-                return res.status(500).json({
-                    error: 'Не удалось оценить комиссию за транзакцию',
-                    details: feeEstimation.error,
-                })
-            }
-
-            const totalWithFees = totalAmount + parseFloat(feeEstimation.fees)
+            const totalAmount = Number(amount) + Number(fee)
 
             const buyerUpdate = await UserBalance.findOneAndUpdate(
-                { userId: buyerId, balance: { $gte: totalWithFees } },
-                { $inc: { balance: -totalWithFees } },
+                { userId: buyerId },
+                { $inc: { balance: -totalAmount } },
                 { new: true, runValidators: true }
             )
 
@@ -119,7 +120,7 @@ class buyController {
             if (!sellerUpdate) {
                 await UserBalance.findOneAndUpdate(
                     { userId: buyerId },
-                    { $inc: { balance: totalWithFees } }
+                    { $inc: { balance: totalAmount } }
                 )
                 return res
                     .status(500)
@@ -130,8 +131,8 @@ class buyController {
                 Transaction.create({
                     userId: buyerId,
                     type: 'purchase',
-                    amount: -totalWithFees,
-                    fee: fee + parseFloat(feeEstimation.fees),
+                    amount: -totalAmount,
+                    fee: fee,
                     status: 'completed',
                     details: { order_id, sellerId },
                 }),
@@ -144,13 +145,6 @@ class buyController {
                     details: { order_id, buyerId },
                 }),
             ])
-
-            const feeSent = await sendFee(fee)
-            if (!feeSent.success) {
-                logger.error(
-                    `Не удалось отправить комиссию рынка: ${feeSent.error}`
-                )
-            }
 
             // Логика обновления статуса заказа
             const result = await db.query(
@@ -206,6 +200,10 @@ class buyController {
                     }
 
                     const data = await response.json()
+
+                    logger.info(
+                        `Покупка завершена. ID покупателя: ${buyerId}, ID продавца: ${sellerId}, Сумма: ${amount} TON, Комиссия: ${fee} TON`
+                    )
 
                     res.status(200).json({
                         message:
