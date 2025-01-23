@@ -238,7 +238,7 @@ class BalanceController {
                 const sent = await sendTon(
                     MARKET_WALLET_ADDRESS,
                     toAddress,
-                    amount
+                    amount.toString()
                 )
                 if (!sent.success) {
                     await userBalance.addBalance(amount)

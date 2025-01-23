@@ -232,32 +232,17 @@ async function sendTon(fromAddress, toAddress, amount) {
         const walletAddress = await wallet.getAddress()
         console.log('Wallet Address:', walletAddress.toString(true, true, true))
         if (walletAddress.toString(true, true, true) !== fromAddress) {
-            throw new Error(
-                `Несоответствие адреса кошелька: ожидалось ${fromAddress}, получено ${walletAddress.toString(
-                    true,
-                    true,
-                    true
-                )}`
-            )
+            throw new Error('Invalid fromAddress')
         }
 
         const seqno = await wallet.methods.seqno().call()
         logger.info(`Получен seqno: ${seqno}`)
 
         const gasFees = await estimateGasFees(wallet, toAddress, amount)
-        const amountNano = TonWeb.utils.toNano(amount)
+        const amountNano = TonWeb.utils.toNano(amount.toString())
         const totalAmount = new TonWeb.utils.BN(amountNano).sub(
             new TonWeb.utils.BN(TonWeb.utils.toNano(gasFees))
         )
-
-        const balance = await tonweb.getBalance(fromAddress)
-        // if (new TonWeb.utils.BN(balance).lt(totalAmount)) {
-        //     throw new Error(
-        //         `Недостаточный баланс. Требуется: ${TonWeb.utils.fromNano(
-        //             totalAmount
-        //         )} TON, Доступно: ${TonWeb.utils.fromNano(balance)} TON`
-        //     )
-        // }
 
         const transfer = wallet.methods.transfer({
             secretKey: MARKET_PRIVATE_KEY,
@@ -267,15 +252,11 @@ async function sendTon(fromAddress, toAddress, amount) {
             sendMode: 3,
         })
 
-        const sendResult = await transfer.send()
-        // if (!sendResult || !sendResult.hash) {
-        //     throw new Error('Отправка перевода не удалась, хеш не получен')
-        // }
-
-        logger.info(
-            `Перевод TON инициирован: ${TonWeb.utils.fromNano(totalAmount)} TON с ${fromAddress} на ${toAddress}: хеш транзакции: ${sendResult.hash}`
-        )
-        return { success: true, transactionHash: sendResult.hash }
+        const result = await transfer.send()
+        return {
+            success: true,
+            transactionHash: result.transaction_id.hash,
+        }
     } catch (error) {
         logger.error(`Ошибка при отправке TON: ${error.message}`)
         return {
