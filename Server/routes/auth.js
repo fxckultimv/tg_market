@@ -5,6 +5,7 @@ require('dotenv').config()
 const { validate, sign, parse } = require('@telegram-apps/init-data-node')
 const authMiddleware = require('../middleware/authMiddleware')
 const { v4: uuidv4 } = require('uuid')
+const fs = require('fs')
 
 const bot_token = fs.readFileSync('/run/secrets/bot_token', 'utf8').trim()
 

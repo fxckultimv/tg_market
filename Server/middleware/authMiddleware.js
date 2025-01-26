@@ -4,6 +4,7 @@ const User = require('../models/User')
 // ЭТО ПИЗДЁЖ ЛОГИРОВАНИЯ НЕТ
 // ЛОГИРОВАНИЕ НЕ СУЩЕСТВУЕТ
 const logger = require('../config/logging')
+const fs = require('fs')
 
 const bot_token = fs.readFileSync('/run/secrets/bot_token', 'utf8').trim()
 

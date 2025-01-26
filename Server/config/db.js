@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const logger = require('./logging')
+const fs = require('fs')
 const mongodb_uri = fs.readFileSync('/run/secrets/mongodb_uri', 'utf8').trim()
 
 const connectDB = async () => {

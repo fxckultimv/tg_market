@@ -2,6 +2,7 @@
 const TonWeb = require('tonweb')
 const logger = require('../config/logging')
 const { log } = require('winston')
+const fs = require('fs')
 
 const node_env = fs.readFileSync('/run/secrets/node_env', 'utf8').trim()
 const ton_api_key = fs.readFileSync('/run/secrets/ton_api_key', 'utf8').trim()
