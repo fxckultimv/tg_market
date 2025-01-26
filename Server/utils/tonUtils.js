@@ -1,28 +1,43 @@
-require('dotenv').config()
+// require('dotenv').config()
 const TonWeb = require('tonweb')
 const logger = require('../config/logging')
 const { log } = require('winston')
 
-const isTestnet = process.env.NODE_ENV === 'test'
+const node_env = fs.readFileSync('/run/secrets/node_env', 'utf8').trim()
+const ton_api_key = fs.readFileSync('/run/secrets/ton_api_key', 'utf8').trim()
+const market_wallet_address = fs
+    .readFileSync('/run/secrets/market_wallet_address', 'utf8')
+    .trim()
+const market_private_key = fs
+    .readFileSync('/run/secrets/market_private_key', 'utf8')
+    .trim()
+const market_public_key = fs
+    .readFileSync('/run/secrets/market_public_key', 'utf8')
+    .trim()
+const fee_wallet_address = fs
+    .readFileSync('/run/secrets/fee_wallet_address', 'utf8')
+    .trim()
+const fee_wallet_private_key = fs
+    .readFileSync('/run/secrets/fee_wallet_private_key', 'utf8')
+    .trim()
+
+const isTestnet = node_env === 'test'
 
 const tonweb = new TonWeb(
     new TonWeb.HttpProvider(
         isTestnet
             ? 'https://testnet.toncenter.com/api/v2/jsonRPC'
             : 'https://toncenter.com/api/v2/jsonRPC',
-        { apiKey: process.env.TON_API_KEY }
+        { apiKey: process.env.ton_api_key }
     )
 )
 
-const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS
-const MARKET_PUBLIC_KEY = TonWeb.utils.hexToBytes(process.env.MARKET_PUBLIC_KEY)
-const MARKET_PRIVATE_KEY = TonWeb.utils.hexToBytes(
-    process.env.MARKET_PRIVATE_KEY
-)
+const MARKET_WALLET_ADDRESS = market_wallet_address
+const MARKET_PUBLIC_KEY = TonWeb.utils.hexToBytes(market_public_key)
+const MARKET_PRIVATE_KEY = TonWeb.utils.hexToBytes(market_private_key)
 
-const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS
-const TRANSACTION_FEE_PERCENTAGE =
-    parseFloat(process.env.TRANSACTION_FEE_PERCENTAGE) / 100
+const FEE_WALLET_ADDRESS = fee_wallet_address
+const TRANSACTION_FEE_PERCENTAGE = parseFloat(fee_wallet_private_key) / 100
 
 const GAS_LIMIT = TonWeb.utils.toNano('0.1') // Adjust as needed
 const STORAGE_FEE = TonWeb.utils.toNano('0.01') // Adjust as needed

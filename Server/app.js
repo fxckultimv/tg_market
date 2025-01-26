@@ -1,4 +1,4 @@
-require('dotenv').config()
+// require('dotenv').config()
 const mongoose = require('mongoose')
 // тут для себя отпишу что нахуй нет пока логирования
 const logger = require('./config/logging')
@@ -25,9 +25,12 @@ const buyRouter = require('./routes/buy')
 
 const app = express()
 
+const mongodb_uri = fs.readFileSync('/run/secrets/mongodb_uri', 'utf8').trim()
+const port = fs.readFileSync('/run/secrets/port', 'utf8').trim()
+
 // коннект к монгодб
 mongoose
-    .connect(process.env.MONGODB_URI, {
+    .connect(mongodb_uri, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -63,7 +66,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Something went wrong!' })
 })
 
-const PORT = process.env.PORT || 5000
+const PORT = port || 5000
 
 app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`)

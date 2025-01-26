@@ -40,11 +40,22 @@ services:
         environment:
             PORT: 5000
             POSTGRES_USER: postgres
-            POSTGRES_DB: DockerTEST
+            POSTGRES_DB: TeleAd
             POSTGRES_HOST: postgres
             POSTGRES_PORT: 5432
         secrets:
+            - port
             - db_password
+            - bot_token
+            - mongodb_uri
+            - ton_api_key
+            - market_wallet_address
+            - market_private_key
+            - market_public_key
+            - fee_wallet_address
+            - fee_wallet_private_key
+            - fee_wallet_public_key
+            - node_env
         depends_on:
             - postgres
         networks:
@@ -56,7 +67,7 @@ services:
         restart: always
         environment:
             POSTGRES_USER: postgres
-            POSTGRES_DB: DockerTEST
+            POSTGRES_DB: TeleAd
             POSTGRES_PASSWORD_FILE: /run/secrets/db_password
         ports:
             - '5433:5432'
@@ -71,6 +82,28 @@ services:
 secrets:
     db_password:
         file: ./db_password.txt
+    port:
+        file: ./secrets/port.txt
+    bot_token:
+        file: ./secrets/bot_token.txt
+    mongodb_uri:
+        file: ./secrets/mongodb_uri.txt
+    ton_api_key:
+        file: ./secrets/ton_api_key.txt
+    market_wallet_address:
+        file: ./secrets/market_wallet_address.txt
+    market_private_key:
+        file: ./secrets/market_private_key.txt
+    market_public_key:
+        file: ./secrets/market_public_key.txt
+    fee_wallet_address:
+        file: ./secrets/fee_wallet_address.txt
+    fee_wallet_private_key:
+        file: ./secrets/fee_wallet_private_key.txt
+    fee_wallet_public_key:
+        file: ./secrets/fee_wallet_public_key.txt
+    node_env:
+        file: ./secrets/node_env.txt
 
 volumes:
     postgres_data:

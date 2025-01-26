@@ -5,7 +5,9 @@ const User = require('../models/User')
 // ЛОГИРОВАНИЕ НЕ СУЩЕСТВУЕТ
 const logger = require('../config/logging')
 
-const token = process.env.BOT_TOKEN
+const bot_token = fs.readFileSync('/run/secrets/bot_token', 'utf8').trim()
+
+const token = bot_token
 
 const authMiddleware = async (req, res, next) => {
     const authHeader = req.header('Authorization')

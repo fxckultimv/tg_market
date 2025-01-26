@@ -6,7 +6,9 @@ const { validate, sign, parse } = require('@telegram-apps/init-data-node')
 const authMiddleware = require('../middleware/authMiddleware')
 const { v4: uuidv4 } = require('uuid')
 
-const token = process.env.BOT_TOKEN
+const bot_token = fs.readFileSync('/run/secrets/bot_token', 'utf8').trim()
+
+const token = bot_token
 
 router.use(authMiddleware)
 
