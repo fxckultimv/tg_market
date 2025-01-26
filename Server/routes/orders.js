@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const db = require('../db')
-const authMiddleware = require('../middleware/authMiddleware')
+const authMiddleware = require('../middleware/AuthMiddleware')
 const ordersController = require('../controllers/ordersController')
 
 router.use(authMiddleware)

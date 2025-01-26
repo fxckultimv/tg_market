@@ -3,7 +3,7 @@ const router = express.Router()
 const db = require('../db')
 require('dotenv').config()
 const { validate, sign, parse } = require('@telegram-apps/init-data-node')
-const authMiddleware = require('../middleware/authMiddleware')
+const authMiddleware = require('../middleware/AuthMiddleware')
 const { v4: uuidv4 } = require('uuid')
 const fs = require('fs')
 

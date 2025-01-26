@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const db = require('../db')
-const authMiddleware = require('../middleware/authMiddleware')
-const adminMiddleware = require('../middleware/AdminMiddleware')
+const authMiddleware = require('../middleware/AuthMiddleware')
+const adminMiddleware = require('../middleware/adminMiddleware')
 
 router.use(authMiddleware)
 
