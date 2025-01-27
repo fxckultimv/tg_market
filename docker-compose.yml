@@ -72,8 +72,6 @@ services:
             POSTGRES_USER: postgres
             POSTGRES_DB: TeleAd
             POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-            LANG: ru_RU.UTF-8
-            LC_ALL: ru_RU.UTF-8
         ports:
             - '5433:5432'
         volumes:
