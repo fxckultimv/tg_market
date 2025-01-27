@@ -58,6 +58,7 @@ services:
             - node_env
         depends_on:
             - postgres
+            - mongodb
         networks:
             - app-network
 
@@ -76,6 +77,17 @@ services:
             - ./init-scripts:/docker-entrypoint-initdb.d
         secrets:
             - db_password
+        networks:
+            - app-network
+
+    mongodb:
+        image: mongo:6.0
+        container_name: mongodb
+        restart: always
+        ports:
+            - '27018:27017'
+        volumes:
+            - mongodb_data:/data/db
         networks:
             - app-network
 
@@ -109,6 +121,7 @@ volumes:
     postgres_data:
     letsencrypt:
     www:
+    mongodb_data:
 
 networks:
     app-network:
