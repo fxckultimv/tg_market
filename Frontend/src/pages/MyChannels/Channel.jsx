@@ -16,7 +16,7 @@ const Chennel = ({ channel }) => {
                 <div className="aspect-square">
                     <img
                         className="rounded-full max-h-[111px] min-h-[85px]"
-                        src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
+                        src={`/api/channel_${channel.channel_tg_id}.png`}
                         alt={channel.title}
                     />
                 </div>

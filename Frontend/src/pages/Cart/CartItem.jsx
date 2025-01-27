@@ -166,7 +166,7 @@ const CartItem = ({ cart }) => {
                                     <div className="aspect-square">
                                         <img
                                             className="rounded-full max-h-[111px]"
-                                            src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                                            src={`/api/channel_${product.channel_tg_id}.png`}
                                             alt={product.title}
                                         />
                                     </div>

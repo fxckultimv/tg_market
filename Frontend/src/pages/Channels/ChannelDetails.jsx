@@ -253,7 +253,7 @@ const ChannelDetails = () => {
                     <div className="flex-shrink-0">
                         <img
                             className="rounded-full w-40 h-40 object-cover border-4 border-accent-green shadow-lg"
-                            src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
+                            src={`/api/channel_${productDetails.channel_tg_id}.png`}
                             alt={productDetails.channel_title}
                             style={{ aspectRatio: '1/1' }} // Сохранение пропорций изображения
                         />

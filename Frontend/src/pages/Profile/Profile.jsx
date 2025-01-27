@@ -49,7 +49,7 @@ const Profile = () => {
                     <div className="flex flex-col items-center justify-start min-h-screen bg-dark-gray  m-2">
                         <div className="flex  items-center mb-6">
                             <img
-                                src={`http://localhost:5000/user_${user.user_uuid}.png`}
+                                src={`/api/user_${user.user_uuid}.png`}
                                 alt="User Profile"
                                 className="rounded-full w-24 h-24 m-2"
                             />

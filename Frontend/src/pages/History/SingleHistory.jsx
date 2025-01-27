@@ -57,7 +57,7 @@ const SingleHistory = () => {
                 <div className="aspect-square">
                     <img
                         className="rounded-full max-h-[111px]"
-                        src={`http://localhost:5000/channel_${singleHistory.channel_tg_id}.png`}
+                        src={`/api/channel_${singleHistory.channel_tg_id}.png`}
                         alt={singleHistory.channel_title}
                     />
                 </div>

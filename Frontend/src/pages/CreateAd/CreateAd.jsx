@@ -237,7 +237,7 @@ const CreateAd = () => {
                                                 <div className="relative">
                                                     {' '}
                                                     <img
-                                                        src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
+                                                        src={`/api/channel_${channel.channel_tg_id}.png`}
                                                         alt=""
                                                         className="rounded-full h-[82px]"
                                                     />

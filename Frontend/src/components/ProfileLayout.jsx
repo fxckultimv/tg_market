@@ -46,7 +46,7 @@ const ProfileLayout = () => {
                         <div>
                             <div className="flex gap-3 max-lg:flex-col">
                                 <img
-                                    src={`http://localhost:5000/user_${user.user_uuid}.png`}
+                                    src={`/api/user_${user.user_uuid}.png`}
                                     alt="User Profile"
                                     className="rounded-full w-24 h-24 m-2"
                                 />

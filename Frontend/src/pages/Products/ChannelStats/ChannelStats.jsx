@@ -236,7 +236,7 @@ const ChannelStats = () => {
                     <div className="">
                         <img
                             className="rounded-full w-32 h-32 object-cover border-main-green border-2"
-                            src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
+                            src={`/api/channel_${productDetails.channel_tg_id}.png`}
                             alt={productDetails.channel_name}
                         />
                     </div>
