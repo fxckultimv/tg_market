@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const balanceController = require('../controllers/BalanceController')
-const authMiddleware = require('../middleware/AuthMiddleware')
+const authMiddleware = require('../middleware/authMiddleware')
 
 router.use(authMiddleware)
 

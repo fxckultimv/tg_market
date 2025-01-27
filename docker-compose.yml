@@ -81,7 +81,7 @@ services:
             - app-network
 
     mongodb:
-        image: mongo:6.0
+        image: mongo:4.4
         container_name: mongodb
         restart: always
         ports:

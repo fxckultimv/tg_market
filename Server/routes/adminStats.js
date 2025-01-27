@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const db = require('../db')
-const authMiddleware = require('../middleware/AuthMiddleware')
+const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/adminMiddleware')
 const adminController = require('../controllers/adminController')
 

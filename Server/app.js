@@ -8,7 +8,7 @@ const path = require('path')
 const fs = require('fs')
 const { startScheduler } = require('./scheduler')
 
-const authMiddleware = require('./middleware/AuthMiddleware')
+const authMiddleware = require('./middleware/authMiddleware')
 const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/user')
 const balanceRoutes = require('./routes/balance')
