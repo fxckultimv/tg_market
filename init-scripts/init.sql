@@ -23,7 +23,7 @@ SET row_security = off;
 -- Name: TeleAd; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE "TeleAd" WITH TEMPLATE = template0 ENCODING = 'UTF8'
+CREATE DATABASE "TeleAd" WITH TEMPLATE = template0 ENCODING = 'UTF8';
 
 
 ALTER DATABASE "TeleAd" OWNER TO postgres;
