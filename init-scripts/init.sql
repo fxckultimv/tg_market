@@ -20,15 +20,15 @@ SET row_security = off;
 
 --
 -- TOC entry 4989 (class 1262 OID 25208)
--- Name: TeleAdMarket; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: TeleAd; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE "TeleAdMarket" WITH TEMPLATE = template0 ENCODING = 'UTF8';
+CREATE DATABASE "TeleAd" WITH TEMPLATE = template0 ENCODING = 'UTF8';
 
 
-ALTER DATABASE "TeleAdMarket" OWNER TO postgres;
+ALTER DATABASE "TeleAd" OWNER TO postgres;
 
-\connect "TeleAdMarket"
+\connect "TeleAd"
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
