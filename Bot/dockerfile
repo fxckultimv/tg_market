@@ -1,16 +1,31 @@
-FROM python:3.11-slim
+# Используем базовый образ Python
+FROM python:3.12-slim
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
+
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libffi-dev \
+    musl-dev \
+    python3-dev \
+    build-essential \
+    libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Копируем requirements.txt в контейнер
 COPY requirements.txt .
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --upgrade pip
+# Обновляем pip и устанавливаем зависимости
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Копируем все файлы бота в рабочую директорию контейнера
+# Копируем все файлы проекта
 COPY . .
 
-# Указываем команду запуска бота
+# Указываем порт (если нужен для FastAPI/Uvicorn)
+EXPOSE 5001
+
+# Указываем команду запуска
 CMD ["python", "main.py"]

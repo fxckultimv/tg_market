@@ -22,7 +22,7 @@ from uvicorn import Config, Server
 
 app = FastAPI()
 
-API_TOKEN = '7248552375:AAEBZiDiwtckvFXvVRv_3Ttqx-p8gc6_1so'
+API_TOKEN = '7887643735:AAFAbJlvaWvjMwfb3fy2opwezQ9YSMkvGKI'
 
 logging.basicConfig(level=logging.INFO)
 
@@ -776,7 +776,7 @@ class OrderRequest(BaseModel):
     user_id: int
     order_id: int
 
-@app.post('/order')
+@app.post('/bot/order')
 async def handle_order(order: OrderRequest):
     try:
         # Получаем данные из тела запроса
@@ -803,7 +803,7 @@ class BuyRequest(BaseModel):
     channel_name: str
     channel_url: str
 
-@app.post('/buy')
+@app.post('/bot/buy')
 async def handle_buy(data: BuyRequest):
     try:
         # Форматируем время публикации

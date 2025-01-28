@@ -63,6 +63,19 @@ services:
             - mongodb
         networks:
             - app-network
+    bot:
+        build:
+            context: ./Bot
+        container_name: bot
+        restart: always
+        secrets:
+            - bot_token
+        depends_on:
+            - backend
+            - postgres
+            - mongodb
+        networks:
+            - app-network
 
     postgres:
         image: postgres:15
