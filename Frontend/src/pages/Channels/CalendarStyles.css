@@ -1,0 +1,29 @@
+/* Основные стили календаря */
+.react-calendar {
+    background-color: #1e1e2f; /* Темный фон */
+    border-radius: 10px;
+    padding: 1rem;
+    color: #000000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Стили для навигации */
+.react-calendar__navigation button {
+    color: #22c55e; /* Цвет кнопок */
+    min-width: 44px;
+    background: none;
+    font-size: 1rem;
+    margin: 0.5rem;
+}
+
+/* Переопределение цвета для неактивных дат */
+.react-calendar__tile--disabled {
+    color: #aaa;
+}
+
+/* Стили для выбранных дат */
+.bg-accent-green {
+    background-color: #22c55e;
+    color: #000000;
+    border-radius: 50%;
+}

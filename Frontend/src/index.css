@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-inter;
+    }
+}
+
+.light {
+    --background: 255, 255, 255;
+    --text: 0, 0, 0;
+    --text-revers: 255, 255, 255;
+    --white: 255, 255, 255;
+    --card-white: 247, 249, 251;
+    --main-gray: 246, 246, 246;
+    --gray: 205, 205, 205;
+    --green: 37, 198, 95;
+    --red: 248, 79, 82;
+    --blue: 0, 122, 255;
+    --dark-blue: 18, 23, 45;
+    --main-blue: 30, 35, 54;
+    --light-gray: 245, 247, 249;
+    --dark: 25, 26, 35;
+    --black: 0, 0, 0;
+    --info-box: 255, 255, 255;
+}
+
+.dark {
+    --background: 21, 31, 46;
+    --text: 255, 255, 255;
+    --text-revers: 0, 0, 0;
+    --white: 255, 255, 255;
+    --card-white: 30, 35, 54;
+    --main-gray: 246, 246, 246;
+    --gray: 205, 205, 205;
+    --green: 37, 198, 95;
+    --red: 248, 79, 82;
+    --blue: 0, 122, 255;
+    --dark-blue: 18, 23, 45;
+    --main-blue: 30, 35, 54;
+    --light-gray: 30, 35, 54;
+    --dark: 25, 26, 35;
+    --black: 0, 0, 0;
+    --info-box: 30, 35, 35;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+}
+
+body::-webkit-scrollbar {
+    display: none; /* Safari и Chrome */
+}
+
+/* Скрытие горизонтального скроллбара */
+.no-scrollbar {
+    -ms-overflow-style: none; /* для Internet Explorer и Edge */
+    scrollbar-width: none; /* для Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none; /* для Chrome, Safari и Opera */
+}
+
+blockquote {
+    margin: 0;
+}
+
+blockquote p {
+    padding: 15px;
+    background: #eee;
+    border-radius: 5px;
+}
+
+pre {
+    overflow: auto;
+}
+
+input[type='datetime-local'] {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: #7b4ca3;
+    box-shadow: 0 0 0 1px #ccc;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+input[type='datetime-local']:focus {
+    border-color: #8f77a4;
+    box-shadow: 0 0 0 2px rgba(123, 76, 163, 0.25);
+    outline: none;
+}
+
+.status-item {
+    position: relative;
+}
+
+.status-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 20%;
+    bottom: -26px; /* Расстояние до следующего элемента */
+    transform: translateX(-50%);
+    width: 2px;
+    height: 26px; /* Длина линии */
+    background-color: #ccc; /* Цвет линии */
+    border-right: 2px dashed #999; /* Прерывистая линия */
+}
