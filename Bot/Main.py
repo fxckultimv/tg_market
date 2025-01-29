@@ -22,7 +22,7 @@ from uvicorn import Config, Server
 
 app = FastAPI()
 
-API_TOKEN = '7887643735:AAFAbJlvaWvjMwfb3fy2opwezQ9YSMkvGKI'
+API_TOKEN = '7787162569:AAEEdKoovEbhYInIAhOK5Py3QWCkbZHozJU'
 
 logging.basicConfig(level=logging.INFO)
 
@@ -697,7 +697,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             pay_button = InlineKeyboardMarkup().add(
-                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/buy/{order_id}"))
+                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://marusinohome/buy/{order_id}"))
             )
 
             await bot.send_message(
