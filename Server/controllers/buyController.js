@@ -185,7 +185,7 @@ class buyController {
                         format: first_row.format_name,
                     }
 
-                    const response = await fetch('/bot/buy', {
+                    const response = await fetch('http://bot:5001/bot/buy', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

@@ -134,7 +134,7 @@ class ordersController {
                 console.log(parseInt(order_id))
 
                 // Отправка данных на внешний сервер
-                const response = await fetch('/bot/order', {
+                const response = await fetch('http://bot:5001/bot/order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
