@@ -24,7 +24,7 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 # Копируем все файлы проекта
 COPY . .
 
-# Указываем порт (если нужен для FastAPI/Uvicorn)
+# Указываем порт (если нужен для FastAPI)
 EXPOSE 5001
 
 # Указываем команду запуска

@@ -71,6 +71,8 @@ services:
             context: ./Bot
         container_name: bot
         restart: always
+        ports:
+            - '5001:5001'
         secrets:
             - bot_token
         depends_on:
