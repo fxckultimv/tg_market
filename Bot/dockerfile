@@ -28,4 +28,4 @@ COPY . .
 EXPOSE 5001
 
 # Указываем команду запуска
-CMD ["python", "main.py"]
+CMD ["python", "Main.py"]
