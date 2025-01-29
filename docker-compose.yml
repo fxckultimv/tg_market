@@ -2,6 +2,7 @@ services:
     nginx:
         image: nginx:alpine
         container_name: nginx
+        restart: always
         ports:
             - '80:80'
             - '443:443'
@@ -29,6 +30,7 @@ services:
             context: ./Frontend
         ports:
             - '3000:80'
+        restart: always
         depends_on:
             - backend
         networks:
@@ -39,6 +41,7 @@ services:
             context: ./Server
         ports:
             - '5000:5000'
+        restart: always
         environment:
             PORT: 5000
             POSTGRES_USER: postgres
@@ -63,19 +66,19 @@ services:
             - mongodb
         networks:
             - app-network
-    bot:
-        build:
-            context: ./Bot
-        container_name: bot
-        restart: always
-        secrets:
-            - bot_token
-        depends_on:
-            - backend
-            - postgres
-            - mongodb
-        networks:
-            - app-network
+    # bot:
+    #     build:
+    #         context: ./Bot
+    #     container_name: bot
+    #     restart: always
+    #     secrets:
+    #         - bot_token
+    #     depends_on:
+    #         - backend
+    #         - postgres
+    #         - mongodb
+    #     networks:
+    #         - app-network
 
     postgres:
         image: postgres:15
