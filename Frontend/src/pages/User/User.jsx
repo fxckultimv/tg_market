@@ -50,7 +50,7 @@ const User = () => {
                 <div className="mb-2">
                     <img
                         className="rounded-full w-32 h-32 object-cover border-main-green border-2 "
-                        src={`/api/user_${id}.png`}
+                        src={`/api/images/user_${id}.png`}
                         alt={`${user.username}'s profile`}
                     />
                 </div>
