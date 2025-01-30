@@ -84,6 +84,10 @@ async def create_db_pool():
     except Exception as e:
         logging.error(f"Ошибка подключения к базе данных: {e}")
 
+inline_keyboard = InlineKeyboardMarkup().add(
+    InlineKeyboardButton("Открыть TeleAd", web_app=types.WebAppInfo(url="https://marusinohome.ru")) 
+)
+
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     user_id = message.from_user.id
@@ -121,8 +125,19 @@ async def send_welcome(message: types.Message):
 
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(button_orders, button_ads, button_applications, button_verified, button_my_channels, button_support)
+    text = (
+        "<b>🚀 Добро пожаловать на биржу рекламы <a>@TeleAd</a></b>\n\n"
+        "💼 Покупайте рекламу в <b>один клик!</b>\n"
+        "💰 Резерв средств до выполнения заказа – <b>безопасная сделка</b>.\n"
+        "📢 Продавайте рекламу в своих Telegram-каналах и зарабатывайте.\n"
+        "💎 Зарабатывайте TON на своей аудитории прямо в Telegram!\n\n"
+        "<b>📊 Быстро. Удобно. Надежно.</b>"
+    )
 
-    await message.answer("Добро пожаловать! Выберите нужный пункт меню:", reply_markup=keyboard)
+    await message.answer_video('BAACAgQAAxkBAAMMZ5tBHZvz5cF9PUEm7Uxi1jMPTNcAAjIGAAKimHRQe93kqBZ3Oxg2BA', caption=text, reply_markup=inline_keyboard, parse_mode="HTML")
+
+
+
 
 
 @dp.message_handler(commands=['myProfile'])
