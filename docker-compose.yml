@@ -82,7 +82,7 @@ services:
             - postgres
             - mongodb
         volumes:
-            - images_data:/usr/src/app/static
+            - images_data:/app/static
         networks:
             - app-network
 
