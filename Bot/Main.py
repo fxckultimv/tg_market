@@ -471,7 +471,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             file_path = "Аватарка отсутствует"
             if chat_info.photo:
                 file = await bot.get_file(chat_info.photo.big_file_id)
-                file_path = f'static/channel_{my_chat_member.chat.id}.png'
+                file_path = f'/usr/src/app/static/channel_{my_chat_member.chat.id}.png'
                 await bot.download_file(file.file_path, file_path)
 
             administrators = await bot.get_chat_administrators(my_chat_member.chat.id)

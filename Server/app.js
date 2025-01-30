@@ -43,7 +43,7 @@ app.use(cors())
 app.use(express.json())
 
 // статика
-app.use(express.static(path.join(__dirname, '../Bot/static')))
+app.use(express.static('/app/static'))
 
 // роуты
 app.use('/api/auth', authRoutes)
