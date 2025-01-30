@@ -133,8 +133,9 @@ async def send_welcome(message: types.Message):
         "💎 Зарабатывайте TON на своей аудитории прямо в Telegram!\n\n"
         "<b>📊 Быстро. Удобно. Надежно.</b>"
     )
+    VIDEO_FILE_ID = "BAACAgQAAxkBAAMMZ5tBHZvz5cF9PUEm7Uxi1jMPTNcAAjIGAAKimHRQe93kqBZ3Oxg2BA"
 
-    await message.answer_video('BAACAgQAAxkBAAMMZ5tBHZvz5cF9PUEm7Uxi1jMPTNcAAjIGAAKimHRQe93kqBZ3Oxg2BA', caption=text, reply_markup=inline_keyboard, parse_mode="HTML")
+    await message.answer_video(VIDEO_FILE_ID, caption=text, reply_markup=inline_keyboard, parse_mode="HTML")
 
 
 
