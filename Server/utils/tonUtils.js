@@ -29,7 +29,7 @@ const tonweb = new TonWeb(
         isTestnet
             ? 'https://testnet.toncenter.com/api/v2/jsonRPC'
             : 'https://toncenter.com/api/v2/jsonRPC',
-        { apiKey: process.env.ton_api_key }
+        { apiKey: ton_api_key }
     )
 )
 
