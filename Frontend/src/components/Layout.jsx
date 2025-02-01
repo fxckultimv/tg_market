@@ -97,7 +97,7 @@ const Layout = () => {
                 <AnimatePresence>
                     {menuOpen && (
                         <motion.div
-                            className="bg-background absolute top-0 right-0 bottom-0 left-0 h-full z-50 flex flex-col p-4 overflow-hidden"
+                            className="bg-background fixed inset-0 w-screen h-screen z-50 flex flex-col p-4 overflow-hidden"
                             initial={{ x: '100%', opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             exit={{ x: '100%' }}
@@ -143,7 +143,7 @@ const Layout = () => {
                 </AnimatePresence>
             </header>
             <Outlet></Outlet>
-            <div className="flex justify-between px-16 py-8 items-center max-md:justify-center bg-background">
+            <div className="flex justify-between px-16 py-8 items-center max-md:justify-center  max-md:flex-col max-md:text-sm bg-background">
                 {' '}
                 <div
                     className="flex gap-6 items-center text-text

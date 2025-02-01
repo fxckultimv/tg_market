@@ -22,7 +22,7 @@ from uvicorn import Config, Server
 
 app = FastAPI()
 
-API_TOKEN = '7887643735:AAFAbJlvaWvjMwfb3fy2opwezQ9YSMkvGKI'
+API_TOKEN = '7787162569:AAEEdKoovEbhYInIAhOK5Py3QWCkbZHozJU'
 
 logging.basicConfig(level=logging.INFO)
 
@@ -72,11 +72,11 @@ async def create_db_pool():
     global db_pool
     try:
         db_pool = await asyncpg.create_pool(
-            user=os.getenv('DB_USER', 'postgres'),
-            password=os.getenv('DB_PASSWORD', 'Stepan110104'),
-            database=os.getenv('DB_NAME', 'TeleAdMarket'),
-            host=os.getenv('DB_HOST', 'localhost'),
-            port=os.getenv('DB_PORT', '5432'),
+            user=os.getenv('POSTGRES_USER', 'postgres'),
+            password=os.getenv('DB_PASSWORD', 'Stepan110104'),  # DB_PASSWORD из secrets
+            database=os.getenv('POSTGRES_DB', 'TeleAd'),
+            host=os.getenv('POSTGRES_HOST', 'postgres'),
+            port=os.getenv('POSTGRES_PORT', '5432'),
             min_size=1,
             max_size=10
         )
@@ -471,7 +471,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             file_path = "Аватарка отсутствует"
             if chat_info.photo:
                 file = await bot.get_file(chat_info.photo.big_file_id)
-                file_path = f'static/channel_{my_chat_member.chat.id}.png'
+                file_path = f'/usr/src/app/static/channel_{my_chat_member.chat.id}.png'
                 await bot.download_file(file.file_path, file_path)
 
             administrators = await bot.get_chat_administrators(my_chat_member.chat.id)
@@ -697,7 +697,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             pay_button = InlineKeyboardMarkup().add(
-                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/buy/{order_id}"))
+                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://marusinohome/buy/{order_id}"))
             )
 
             await bot.send_message(

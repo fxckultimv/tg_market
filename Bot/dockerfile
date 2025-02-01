@@ -1,5 +1,5 @@
 # Используем базовый образ Python
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -24,8 +24,14 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 # Копируем все файлы проекта
 COPY . .
 
-# Указываем порт (если нужен для FastAPI/Uvicorn)
+# Создаем папку для статики в volume, если её нет
+RUN mkdir -p /app/static
+
+# Копируем файлы из `Bot/static/` в контейнер
+COPY static /app/static
+
+# Указываем порт (если нужен для FastAPI)
 EXPOSE 5001
 
 # Указываем команду запуска
-CMD ["python", "main.py"]
+CMD ["python", "Main.py"]

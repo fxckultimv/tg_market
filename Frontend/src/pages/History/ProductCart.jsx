@@ -19,7 +19,7 @@ const ProductCart = ({ order }) => {
                 <div className="aspect-square">
                     <img
                         className="rounded-full max-h-[111px]"
-                        src={`/api/channel_${order.channel_tg_id}.png`}
+                        src={`/api/images/channel_${order.channel_tg_id}.png`}
                         alt={order.channel_name}
                     />
                 </div>

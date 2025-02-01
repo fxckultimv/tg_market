@@ -29,7 +29,7 @@ const tonweb = new TonWeb(
         isTestnet
             ? 'https://testnet.toncenter.com/api/v2/jsonRPC'
             : 'https://toncenter.com/api/v2/jsonRPC',
-        { apiKey: process.env.ton_api_key }
+        { apiKey: ton_api_key }
     )
 )
 
@@ -85,7 +85,7 @@ const verifyTonPayment = async (
                 parseFloat(lastTransaction.out_msgs[0]?.value) === amount
             const isBuyerMatch =
                 lastTransaction.out_msgs[0]?.destination ===
-                process.env.MARKET_WALLET_ADDRESS
+                MARKET_WALLET_ADDRESS
 
             // console.log('value: ', isAmountMatch)
             // console.log('destination: ', isBuyerMatch)
@@ -97,7 +97,7 @@ const verifyTonPayment = async (
                 // console.log(created_lt)
 
                 const walletTransactions = await getTransactions(
-                    process.env.MARKET_WALLET_ADDRESS,
+                    MARKET_WALLET_ADDRESS,
                     created_lt
                 )
 

@@ -33,7 +33,7 @@ const UserProduct = ({ product }) => {
                 </div>
                 <div className="aspect-square">
                     <img
-                        src={`/api/channel_${product.channel_tg_id}.png`}
+                        src={`/api/images/channel_${product.channel_tg_id}.png`}
                         alt={product.title}
                         className="rounded-full max-h-[111px]"
                     />

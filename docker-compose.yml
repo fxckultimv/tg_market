@@ -2,6 +2,7 @@ services:
     nginx:
         image: nginx:alpine
         container_name: nginx
+        restart: always
         ports:
             - '80:80'
             - '443:443'
@@ -9,6 +10,7 @@ services:
             - ./nginx.conf:/etc/nginx/nginx.conf
             - ./certbot/conf:/etc/letsencrypt
             - ./certbot/www:/var/www/certbot
+            - images_data:/app/static
         depends_on:
             - frontend
             - backend
@@ -29,6 +31,7 @@ services:
             context: ./Frontend
         ports:
             - '3000:80'
+        restart: always
         depends_on:
             - backend
         networks:
@@ -39,6 +42,7 @@ services:
             context: ./Server
         ports:
             - '5000:5000'
+        restart: always
         environment:
             PORT: 5000
             POSTGRES_USER: postgres
@@ -63,17 +67,23 @@ services:
             - mongodb
         networks:
             - app-network
+        volumes:
+            - images_data:/app/static
     bot:
         build:
             context: ./Bot
         container_name: bot
         restart: always
+        ports:
+            - '5001:5001'
         secrets:
             - bot_token
         depends_on:
             - backend
             - postgres
             - mongodb
+        volumes:
+            - images_data:/app/static
         networks:
             - app-network
 
@@ -137,6 +147,7 @@ volumes:
     letsencrypt:
     www:
     mongodb_data:
+    images_data: # Определяем volume для хранения изображений
 
 networks:
     app-network:
