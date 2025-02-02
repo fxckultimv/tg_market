@@ -3,7 +3,7 @@ const adminMiddleware = (req, res, next) => {
     const userId = initData.user.id
 
     // Массив идентификаторов администраторов
-    const adminUserIds = [801541001, 5680927718] // замените значениями id администраторов
+    const adminUserIds = [801541001, 5680927718, 512810299, 251135916] // замените значениями id администраторов
 
     if (!adminUserIds.includes(userId)) {
         return res.status(403).json({ message: 'Forbidden: Access is denied' })
