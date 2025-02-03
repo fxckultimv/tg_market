@@ -376,7 +376,7 @@ const ChannelDetails = () => {
                         {selectedDates.map((date, index) => (
                             <li
                                 key={index}
-                                className="p-2 rounded-md flex justify-between gap-2 bg-white"
+                                className="p-2 rounded-md flex justify-between gap-2 bg-white text-text"
                             >
                                 <p>{date.toLocaleDateString()}</p>
                             </li>
