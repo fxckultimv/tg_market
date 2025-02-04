@@ -22,6 +22,25 @@ import Logo from '../../assets/logo.svg'
 import Name from '../../assets/TeleAdMarket.svg'
 import lucky from '../../assets/lucky.svg'
 import Ton from '../../assets/ton_symbol.svg'
+import Cat from '../../assets/cat-home.svg'
+import Money from '../../assets/money-dollar.svg'
+import Clover from '../../assets/clover.svg'
+import BankHome from '../../assets/bank-home.svg'
+import { motion } from 'framer-motion'
+import Rectangle from '../../assets/phones/Rectangle 24.png'
+import Cellular from '../../assets/phones/Cellular.svg'
+import Wifi from '../../assets/phones/WiFi.svg'
+import Battery from '../../assets/phones/Battery.svg'
+import Shape from '../../assets/phones/Shape.svg'
+import B from '../../assets/phones/B.png'
+import Topor from '../../assets/phones/topor.png'
+import Bull from '../../assets/phones/bull.png'
+import Scr1 from '../../assets/phones/scr1.png'
+import Scr2 from '../../assets/phones/scr2.png'
+import Scr3 from '../../assets/phones/scr3.png'
+import Scr4 from '../../assets/phones/scr4.png'
+import Scr5 from '../../assets/phones/scr5.png'
+import Scr6 from '../../assets/phones/scr6.png'
 
 const Home = () => {
     const { initDataRaw } = useLaunchParams()
@@ -51,37 +70,127 @@ const Home = () => {
         <>
             <div className="flex flex-col items-center text-center py-10">
                 <div className="relative w-full h-[300px] flex justify-center items-center">
+                    {/* Фон или неподвижный элемент */}
                     <img
                         src={Ellipse}
-                        alt="Background2"
+                        alt="Background"
                         className="absolute top-0 z-0"
                     />
 
+                    {/* Центральный логотип */}
                     <img
                         src={bigLogo}
                         alt="Main logo"
                         className="relative w-[147px] h-[147px] drop-shadow-[0_0_25px_blue] z-10"
                     />
 
-                    <div className="absolute w-full h-full top-0 left-0">
-                        <div className="absolute top-[5%] left-[10%] sm:left-[20%] md:left-[30%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl rotate-45">
-                            🐈
+                    {/* Анимированный контейнер для вращения элементов */}
+                    <motion.div
+                        className="absolute inset-0 flex items-center justify-center"
+                        animate={{ rotate: 360 }}
+                        transition={{
+                            duration: 30,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
+                    >
+                        {/* Пример набора элементов с абсолютным позиционированием */}
+                        {/* Элемент 1 – всегда виден */}
+                        <div className="absolute top-[5%] left-[10%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Cat"
+                                className="w-full h-auto"
+                            />
                         </div>
 
-                        <div className="absolute top-[5%] right-[10%] sm:right-[20%] md:right-[30%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl rotate-45">
-                            💸
+                        {/* Элемент 2 – показываем только на экранах от md и выше */}
+                        <div className="hidden md:block absolute top-[10%] right-[10%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Img2"
+                                className="w-full h-auto"
+                            />
                         </div>
 
-                        <div className="absolute -rotate-30 bottom-[5%] right-[5%] sm:right-[10%] md:right-[20%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl">
-                            🍀
+                        {/* Элемент 3 – всегда виден */}
+                        <div className="absolute bottom-[15%] right-[15%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Img3"
+                                className="w-full h-auto"
+                            />
                         </div>
 
-                        <div className="absolute bottom-[5%] left-[5%] sm:left-[10%] md:left-[20%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl">
-                            🏛️
+                        {/* Элемент 4 – показываем только на lg и выше */}
+                        <div className="hidden lg:block absolute bottom-[10%] left-[15%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Img4"
+                                className="w-full h-auto"
+                            />
                         </div>
-                    </div>
+
+                        {/* Элемент 5 – всегда виден */}
+                        <div className="absolute top-[30%] left-[5%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Img5"
+                                className="w-full h-auto"
+                            />
+                        </div>
+
+                        {/* Элемент 6 – показываем только на md и выше */}
+                        <div className="hidden md:block absolute top-[40%] right-[5%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Img6"
+                                className="w-full h-auto"
+                            />
+                        </div>
+
+                        {/* Элемент 7 – всегда виден */}
+                        <div className="absolute bottom-[25%] left-[25%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Img7"
+                                className="w-full h-auto"
+                            />
+                        </div>
+
+                        {/* Элемент 8 – показываем только на lg и выше */}
+                        <div className="hidden lg:block absolute bottom-[20%] right-[25%] w-16 md:w-20 aspect-square flex items-center justify-center">
+                            <img
+                                src={Cat}
+                                alt="Img8"
+                                className="w-full h-auto"
+                            />
+                        </div>
+                    </motion.div>
+
+                    {/* Градиентный оверлей снизу для плавного исчезновения элементов */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 2 }}
+                        className="absolute bottom-0 left-0 w-full h-1/3 pointer-events-none
+                   bg-gradient-to-t from-gray-100 to-transparent z-20"
+                    />
                 </div>
+                <div className="relative w-full h-[300px] flex justify-center items-center">
+                    <img
+                        src={Ellipse}
+                        alt="Background"
+                        className="absolute top-0 z-0"
+                    />
 
+                    {/* Центральный логотип */}
+                    <img
+                        src={bigLogo}
+                        alt="Main logo"
+                        className="relative w-[147px] h-[147px] drop-shadow-[0_0_25px_blue] z-10"
+                    />
+                </div>
                 <h1 className="text-4xl font-bold mt-8 z-10">
                     TeleAdMarket — это продвижение в{' '}
                     <span className="text-blue">Telegram</span>
@@ -159,34 +268,213 @@ const Home = () => {
                     Популярные категории
                 </h2>
                 <div className="flex gap-8 items-center overflow-x-auto">
-                    <div className="flex-grow bg-blue rounded-t-3xl items-center flex flex-col px-4 pt-6 min-w-[300px] h-full">
-                        <div className="w-full flex justify-between m-4">
+                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] py-[70px]">
+                        <div className="w-full flex justify-between">
                             <h2 className="text-white text-2xl">Бизнес</h2>{' '}
                             <img src={Arrow2} alt="" />
                         </div>
+                        <div className="relative w-[349px] h-[547px] overflow-hidde">
+                            {/* Фон */}
+                            <img
+                                src={Rectangle}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
 
-                        <img src={phone} alt="" />
+                            {/* Контент */}
+                            <div className="relative z-10 p-4 text-white">
+                                <div className="flex justify-between items-center p-7">
+                                    <p className="text-white">9:41</p>
+                                    <div className="flex gap-2">
+                                        <img src={Cellular} alt="" />
+                                        <img src={Wifi} alt="" />
+                                        <img src={Battery} alt="" />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between px-5 ">
+                                    {/* Левая иконка */}
+                                    <img src={Shape} alt="" />
+
+                                    {/* Текстовый блок - занимает всю доступную ширину */}
+                                    <div className="flex-1 flex flex-col items-center text-center">
+                                        <h2 className="text-base font-bold">
+                                            Интернет магазин
+                                        </h2>
+                                        <p className="text-xs text-gray-300">
+                                            60 600 подписчиков
+                                        </p>
+                                    </div>
+                                    <img
+                                        src={B}
+                                        alt=""
+                                        className="max-h-[35px] max-w-[35px]"
+                                    />
+                                </div>
+                                <div className="relative overflow-hidden px-5 object-cover">
+                                    <img
+                                        src={Scr1}
+                                        alt=""
+                                        className=""
+                                        style={{
+                                            maskImage:
+                                                'linear-gradient(to top, rgba(0,0,0,1) 70%, rgba(0,0,0,0))',
+                                            WebkitMaskImage:
+                                                'linear-gradient(to top, rgba(0,0,0,1) 70%, rgba(0,0,0,0))',
+                                        }}
+                                    />
+                                    <img
+                                        src={Scr2}
+                                        alt=""
+                                        className=""
+                                        style={{
+                                            maxHeight: '159px',
+                                            overflow: 'hidden',
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex-grow bg-dark-blue rounded-t-3xl items-center flex flex-col px-4 pt-6 min-w-[300px]">
-                        <div className="w-full flex justify-between m-4 gap-3">
+                    <div className="flex-grow bg-dark-blue rounded-3xl items-center flex flex-col px-[38px] py-[70px]">
+                        <div className="w-full flex justify-between">
                             <h2 className="text-white text-2xl">
                                 Развлекательные каналы
                             </h2>{' '}
                             <img src={Arrow2} alt="" />
                         </div>
+                        <div className="relative w-[349px] h-[547px] overflow-hidde">
+                            {/* Фон */}
+                            <img
+                                src={Rectangle}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
 
-                        <img src={phone} alt="" />
+                            {/* Контент */}
+                            <div className="relative z-10 p-4 text-white">
+                                <div className="flex justify-between items-center p-7">
+                                    <p className="text-white">9:41</p>
+                                    <div className="flex gap-2">
+                                        <img src={Cellular} alt="" />
+                                        <img src={Wifi} alt="" />
+                                        <img src={Battery} alt="" />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between px-5 ">
+                                    {/* Левая иконка */}
+                                    <img src={Shape} alt="" />
+
+                                    {/* Текстовый блок - занимает всю доступную ширину */}
+                                    <div className="flex-1 flex flex-col items-center text-center">
+                                        <h2 className="text-base font-bold">
+                                            Новости
+                                        </h2>
+                                        <p className="text-xs text-gray-300">
+                                            4 123 432 подписчиков
+                                        </p>
+                                    </div>
+                                    <img
+                                        src={Topor}
+                                        alt=""
+                                        className="max-h-[35px] max-w-[35px]"
+                                    />
+                                </div>
+                                <div className="relative overflow-hidden px-5 object-cover">
+                                    <img
+                                        src={Scr3}
+                                        alt=""
+                                        className=""
+                                        style={{
+                                            maskImage:
+                                                'linear-gradient(to top, rgba(0,0,0,1) 70%, rgba(0,0,0,0))',
+                                            WebkitMaskImage:
+                                                'linear-gradient(to top, rgba(0,0,0,1) 70%, rgba(0,0,0,0))',
+                                        }}
+                                    />
+                                    <img
+                                        src={Scr4}
+                                        alt=""
+                                        className=""
+                                        style={{
+                                            maxHeight: '159px',
+                                            overflow: 'hidden',
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div className="flex-grow bg-blue rounded-t-3xl items-center flex flex-col px-4 pt-6 min-w-[300px]">
-                        <div className="w-full flex justify-between m-4">
+                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] py-[70px]">
+                        <div className="w-full flex justify-between">
                             <h2 className="text-white text-2xl">
                                 Новости и медиа
                             </h2>{' '}
                             <img src={Arrow2} alt="" />
                         </div>
+                        <div className="relative w-[349px] h-[547px] overflow-hidde">
+                            {/* Фон */}
+                            <img
+                                src={Rectangle}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
 
-                        <img src={phone} alt="" />
+                            {/* Контент */}
+                            <div className="relative z-10 p-4 text-white">
+                                <div className="flex justify-between items-center p-7">
+                                    <p className="text-white">9:41</p>
+                                    <div className="flex gap-2">
+                                        <img src={Cellular} alt="" />
+                                        <img src={Wifi} alt="" />
+                                        <img src={Battery} alt="" />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between px-5 ">
+                                    {/* Левая иконка */}
+                                    <img src={Shape} alt="" />
+
+                                    {/* Текстовый блок - занимает всю доступную ширину */}
+                                    <div className="flex-1 flex flex-col items-center text-center">
+                                        <h2 className="text-base font-bold">
+                                            Инвестиции
+                                        </h2>
+                                        <p className="text-xs text-gray-300">
+                                            45 839 подписчиков
+                                        </p>
+                                    </div>
+                                    <img
+                                        src={Bull}
+                                        alt=""
+                                        className="max-h-[35px] max-w-[35px]"
+                                    />
+                                </div>
+                                <div className="relative overflow-hidden px-5 object-cover">
+                                    <img
+                                        src={Scr5}
+                                        alt=""
+                                        className=""
+                                        style={{
+                                            maskImage:
+                                                'linear-gradient(to top, rgba(0,0,0,1) 70%, rgba(0,0,0,0))',
+                                            WebkitMaskImage:
+                                                'linear-gradient(to top, rgba(0,0,0,1) 70%, rgba(0,0,0,0))',
+                                        }}
+                                    />
+                                    <img
+                                        src={Scr6}
+                                        alt=""
+                                        className=""
+                                        style={{
+                                            maxHeight: '208px',
+                                            overflow: 'hidden',
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -215,7 +503,7 @@ const Home = () => {
                                             4.8
                                         </p>
                                     </div>
-                                    <p className="text-white text-sm border-2 border-gray rounded-full p-1">
+                                    <p className="text-white text-sm border-2 border-gray rounded-full px-4">
                                         Новости и медиа
                                     </p>
                                 </div>
@@ -287,18 +575,18 @@ const Home = () => {
                                         <img
                                             src={Ton}
                                             alt=""
-                                            className="h-[3em] w-auto inline-block align-middle"
+                                            className="max-h-[30px] w-auto inline-block align-middle"
                                             style={{ verticalAlign: 'middle' }}
                                         />
-                                        <p className="text-white text-3xl">
+                                        <p className="text-white text-3xl max-md:text-base">
                                             45 Ton
                                         </p>
                                     </div>
                                 </div>
-                                <div className="bg-blue  rounded-2xl items-center ">
+                                <div className=" flex justify-between bg-blue  rounded-2xl items-center">
                                     <a
                                         href=""
-                                        className=" p-3 text-xl  text-white gap-3 flex"
+                                        className=" p-3 text-xl text-white gap-3 flex max-md:text-base max-md:gap-1 max-md:p-1"
                                     >
                                         <img src={Arrow} alt="" />
                                         Начать сейчас
@@ -319,7 +607,7 @@ const Home = () => {
                                             4.8
                                         </p>
                                     </div>
-                                    <p className="text-white text-sm border-2 border-gray rounded-full p-1">
+                                    <p className="text-white text-sm border-2 border-gray rounded-full px-4">
                                         Новости и медиа
                                     </p>
                                 </div>
@@ -416,7 +704,7 @@ const Home = () => {
                                             4.8
                                         </p>
                                     </div>
-                                    <p className="text-white text-sm border-2 border-gray rounded-full p-1">
+                                    <p className="text-white text-sm border-2 border-gray rounded-full px-4">
                                         Новости и медиа
                                     </p>
                                 </div>
@@ -487,7 +775,7 @@ const Home = () => {
                                         Стоимость
                                     </p>
                                     <h2 className="text-white text-3xl">
-                                        4500 ₽
+                                        10 $
                                     </h2>
                                 </div>
                                 <div className="bg-blue  rounded-2xl items-center ">

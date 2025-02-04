@@ -16,6 +16,7 @@ export default {
                 'card-white': 'rgba(var(--card-white))',
                 'main-gray': '#F6F6F6',
                 gray: '#CDCDCD',
+                'phone-blue': '#2DB9FF',
                 green: '#25C65F',
                 red: '#F84F52',
                 blue: '#007AFF',
