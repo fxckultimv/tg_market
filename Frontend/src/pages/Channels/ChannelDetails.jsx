@@ -70,6 +70,7 @@ const ChannelDetails = () => {
             return () => {
                 backButton.hide()
                 backButton.off('click', handleBackClick)
+                mainButton.hide()
             }
         }
     }, [backButton])

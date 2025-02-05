@@ -9,6 +9,9 @@ import banner from '../../assets/banner.svg'
 import duck1 from '../../assets/duck1.gif'
 import duck2 from '../../assets/duck2.gif'
 import time from '../../assets/time.gif'
+import DuckGlass from '../../assets/duckGlass.webp'
+import DuckOne from '../../assets/duckOne.webp'
+
 import Arrow2 from '../../assets/Arrow2.svg'
 import phone from '../../assets/phone.svg'
 import star from '../../assets/star.svg'
@@ -41,6 +44,7 @@ import Scr3 from '../../assets/phones/scr3.png'
 import Scr4 from '../../assets/phones/scr4.png'
 import Scr5 from '../../assets/phones/scr5.png'
 import Scr6 from '../../assets/phones/scr6.png'
+import Whell1 from './Whell1'
 
 const Home = () => {
     const { initDataRaw } = useLaunchParams()
@@ -68,142 +72,8 @@ const Home = () => {
 
     return (
         <>
-            <div className="flex flex-col items-center text-center py-10">
-                <div className="relative w-full h-[300px] flex justify-center items-center">
-                    {/* Фон или неподвижный элемент */}
-                    <img
-                        src={Ellipse}
-                        alt="Background"
-                        className="absolute top-0 z-0"
-                    />
-
-                    {/* Центральный логотип */}
-                    <img
-                        src={bigLogo}
-                        alt="Main logo"
-                        className="relative w-[147px] h-[147px] drop-shadow-[0_0_25px_blue] z-10"
-                    />
-
-                    {/* Анимированный контейнер для вращения элементов */}
-                    <motion.div
-                        className="absolute inset-0 flex items-center justify-center"
-                        animate={{ rotate: 360 }}
-                        transition={{
-                            duration: 30,
-                            repeat: Infinity,
-                            ease: 'linear',
-                        }}
-                    >
-                        {/* Пример набора элементов с абсолютным позиционированием */}
-                        {/* Элемент 1 – всегда виден */}
-                        <div className="absolute top-[5%] left-[10%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Cat"
-                                className="w-full h-auto"
-                            />
-                        </div>
-
-                        {/* Элемент 2 – показываем только на экранах от md и выше */}
-                        <div className="hidden md:block absolute top-[10%] right-[10%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Img2"
-                                className="w-full h-auto"
-                            />
-                        </div>
-
-                        {/* Элемент 3 – всегда виден */}
-                        <div className="absolute bottom-[15%] right-[15%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Img3"
-                                className="w-full h-auto"
-                            />
-                        </div>
-
-                        {/* Элемент 4 – показываем только на lg и выше */}
-                        <div className="hidden lg:block absolute bottom-[10%] left-[15%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Img4"
-                                className="w-full h-auto"
-                            />
-                        </div>
-
-                        {/* Элемент 5 – всегда виден */}
-                        <div className="absolute top-[30%] left-[5%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Img5"
-                                className="w-full h-auto"
-                            />
-                        </div>
-
-                        {/* Элемент 6 – показываем только на md и выше */}
-                        <div className="hidden md:block absolute top-[40%] right-[5%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Img6"
-                                className="w-full h-auto"
-                            />
-                        </div>
-
-                        {/* Элемент 7 – всегда виден */}
-                        <div className="absolute bottom-[25%] left-[25%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Img7"
-                                className="w-full h-auto"
-                            />
-                        </div>
-
-                        {/* Элемент 8 – показываем только на lg и выше */}
-                        <div className="hidden lg:block absolute bottom-[20%] right-[25%] w-16 md:w-20 aspect-square flex items-center justify-center">
-                            <img
-                                src={Cat}
-                                alt="Img8"
-                                className="w-full h-auto"
-                            />
-                        </div>
-                    </motion.div>
-
-                    {/* Градиентный оверлей снизу для плавного исчезновения элементов */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 2 }}
-                        className="absolute bottom-0 left-0 w-full h-1/3 pointer-events-none
-                   bg-gradient-to-t from-gray-100 to-transparent z-20"
-                    />
-                </div>
-                <div className="relative w-full h-[300px] flex justify-center items-center">
-                    <img
-                        src={Ellipse}
-                        alt="Background"
-                        className="absolute top-0 z-0"
-                    />
-
-                    {/* Центральный логотип */}
-                    <img
-                        src={bigLogo}
-                        alt="Main logo"
-                        className="relative w-[147px] h-[147px] drop-shadow-[0_0_25px_blue] z-10"
-                    />
-                </div>
-                <h1 className="text-4xl font-bold mt-8 z-10">
-                    TeleAdMarket — это продвижение в{' '}
-                    <span className="text-blue">Telegram</span>
-                </h1>
-
-                {/* Подзаголовок */}
-                <p className="text-gray-600 mt-4 max-md:text-xs">
-                    Наше приложение помогает покупать рекламу в Telegram-каналах
-                    и автоматизировать процесс её продажи.
-                </p>
-            </div>
+            <Whell1 />
             <div className="flex flex-row gap-8 m-6 max-md:flex-col">
-                {/* Левая секция с баннером */}
                 <div className="basis-2/3 relative bg-gradient-radial from-white to-main-gray p-8 rounded-3xl border-2">
                     <h1 className="text-4xl font-semibold mb-4">
                         Мы разместили...
@@ -214,13 +84,15 @@ const Home = () => {
                     <img
                         src={banner}
                         alt="Баннер"
-                        className="absolute top-1/2 transform -translate-y-1/4 right-8 w-3/4 z-0 max-md:right-2"
+                        className="absolute top-1/2 transform -translate-y-1/4 right-8 w-3/4 z-0 max-md:right-2 max-md:top-0"
                     />
                 </div>
-
-                {/* Правая секция с изображением и текстом */}
                 <div className="basis-1/3 bg-gradient-radial from-white to-main-gray  p-8 rounded-3xl flex flex-col items-center border-2">
-                    <img src={duck1} alt="Рекламодатель" className=" mb-4" />
+                    <img
+                        src={DuckGlass}
+                        alt="Рекламодатель"
+                        className=" mb-4"
+                    />
                     <h1 className="text-3xl font-semibold mb-2">
                         Рекламодатели
                     </h1>
@@ -234,7 +106,7 @@ const Home = () => {
                 <div className="basis-1/3 bg-gradient-radial from-white to-main-gray p-8 rounded-3xl flex flex-col items-center border-2">
                     <div className="flex-1 flex justify-center items-center">
                         <img
-                            src={duck2}
+                            src={DuckOne}
                             alt=""
                             className="mb-4 max-h-[360px] object-contain"
                         />
@@ -252,7 +124,7 @@ const Home = () => {
                             className="mb-4 max-h-[360px] object-contain"
                         />
                     </div>
-                    <h1 className="text-3xl font-semibold mb-2">
+                    <h1 className="text-3xl font-semibold mb-2 text-center">
                         Экономия времени и усилий
                     </h1>
                     <p className="break-words whitespace-normal text-sm text-gray-600 text-center">
@@ -267,10 +139,12 @@ const Home = () => {
                 <h2 className="text-5xl font-semibold mb-6">
                     Популярные категории
                 </h2>
-                <div className="flex gap-8 items-center overflow-x-auto">
-                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] py-[70px]">
-                        <div className="w-full flex justify-between">
-                            <h2 className="text-white text-2xl">Бизнес</h2>{' '}
+                <div className="flex gap-8 items-center overflow-x-auto max-md:gap-4">
+                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px]">
+                        <div className="w-full flex justify-between mb-8">
+                            <h2 className="text-white text-3xl max-md:text-lg">
+                                Бизнес
+                            </h2>{' '}
                             <img src={Arrow2} alt="" />
                         </div>
                         <div className="relative w-[349px] h-[547px] overflow-hidde">
@@ -293,7 +167,6 @@ const Home = () => {
                                 </div>
 
                                 <div className="flex items-center justify-between px-5 ">
-                                    {/* Левая иконка */}
                                     <img src={Shape} alt="" />
 
                                     {/* Текстовый блок - занимает всю доступную ширину */}
@@ -301,7 +174,7 @@ const Home = () => {
                                         <h2 className="text-base font-bold">
                                             Интернет магазин
                                         </h2>
-                                        <p className="text-xs text-gray-300">
+                                        <p className="text-xs">
                                             60 600 подписчиков
                                         </p>
                                     </div>
@@ -336,9 +209,9 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex-grow bg-dark-blue rounded-3xl items-center flex flex-col px-[38px] py-[70px]">
-                        <div className="w-full flex justify-between">
-                            <h2 className="text-white text-2xl">
+                    <div className="flex-grow bg-dark-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px]">
+                        <div className="w-full flex justify-between mb-8">
+                            <h2 className="text-white text-2xl max-md:text-lg">
                                 Развлекательные каналы
                             </h2>{' '}
                             <img src={Arrow2} alt="" />
@@ -367,7 +240,7 @@ const Home = () => {
                                     <img src={Shape} alt="" />
 
                                     {/* Текстовый блок - занимает всю доступную ширину */}
-                                    <div className="flex-1 flex flex-col items-center text-center">
+                                    <div className="flex flex-col items-center text-center">
                                         <h2 className="text-base font-bold">
                                             Новости
                                         </h2>
@@ -406,9 +279,9 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] py-[70px]">
-                        <div className="w-full flex justify-between">
-                            <h2 className="text-white text-2xl">
+                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px]">
+                        <div className="w-full flex justify-between mb-8">
+                            <h2 className="text-white text-2xl max-md:text-lg">
                                 Новости и медиа
                             </h2>{' '}
                             <img src={Arrow2} alt="" />
@@ -893,10 +766,18 @@ const Home = () => {
                 <div className="flex justify-center px-16 py-8 items-center bg-background">
                     <div className="max-w-[540px] flex flex-col max-lg:items-center">
                         <div className="flex gap-2 ">
-                            <img src={Logo} alt="" className="w-[50px] " />
-                            <img src={Name} alt="" className="h-50px" />
+                            <img src={Logo} alt="Logo" className="w-[27px]" />
+                            <p className="text-2xl text-text">TeleAd</p>
+                            {/* <img
+                                                    src={Name}
+                                                    alt="Name"
+                                                    className="h-28px min-w-[78px]"
+                                                /> */}
+                            <p className="bg-red text-white rounded-full px-2 flex items-center justify-center">
+                                test
+                            </p>
                         </div>
-                        <p className="text-lg text-center">
+                        <p className="text-lg text-center text-pretty">
                             Наше приложение помогает покупать рекламу в
                             Telegram-каналах и автоматизировать процесс её
                             продажи.{' '}
