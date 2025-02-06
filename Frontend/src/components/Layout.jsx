@@ -54,11 +54,12 @@ const Layout = () => {
                 {/* Логотип */}
                 <Link to="/" className="flex gap-2">
                     <img src={Logo} alt="Logo" className="w-[27px]" />
-                    <img
+                    <p className="text-2xl text-text">TeleAd</p>
+                    {/* <img
                         src={Name}
                         alt="Name"
                         className="h-28px min-w-[78px]"
-                    />
+                    /> */}
                     <p className="bg-red text-white rounded-full px-2 flex items-center justify-center">
                         test
                     </p>

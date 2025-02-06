@@ -461,7 +461,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             subscribers_count = await bot.get_chat_members_count(my_chat_member.chat.id)
 
             # Проверка на количество подписчиков
-            if subscribers_count <= 1000:
+            if subscribers_count <= 1:
                 await bot.send_message(
                     chat_id=my_chat_member.from_user.id,
                     text="Канал не может быть добавлен, так как количество подписчиков должно быть больше 1000."
@@ -697,7 +697,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             pay_button = InlineKeyboardMarkup().add(
-                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://marusinohome/buy/{order_id}"))
+                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://marusinohome.ru/buy/{order_id}"))
             )
 
             await bot.send_message(

@@ -117,7 +117,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                                 className="bg-green px-4 py-2 rounded-md"
                                 onClick={handlerConfirmationOrder}
                             >
-                                Сохранить изменения
+                                Подтвердить заказ
                             </button>
                         )}
                     </>
