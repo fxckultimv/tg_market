@@ -84,14 +84,154 @@ async def create_db_pool():
     except Exception as e:
         logging.error(f"Ошибка подключения к базе данных: {e}")
 
+# @dp.message_handler(content_types=types.ContentType.VIDEO)
+# async def get_video_id(message: types.Message):
+#     print(message.video.file_id)  # Выведет новый file_id в консоль
+
+
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     user_id = message.from_user.id
 
-    async with db_pool.acquire() as connection:
-        user = await connection.fetchrow(
-            "SELECT user_uuid FROM users WHERE user_id = $1", user_id
-        )
+    inline_keyboard = InlineKeyboardMarkup().add(
+        InlineKeyboardButton("Биржа", web_app=types.WebAppInfo(url="https://marusinohome.ru"))  # Замени ссылку
+    )
+
+    # async with db_pool.acquire() as connection:
+    #     user = await connection.fetchrow(
+    #         "SELECT user_uuid FROM users WHERE user_id = $1", user_id
+    #     )
+    #
+    #     if user:
+    #         user_uuid = user['user_uuid']
+    #         photos = await bot.get_user_profile_photos(user_id)
+    #
+    #         if photos.total_count > 0:
+    #             file_id = photos.photos[0][0].file_id
+    #             file = await bot.get_file(file_id)
+    #             file_path = file.file_path
+    #
+    #             save_path = f'static/user_{user_uuid}.png'
+    #
+    #             if not os.path.exists('static'):
+    #                 os.makedirs('static')
+    #
+    #             await bot.download_file(file_path, save_path)
+    #
+    #     else:
+    #         await message.answer("Вы не зарегистрированы в системе.")
+
+    button_orders = KeyboardButton('Профиль')
+    button_ads = KeyboardButton('Рекламы')
+    button_applications = KeyboardButton('Заказы на выполнение')
+    button_verified = KeyboardButton('Добавить канал')
+    button_my_channels = KeyboardButton('Мои каналы')
+    button_support = KeyboardButton('Поддержка')
+
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(button_orders, button_ads, button_applications, button_verified, button_my_channels, button_support)
+
+    text = (
+        "<b>🚀 Добро пожаловать на биржу рекламы <a>@TeleAd</a></b>\n\n"
+        "💼 Покупайте рекламу в <b>один клик!</b>\n"
+        "💰 Резерв средств до выполнения заказа – <b>безопасная сделка</b>.\n"
+        "📢 Продавайте рекламу в своих Telegram-каналах и зарабатывайте.\n"
+        "💎 Зарабатывайте TON на своей аудитории прямо в Telegram!\n\n"
+        "<b>📊 Быстро. Удобно. Надежно.</b>"
+    )
+
+    # Отправляем обычную (Reply) клавиатуру перед видео
+    await message.answer("Выберите действие:", reply_markup=keyboard)
+
+    # Отправляем видео с Inline-кнопками
+    await message.answer_video(
+        'BAACAgIAAxkBAAM0Z6XHGstjH-WLiyov3KQmWEt9mCIAAtpjAAI01DBJe9Dkz7pjxKU2BA',
+        caption=text,
+        reply_markup=inline_keyboard,
+        parse_mode="HTML"
+    )
+
+@dp.message_handler(commands=["menu"])
+async def menu_handler(message: types.Message):
+    user_id = message.from_user.id
+
+    # Текст сообщения
+    text = (
+        f"👤 <b>Имя:</b> Strep\n"
+        # f"💰 <b>Баланс:</b> 10 TON\n"
+        f"📆 <b>Стаж:</b> 5 месяцев\n\n"
+        "Выберите действие:"
+    )
+
+    # Inline-кнопки 4 кнопки, по 2 в ряд
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [
+            types.InlineKeyboardButton(text="📢 Рекламы", callback_data="ads"),
+            types.InlineKeyboardButton(text="👤 Профиль", callback_data="profile"),
+        ],
+        [
+            types.InlineKeyboardButton(text="📡 Каналы", callback_data="channels"),
+            types.InlineKeyboardButton(text="🛠 Поддержка", callback_data="support"),
+        ]
+    ])
+
+    await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
+
+
+
+# @dp.message_handler(commands=['myProfile'])
+# async def send_welcome(message: types.Message):
+#     user_id = message.from_user.id
+#
+#     pay_button = InlineKeyboardMarkup().add(
+#         InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3"))
+#     )
+#
+#     await message.answer("Добро пожаловать! Выберите нужный пункт меню: тут(https://t.me/TeleAdMarketBot/tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3)", reply_markup=pay_button)
+
+
+
+@dp.message_handler(lambda message: message.text == "Профиль")
+async def user_profile(message: types.Message):
+    user_id = message.from_user.id
+
+    try:
+        async with db_pool.acquire() as connection:
+            user = await connection.fetchrow(
+                "SELECT * FROM users WHERE user_id = $1", user_id
+            )
+
+        if user:
+            # Форматируем информацию о пользователе
+            response = (
+                f"👤 <b>Имя:</b> {user['username']}\n"
+                f"🆔 <b>User ID:</b> {user['user_id']}\n"
+                f"💰 <b>Баланс:</b> 10 TON\n"
+                f"📅 <b>Дата регистрации:</b> {user['created_at'].strftime('%d.%m.%Y')}\n"
+                f"🛠 <b>Статус:</b> {user['rating']}\n"
+            )
+
+            # Создаём inline-кнопку "Сменить фото"
+            keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+                [types.InlineKeyboardButton(text="🖼 Сменить фото", callback_data="change_photo")]
+            ])
+
+            await message.answer(response, reply_markup=keyboard, parse_mode="HTML")
+        else:
+            await message.answer("🚨 Ошибка: Пользователь не найден в базе данных.")
+    except Exception as e:
+        logging.error(f"Ошибка получения данных профиля: {e}")
+        await message.answer("🚨 Произошла ошибка при получении данных профиля.")
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "change_photo")
+async def my_orders(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+
+    try:
+        async with db_pool.acquire() as connection:
+            user = await connection.fetchrow(
+                "SELECT user_uuid FROM users WHERE user_id = $1", user_id
+            )
 
         if user:
             user_uuid = user['user_uuid']
@@ -109,37 +249,32 @@ async def send_welcome(message: types.Message):
 
                 await bot.download_file(file_path, save_path)
 
+                await callback_query.message.answer("✅ Ваше фото успешно обновлено!")
+            else:
+                await callback_query.message.answer("❌ У вас нет фотографий в профиле.")
         else:
-            await message.answer("Вы не зарегистрированы в системе.")
-
-    button_orders = KeyboardButton('Мои заказы')
-    button_ads = KeyboardButton('Мои рекламы')
-    button_applications = KeyboardButton('Заказы на выполнение')
-    button_verified = KeyboardButton('Добавить канал')
-    button_my_channels = KeyboardButton('Мои каналы')
-    button_support = KeyboardButton('Поддержка')
-
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(button_orders, button_ads, button_applications, button_verified, button_my_channels, button_support)
-
-    await message.answer("Добро пожаловать! Выберите нужный пункт меню:", reply_markup=keyboard)
+            await callback_query.message.answer("🚨 Вы не зарегистрированы в системе.")
+    except Exception as e:
+        logging.error(f"Ошибка получения заказов: {e}")
+        await callback_query.message.answer("Произошла ошибка при получении заказов.")
 
 
-@dp.message_handler(commands=['myProfile'])
-async def send_welcome(message: types.Message):
-    user_id = message.from_user.id
+@dp.message_handler(lambda message: message.text == "Рекламы")
+async def ads_menu(message: types.Message):
+    # Создаём inline-кнопки
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [
+            types.InlineKeyboardButton(text="📦 Мои заказы", callback_data="my_orders"),
+            types.InlineKeyboardButton(text="📢 Мои рекламы", callback_data="my_ads"),
+        ]
+    ])
 
-    pay_button = InlineKeyboardMarkup().add(
-        InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3"))
-    )
-
-    await message.answer("Добро пожаловать! Выберите нужный пункт меню: тут(https://t.me/TeleAdMarketBot/tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3)", reply_markup=pay_button)
+    await message.answer("📢 Выберите действие:", reply_markup=keyboard)
 
 
-
-@dp.message_handler(lambda message: message.text == "Мои заказы")
-async def my_orders(message: types.Message):
-    user_id = message.from_user.id
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "my_orders")
+async def my_orders(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
     try:
         async with db_pool.acquire() as connection:
             orders = await connection.fetch(
@@ -157,23 +292,25 @@ async def my_orders(message: types.Message):
                     callback_data = f"order_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
-                await message.answer(response, reply_markup=keyboard)
+                await callback_query.message.answer(response, reply_markup=keyboard)
             else:
-                await message.answer("У вас пока нет заказов.")
+                await callback_query.message.answer("У вас пока нет заказов.")
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
-        await message.answer("Произошла ошибка при получении заказов.")
-@dp.message_handler(lambda message: message.text == "Мои рекламы")
-async def my_orders(message: types.Message):
-    user_id = message.from_user.id
+        await callback_query.message.answer("Произошла ошибка при получении заказов.")
+
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "my_ads")
+async def my_orders(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
     try:
         async with db_pool.acquire() as connection:
             ads = await connection.fetch(
                 """SELECT DISTINCT o.user_id, o.order_id, p.product_id, total_price ,p.title FROM orders AS o
-JOIN orderitems oi ON o.order_id = oi.order_id
-JOIN products p ON p.product_id = oi.product_id
-WHERE o.user_id = $1 AND o.status = 'paid'
-ORDER BY o.order_id desc""", user_id
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON p.product_id = oi.product_id
+                WHERE o.user_id = $1 AND o.status = 'paid'
+                ORDER BY o.order_id desc""", user_id
             )
 
             if ads:
@@ -185,12 +322,12 @@ ORDER BY o.order_id desc""", user_id
                     callback_data = f"ad_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
-                await message.answer(response, reply_markup=keyboard)
+                await callback_query.message.answer(response, reply_markup=keyboard)
             else:
-                await message.answer("У вас пока нет заказов.")
+                await callback_query.message.answer("У вас пока нет заказов.")
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
-        await message.answer("Произошла ошибка при получении заказов.")
+        await callback_query.message.answer("Произошла ошибка при получении заказов.")
 
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("ad_"))

@@ -12,10 +12,12 @@ import ArrowLeft from '../../assets/arrow-left.svg'
 import ArrowRight from '../../assets/arrow-right.svg'
 import Check from '../../assets/check-contained.svg'
 import { useRef } from 'react'
+import { useToast } from '../../components/ToastProvider'
 
 const CreateAd = () => {
     const { initDataRaw } = useLaunchParams()
     const mainButton = useMainButton()
+    const { addToast } = useToast()
     const {
         categories,
         formats,
@@ -65,7 +67,7 @@ const CreateAd = () => {
                 selectedCategories &&
                 selectedFormat.length > 0 &&
                 publicationTimes.length > 0 &&
-                price &&
+                price >= 0.1 &&
                 description &&
                 !timeError
 
@@ -87,7 +89,7 @@ const CreateAd = () => {
                         format: selectedFormat,
                         post_time: publicationTimes,
                     })
-                    alert('Рекламное предложение успешно создано!')
+                    addToast('Рекламное предложение успешно создано!')
 
                     // Очистка формы после успешного создания
                     setSelectedChannel(null)
@@ -102,7 +104,10 @@ const CreateAd = () => {
                         'Ошибка при создании рекламного предложения:',
                         error
                     )
-                    alert('Ошибка при создании рекламного предложения.')
+                    addToast(
+                        'Ошибка при создании рекламного предложения.',
+                        'error'
+                    )
                 }
             }
 
@@ -372,7 +377,7 @@ const CreateAd = () => {
                                         >
                                             <input
                                                 type="time"
-                                                className="w-full p-3 rounded"
+                                                className="w-full p-3 rounded text-black"
                                                 value={time}
                                                 onChange={(e) =>
                                                     handleTimeChange(

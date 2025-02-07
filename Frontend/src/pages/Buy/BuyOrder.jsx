@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useLaunchParams } from '@tma.js/sdk-react'
+import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useUserStore } from '../../store'
 import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
@@ -22,12 +22,29 @@ const BuyOrder = () => {
     const { initDataRaw } = useLaunchParams() // Получаем параметры запуска
     const [isOrderProcessing, setIsOrderProcessing] = useState(false)
     const { addToast } = useToast()
+    const backButton = useBackButton()
 
     // При загрузке компонента проверяем статус заказа
     useEffect(() => {
         checkingStatus(initDataRaw, id)
         fetchBalance(initDataRaw)
     }, [initDataRaw])
+
+    useEffect(() => {
+        const handleBackClick = () => {
+            window.history.back()
+        }
+
+        if (backButton) {
+            backButton.show()
+            backButton.on('click', handleBackClick)
+
+            return () => {
+                backButton.hide()
+                backButton.off('click', handleBackClick)
+            }
+        }
+    }, [backButton])
 
     const handleBuyProduct = async () => {
         setIsOrderProcessing(true)

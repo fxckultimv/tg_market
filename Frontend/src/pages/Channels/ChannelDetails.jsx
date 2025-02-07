@@ -70,6 +70,7 @@ const ChannelDetails = () => {
             return () => {
                 backButton.hide()
                 backButton.off('click', handleBackClick)
+                mainButton.hide()
             }
         }
     }, [backButton])
@@ -361,8 +362,8 @@ const ChannelDetails = () => {
             </div>
 
             {/* Блок с календарем */}
-            <div className="bg-card-white p-8">
-                <h3 className="text-2xl p-4">Выберите даты</h3>
+            <div className="bg-card-white p-2">
+                <h3 className="text-2xl p-4">Выберите даты:</h3>
                 <Calendar
                     onClickDay={handleDateChange} // Используем onClickDay для обработки кликов по дням
                     value={selectedDates} // Массив выбранных дат
@@ -378,7 +379,9 @@ const ChannelDetails = () => {
                                 key={index}
                                 className="p-2 rounded-md flex justify-between gap-2 bg-white"
                             >
-                                <p>{date.toLocaleDateString()}</p>
+                                <p className="text-black">
+                                    {date.toLocaleDateString()}
+                                </p>
                             </li>
                         ))}
                     </ul>

@@ -97,6 +97,7 @@ const CartItem = ({ cart }) => {
             // Обновляем корзину
             await fetchCart(initDataRaw)
             addToast('Товар заказан!')
+            mainButton.hide()
 
             // Перенаправляем пользователя на страницу корзины
             // navigate('/basket')

@@ -19,6 +19,7 @@ export default {
                 green: '#25C65F',
                 red: '#F84F52',
                 blue: '#007AFF',
+                'phone-blue': '#2DB9FF',
                 'dark-blue': '#12172D',
                 'main-blue': '#1E2336',
                 'light-gray': 'rgba(var(--light-gray))',
