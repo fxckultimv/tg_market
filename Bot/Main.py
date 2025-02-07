@@ -145,7 +145,7 @@ async def send_welcome(message: types.Message):
 
     # Отправляем видео с Inline-кнопками
     await message.answer_video(
-        'BAACAgIAAxkBAAM0Z6XHGstjH-WLiyov3KQmWEt9mCIAAtpjAAI01DBJe9Dkz7pjxKU2BA',
+        'BAACAgIAAxkBAAIBIWemgVETXDAB1wcgAkcOlOJfrQeGAAKjZgACXCQxSW75q1xN22tNNgQ',
         caption=text,
         reply_markup=inline_keyboard,
         parse_mode="HTML"
