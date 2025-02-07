@@ -45,6 +45,7 @@ import Scr4 from '../../assets/phones/scr4.png'
 import Scr5 from '../../assets/phones/scr5.png'
 import Scr6 from '../../assets/phones/scr6.png'
 import Whell1 from './Whell1'
+import Whell2 from './Whell2'
 
 const Home = () => {
     const { initDataRaw } = useLaunchParams()
@@ -727,41 +728,7 @@ const Home = () => {
                     />
                 </div> */}
                     {/* Контент */}
-                    <div className="z-10 mt-20 flex flex-col items-center">
-                        <h1 className="text-4xl font-bold mt-8 z-10">
-                            Связаться с нами
-                        </h1>
-                        <p className="mt-4 max-w-2xl text-center">
-                            У вас есть вопросы или вы хотите обсудить детали
-                            продвижения? Мы готовы помочь!
-                        </p>
-
-                        {/* Кнопка */}
-                        <div className="mt-6">
-                            <button className="bg-blue text-white py-3 px-6 rounded-xl flex items-center gap-2">
-                                <img
-                                    src={tg}
-                                    alt="Telegram"
-                                    className="w-5 h-5"
-                                />
-                                <span>Перейти в телеграм</span>
-                            </button>
-                        </div>
-                        <div className="absolute w-full h-full top-0 left-0 pointer-events-none">
-                            <div className="absolute top-[5%] left-[5%] sm:left-[10%] md:left-[20%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl rotate-45">
-                                📞
-                            </div>
-                            <div className="absolute top-[5%] right-[5%] sm:right-[10%] md:right-[20%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl rotate-45">
-                                💻
-                            </div>
-                            <div className="absolute -rotate-30 bottom-[5%] right-[5%] sm:right-[10%] md:right-[25%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl">
-                                📦
-                            </div>
-                            <div className="absolute bottom-[5%] left-[5%] sm:left-[10%] md:left-[25%] w-1/4 max-w-[80px] lg:max-w-[100px] aspect-square bg-white rounded-lg flex items-center justify-center text-3xl sm:text-4xl md:text-5xl">
-                                📱
-                            </div>
-                        </div>
-                    </div>
+                    <Whell2 />
                 </div>
                 <div className="flex justify-center px-16 py-8 items-center bg-background">
                     <div className="max-w-[540px] flex flex-col max-lg:items-center">

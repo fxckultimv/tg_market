@@ -32,8 +32,8 @@ const Ton = () => {
     }, [])
 
     const handleTransaction = async () => {
-        if (!amount || isNaN(amount) || Number(amount) <= 0) {
-            alert('Введите корректную сумму.')
+        if (!amount || isNaN(amount) || Number(amount) <= 0.01) {
+            addToast('Введите корректную сумму.', 'error')
             return
         }
 
@@ -73,9 +73,9 @@ const Ton = () => {
         if (
             !amountWithdrawal ||
             isNaN(amountWithdrawal) ||
-            Number(amountWithdrawal) <= 0
+            Number(amountWithdrawal) <= 0.01
         ) {
-            alert('Введите корректную сумму.')
+            addToast('Введите корректную сумму.', 'error')
             return
         }
 
@@ -119,10 +119,11 @@ const Ton = () => {
                 {/* Кнопка для отправки транзакции */}
                 <input
                     type="number"
+                    min={0.1}
                     placeholder="Введите сумму"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="border p-2 rounded-lg min-w-10"
+                    className="border p-2 rounded-lg min-w-10  text-black"
                 />
                 <button
                     onClick={handleTransaction}
@@ -135,10 +136,11 @@ const Ton = () => {
                 {/* Кнопка для вывода ton */}
                 <input
                     type="number"
+                    min={0.1}
                     placeholder="Введите сумму"
                     value={amountWithdrawal}
                     onChange={(e) => setAmountWithdrawal(e.target.value)}
-                    className="border p-2 rounded-lg min-w-10"
+                    className="border p-2 rounded-lg min-w-10  text-black"
                 />
                 <button onClick={Withdrawal} className="bg-blue rounded-xl p-3">
                     Вывести

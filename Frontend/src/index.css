@@ -112,3 +112,9 @@ input[type='datetime-local']:focus {
     background-color: #ccc; /* Цвет линии */
     border-right: 2px dashed #999; /* Прерывистая линия */
 }
+
+/* Ton connect */
+/* *[data-tc-dropdown-container='true'] {
+    left: 30 !important;
+    border: 2px solid red !important;
+} */

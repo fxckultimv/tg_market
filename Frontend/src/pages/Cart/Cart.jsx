@@ -41,7 +41,7 @@ const Cart = () => {
 
     return (
         <>
-            <div className="flex flex-col items-center justify-center gap-3 m-16">
+            <div className="flex flex-col items-center justify-center gap-3 m-16 max-md:hidden">
                 <div className="p-4 bg-blue rounded-2xl">
                     <img src={Bag} alt="Документ" className="h-[32px]" />
                 </div>
