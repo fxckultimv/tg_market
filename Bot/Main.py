@@ -86,7 +86,7 @@ async def create_db_pool():
 
 @dp.message_handler(content_types=types.ContentType.VIDEO)
 async def get_video_id(message: types.Message):
-    message.answer(message.video.file_id)  # Выведет новый file_id в консоль
+    await message.answer(message.video.file_id)  # Выведет новый file_id в консоль
 
 
 @dp.message_handler(commands=['start'])
