@@ -1,4 +1,20 @@
 const db = require('../db')
+const UserBalance = require('../models/UserBalance')
+const Transaction = require('../models/Transaction')
+const User = require('../models/User')
+
+async function getUserIdByTelegramId(telegramId) {
+    try {
+        const user = await User.findOne({ telegramId }) // Ищем пользователя по telegramId
+        if (!user) {
+            throw new Error('User not found')
+        }
+        return user._id.toString() // Возвращаем _id
+    } catch (error) {
+        console.error('Error fetching user by telegramId:', error.message)
+        throw error
+    }
+}
 
 class productController {
     async product(req, res) {
@@ -592,12 +608,13 @@ class productController {
         try {
             // Первичная проверка в базе данных
             const checkResult = await db.query(
-                `SELECT o.order_id, o.status, 
+                `SELECT o.order_id, o.total_price,o.status,o.user_id AS buyerId, p.user_id,
                     ARRAY_AGG(DISTINCT oi.post_time) as post_times
                 FROM orders AS o
                 JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON p.product_id = oi.product_id
                 WHERE o.order_id = $1 AND o.user_id = $2
-                GROUP BY o.order_id, o.status`,
+                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id`,
                 [id, user_id]
             )
 
@@ -620,9 +637,45 @@ class productController {
                     )
 
                     if (result.rowCount > 0) {
-                        res.json({
-                            success: true,
-                            message: 'Order status updated to completed',
+                        const amount = order.total_price
+                        const buyerId = order.buyerId
+                        const order_id = order.order_id
+
+                        const sellerId = await getUserIdByTelegramId(
+                            order.user_id
+                        )
+
+                        const sellerUpdate = await UserBalance.findOneAndUpdate(
+                            { userId: sellerId },
+                            { $inc: { balance: amount } },
+                            { new: true, runValidators: true }
+                        )
+
+                        if (!sellerUpdate) {
+                            await UserBalance.findOneAndUpdate(
+                                { userId: buyerId },
+                                { $inc: { balance: totalAmount } }
+                            )
+                            return res.status(500).json({
+                                error: 'Не удалось обновить баланс продавца',
+                            })
+                        }
+
+                        const [sellerTransaction] = await Promise.all([
+                            Transaction.create({
+                                userId: sellerId,
+                                type: 'purchase',
+                                amount,
+                                fee: 0,
+                                status: 'completed',
+                                details: { order_id, buyerId },
+                            }),
+                        ])
+
+                        res.status(200).json({
+                            message:
+                                'Order status updated successfully and POST request sent successfully',
+                            sellerTransaction: sellerTransaction._id,
                         })
                     } else {
                         res.status(404).json({

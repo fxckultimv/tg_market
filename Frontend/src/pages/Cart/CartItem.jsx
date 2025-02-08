@@ -130,8 +130,7 @@ const CartItem = ({ cart }) => {
             // Устанавливаем выбранный товар и пересчитываем цену
             setSelectedProductId(productId)
             cart.products[productId].items.forEach((item) => {
-                updatedTotalPrice +=
-                    item.quantity * cart.products[productId].price
+                updatedTotalPrice += cart.products[productId].price
             })
         }
 

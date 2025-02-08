@@ -97,7 +97,7 @@ class buyController {
 
             // Начало логики проведения платежа
             const fee = amount * MARKET_FEE_PERCENTAGE
-            const totalAmount = Number(amount) + Number(fee)
+            const totalAmount = Number(amount)
 
             const buyerUpdate = await UserBalance.findOneAndUpdate(
                 { userId: buyerId, balance: { $gte: totalAmount } },
@@ -111,23 +111,23 @@ class buyController {
                 })
             }
 
-            const sellerUpdate = await UserBalance.findOneAndUpdate(
-                { userId: sellerId },
-                { $inc: { balance: amount } },
-                { new: true, runValidators: true }
-            )
+            // const sellerUpdate = await UserBalance.findOneAndUpdate(
+            //     { userId: sellerId },
+            //     { $inc: { balance: amount } },
+            //     { new: true, runValidators: true }
+            // )
 
-            if (!sellerUpdate) {
-                await UserBalance.findOneAndUpdate(
-                    { userId: buyerId },
-                    { $inc: { balance: totalAmount } }
-                )
-                return res
-                    .status(500)
-                    .json({ error: 'Не удалось обновить баланс продавца' })
-            }
+            // if (!sellerUpdate) {
+            //     await UserBalance.findOneAndUpdate(
+            //         { userId: buyerId },
+            //         { $inc: { balance: totalAmount } }
+            //     )
+            //     return res
+            //         .status(500)
+            //         .json({ error: 'Не удалось обновить баланс продавца' })
+            // }
 
-            const [buyerTransaction, sellerTransaction] = await Promise.all([
+            const [buyerTransaction] = await Promise.all([
                 Transaction.create({
                     userId: buyerId,
                     type: 'purchase',
@@ -135,14 +135,6 @@ class buyController {
                     fee: fee,
                     status: 'completed',
                     details: { order_id, sellerId },
-                }),
-                Transaction.create({
-                    userId: sellerId,
-                    type: 'purchase',
-                    amount,
-                    fee: 0,
-                    status: 'completed',
-                    details: { order_id, buyerId },
                 }),
             ])
 
@@ -209,7 +201,7 @@ class buyController {
                         message:
                             'Order status updated successfully and POST request sent successfully',
                         buyerTransaction: buyerTransaction._id,
-                        sellerTransaction: sellerTransaction._id,
+                        // sellerTransaction: sellerTransaction._id,
                         externalServerData: data,
                     })
                 } catch (error) {

@@ -72,7 +72,7 @@ class ordersController {
 
             // Вычисление общей суммы заказа
             const total_price = cartItems.reduce(
-                (sum, item) => sum + item.quantity * item.price,
+                (sum, item) => sum + Number(item.price),
                 0
             )
 
@@ -133,6 +133,8 @@ class ordersController {
                 // console.log('Order ID:', order_id)
                 console.log(parseInt(order_id))
 
+                await db.query('COMMIT')
+
                 // Отправка данных на внешний сервер
                 const response = await fetch('http://bot:5001/bot/order', {
                     method: 'POST',
@@ -155,7 +157,6 @@ class ordersController {
                 // Получение ответа от внешнего сервера
                 const data = await response.json()
 
-                await db.query('COMMIT')
                 // Ответ на клиентский запрос
                 res.status(200).json({
                     message:
@@ -205,7 +206,7 @@ class ordersController {
 
             // Вычисление общей суммы заказа
             const total_price = cartItems.reduce(
-                (sum, item) => sum + item.quantity * item.price,
+                (sum, item) => sum + item.price,
                 0
             )
 
