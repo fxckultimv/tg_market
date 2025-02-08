@@ -14,7 +14,6 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import logging
 import asyncpg
 from datetime import datetime, timedelta
-
 from aiogram.utils.exceptions import FileIsTooBig
 from aiogram.utils.markdown import escape_md
 from pydantic import BaseModel
@@ -75,11 +74,11 @@ async def create_db_pool():
     global db_pool
     try:
         db_pool = await asyncpg.create_pool(
-            user=os.getenv('DB_USER', 'postgres'),
-            password=os.getenv('DB_PASSWORD', 'Stepan110104'),
-            database=os.getenv('DB_NAME', 'TeleAdMarket'),
-            host=os.getenv('DB_HOST', 'localhost'),
-            port=os.getenv('DB_PORT', '5432'),
+            user=os.getenv('POSTGRES_USER', 'postgres'),
+            password=os.getenv('DB_PASSWORD', 'Stepan110104'),  # DB_PASSWORD из secrets
+            database=os.getenv('POSTGRES_DB', 'TeleAd'),
+            host=os.getenv('POSTGRES_HOST', 'postgres'),
+            port=os.getenv('POSTGRES_PORT', '5432'),
             min_size=1,
             max_size=10
         )
@@ -270,6 +269,7 @@ async def my_orders(callback_query: CallbackQuery):
         await callback_query.message.answer("🚨 Произошла ошибка при смене фото.")
 
 
+
 @dp.message_handler(lambda message: message.text == "Рекламы")
 async def ads_menu(message: types.Message):
     # Создаём inline-кнопки
@@ -339,6 +339,7 @@ async def my_orders(callback_query: CallbackQuery):
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
         await callback_query.message.answer("Произошла ошибка при получении заказов.")
+
 
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("ad_"))
@@ -609,7 +610,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             subscribers_count = await bot.get_chat_members_count(my_chat_member.chat.id)
 
             # Проверка на количество подписчиков
-            if subscribers_count <= 1000:
+            if subscribers_count <= 1:
                 await bot.send_message(
                     chat_id=my_chat_member.from_user.id,
                     text="Канал не может быть добавлен, так как количество подписчиков должно быть больше 1000."
@@ -619,7 +620,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             file_path = "Аватарка отсутствует"
             if chat_info.photo:
                 file = await bot.get_file(chat_info.photo.big_file_id)
-                file_path = f'static/channel_{my_chat_member.chat.id}.png'
+                file_path = f'/usr/src/app/static/channel_{my_chat_member.chat.id}.png'
                 await bot.download_file(file.file_path, file_path)
 
             administrators = await bot.get_chat_administrators(my_chat_member.chat.id)
@@ -845,7 +846,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             pay_button = InlineKeyboardMarkup().add(
-                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/buy/{order_id}"))
+                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://marusinohome.ru/buy/{order_id}"))
             )
 
             await bot.send_message(
@@ -924,7 +925,7 @@ class OrderRequest(BaseModel):
     user_id: int
     order_id: int
 
-@app.post('/order')
+@app.post('/bot/order')
 async def handle_order(order: OrderRequest):
     user_id = order.user_id
     order_id = order.order_id
@@ -964,6 +965,7 @@ async def handle_order(order: OrderRequest):
         logging.error(f"❌ Ошибка при обработке запроса: {e}")
         raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
 
+
 class BuyRequest(BaseModel):
     user_id: int
     order_id: Union[int, None] = None
@@ -973,7 +975,7 @@ class BuyRequest(BaseModel):
     channel_name: str
     channel_url: str
 
-@app.post('/buy')
+@app.post('/bot/buy')
 async def handle_buy(data: BuyRequest):
     try:
         # Форматируем время публикации
