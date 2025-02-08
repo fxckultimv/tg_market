@@ -14,6 +14,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import logging
 import asyncpg
 from datetime import datetime, timedelta
+
+from aiogram.utils.exceptions import FileIsTooBig
+from aiogram.utils.markdown import escape_md
 from pydantic import BaseModel
 from telethon import TelegramClient
 import asyncio
@@ -72,11 +75,11 @@ async def create_db_pool():
     global db_pool
     try:
         db_pool = await asyncpg.create_pool(
-            user=os.getenv('POSTGRES_USER', 'postgres'),
-            password=os.getenv('DB_PASSWORD', 'Stepan110104'),  # DB_PASSWORD из secrets
-            database=os.getenv('POSTGRES_DB', 'TeleAd'),
-            host=os.getenv('POSTGRES_HOST', 'postgres'),
-            port=os.getenv('POSTGRES_PORT', '5432'),
+            user=os.getenv('DB_USER', 'postgres'),
+            password=os.getenv('DB_PASSWORD', 'Stepan110104'),
+            database=os.getenv('DB_NAME', 'TeleAdMarket'),
+            host=os.getenv('DB_HOST', 'localhost'),
+            port=os.getenv('DB_PORT', '5432'),
             min_size=1,
             max_size=10
         )
@@ -242,11 +245,17 @@ async def my_orders(callback_query: CallbackQuery):
                 file = await bot.get_file(file_id)
                 file_path = file.file_path
 
-                save_path = f'static/user_{user_uuid}.png'
+                save_directory = 'static'
+                if not os.path.exists(save_directory):
+                    os.makedirs(save_directory)
 
-                if not os.path.exists('static'):
-                    os.makedirs('static')
+                save_path = os.path.join(save_directory, f'user_{user_uuid}.png')
 
+                # Удаляем старый файл, если он существует
+                if os.path.exists(save_path):
+                    os.remove(save_path)
+
+                # Скачиваем новый файл
                 await bot.download_file(file_path, save_path)
 
                 await callback_query.message.answer("✅ Ваше фото успешно обновлено!")
@@ -254,9 +263,11 @@ async def my_orders(callback_query: CallbackQuery):
                 await callback_query.message.answer("❌ У вас нет фотографий в профиле.")
         else:
             await callback_query.message.answer("🚨 Вы не зарегистрированы в системе.")
+    except FileIsTooBig:
+        await callback_query.message.answer("❌ Ваше фото слишком большое для загрузки.")
     except Exception as e:
-        logging.error(f"Ошибка получения заказов: {e}")
-        await callback_query.message.answer("Произошла ошибка при получении заказов.")
+        logging.error(f"Ошибка при смене фото: {e}")
+        await callback_query.message.answer("🚨 Произошла ошибка при смене фото.")
 
 
 @dp.message_handler(lambda message: message.text == "Рекламы")
@@ -330,7 +341,6 @@ async def my_orders(callback_query: CallbackQuery):
         await callback_query.message.answer("Произошла ошибка при получении заказов.")
 
 
-
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("ad_"))
 async def ad_details(callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
@@ -368,13 +378,13 @@ async def ad_details(callback_query: CallbackQuery):
                 )
                 price = nano_ton_to_ton(ad_details['total_price'])
                 response = (
-                    f"**Детали рекламы №{ad_details['order_id']}**\n"
-                    f"Название: {ad_details['title']}\n"
-                    f"Общая цена: {price:.2f} ton.\n"
-                    f"Время постинга: {post_times}\n"
-                    f"Формат публикации: {ad_details['format_name']}\n"
-                    f"ID сообщения: {ad_details['message_id']}\n"
-                    f"ID продукта: {ad_details['product_id']}\n"
+                    f"**Детали рекламы №{escape_md(str(ad_details['order_id']))}**\n"
+                    f"Название: {escape_md(ad_details['title'])}\n"
+                    f"Общая цена: {price:.2f} TON\n"
+                    f"Время постинга: {escape_md(post_times)}\n"
+                    f"Формат публикации: {escape_md(ad_details['format_name'])}\n"
+                    f"ID сообщения: {escape_md(str(ad_details['message_id']))}\n"
+                    f"ID продукта: {escape_md(str(ad_details['product_id']))}\n"
                 )
                 # Кнопка "Пост"
                 keyboard = InlineKeyboardMarkup().add(
@@ -599,7 +609,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             subscribers_count = await bot.get_chat_members_count(my_chat_member.chat.id)
 
             # Проверка на количество подписчиков
-            if subscribers_count <= 1:
+            if subscribers_count <= 1000:
                 await bot.send_message(
                     chat_id=my_chat_member.from_user.id,
                     text="Канал не может быть добавлен, так как количество подписчиков должно быть больше 1000."
@@ -609,7 +619,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             file_path = "Аватарка отсутствует"
             if chat_info.photo:
                 file = await bot.get_file(chat_info.photo.big_file_id)
-                file_path = f'/usr/src/app/static/channel_{my_chat_member.chat.id}.png'
+                file_path = f'static/channel_{my_chat_member.chat.id}.png'
                 await bot.download_file(file.file_path, file_path)
 
             administrators = await bot.get_chat_administrators(my_chat_member.chat.id)
@@ -835,7 +845,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             pay_button = InlineKeyboardMarkup().add(
-                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://marusinohome.ru/buy/{order_id}"))
+                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/buy/{order_id}"))
             )
 
             await bot.send_message(
@@ -914,22 +924,44 @@ class OrderRequest(BaseModel):
     user_id: int
     order_id: int
 
-@app.post('/bot/order')
+@app.post('/order')
 async def handle_order(order: OrderRequest):
+    user_id = order.user_id
+    order_id = order.order_id
+
     try:
-        # Получаем данные из тела запроса
-        user_id = order.user_id
-        order_id = order.order_id
+        async with db_pool.acquire() as connection:
+            result = await connection.fetchrow(
+                """SELECT p.user_id
+                   FROM Products p
+                   JOIN OrderItems oi ON oi.product_id = p.product_id
+                   JOIN Orders o ON o.order_id = oi.order_id
+                   WHERE o.order_id = $1""", order_id
+            )
 
-        # Формируем текст сообщения
-        message_text = f"Вы сделали заказ {order_id}"
+        if result:
+            target_user_id = result['user_id']
 
-        # Отправляем сообщение пользователю
-        await bot.send_message(user_id, message_text, parse_mode=ParseMode.MARKDOWN)
+            # Отправляем сообщение пользователю
+            await bot.send_message(
+                user_id,
+                "✅ Ваше рекламное предложение будет отправлено продавцу для утверждения. "
+                "Отправьте сообщение для пересылки."
+            )
+
+            # Используем FSMContext через dispatcher, а не напрямую в FastAPI
+            state = dp.current_state(user=user_id)
+            await state.update_data(target_user_id=target_user_id, order_id=order_id)
+            await state.set_state(OrderState.waiting_for_advertisement)
+
+        else:
+            await bot.send_message(user_id, "❌ Заказ с таким ID не найден.")
+            return {"status": "error", "message": "Order not found"}
 
         return {"status": "success", "message": "Message sent and data saved"}
+
     except Exception as e:
-        logging.error(f"Ошибка при обработке запроса: {e}")
+        logging.error(f"❌ Ошибка при обработке запроса: {e}")
         raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
 
 class BuyRequest(BaseModel):
@@ -941,7 +973,7 @@ class BuyRequest(BaseModel):
     channel_name: str
     channel_url: str
 
-@app.post('/bot/buy')
+@app.post('/buy')
 async def handle_buy(data: BuyRequest):
     try:
         # Форматируем время публикации
