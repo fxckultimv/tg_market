@@ -383,7 +383,7 @@ class productController {
 
             // Добавляем новый продукт с использованием channel_name в качестве title
             const result = await db.query(
-                `INSERT INTO products (user_id, category_id, title, description, price, post_time, channel_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+                `INSERT INTO products (user_id, category_id, title, description, price, post_time, channel_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
                 [
                     user_id,
                     category_id,
@@ -392,6 +392,7 @@ class productController {
                     price,
                     post_time[0],
                     channel_id,
+                    'work',
                 ]
             )
 

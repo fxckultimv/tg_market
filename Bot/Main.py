@@ -577,7 +577,7 @@ async def add_channel(message: types.Message):
         add_bot_button = InlineKeyboardMarkup().add(
             InlineKeyboardButton(
                 text="Добавить бота в канал",
-                url="https://t.me/TeleAdMarketBot?startgroup=true"
+                url="https://t.me/Stok_dev_bot?startgroup=true"
             )
         )
         await message.answer(
