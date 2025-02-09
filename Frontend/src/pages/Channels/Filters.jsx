@@ -129,7 +129,7 @@ const Filters = () => {
                     Объявления
                 </h1>
             </div>
-            <div className="flex flex-col items-center w-full mt-6 mb-8 p-3">
+            <div className="flex flex-col items-center w-full mt-6 p-3">
                 {/* Поле поиска */}
                 <div className="w-full max-w-md mb-4">
                     <input
@@ -210,7 +210,7 @@ const Filters = () => {
                 }
                 transition={{ duration: 0.5 }}
                 style={{ overflow: 'hidden' }}
-                className="bg-medium-gray  rounded-b-lg"
+                className="bg-medium-gray  rounded-b-lg p-5"
             >
                 <div className="space-y-2">
                     {/* Category Filter */}

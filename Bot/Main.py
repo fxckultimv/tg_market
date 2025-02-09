@@ -7,13 +7,17 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import (
     ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery,
-    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo
+    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo, InputFile
 )
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import logging
 import asyncpg
 from datetime import datetime, timedelta
+
+from aiogram.utils.callback_data import CallbackData
+from aiogram.utils.exceptions import FileIsTooBig
+from aiogram.utils.markdown import escape_md
 from pydantic import BaseModel
 from telethon import TelegramClient
 import asyncio
@@ -22,7 +26,7 @@ from uvicorn import Config, Server
 
 app = FastAPI()
 
-API_TOKEN = '7248552375:AAEBZiDiwtckvFXvVRv_3Ttqx-p8gc6_1so'
+API_TOKEN = '7236806586:AAEyzDi_99Y6YKhyG5ZGPCBWSMAVlkrt7VI'
 
 logging.basicConfig(level=logging.INFO)
 
@@ -84,9 +88,9 @@ async def create_db_pool():
     except Exception as e:
         logging.error(f"Ошибка подключения к базе данных: {e}")
 
-# @dp.message_handler(content_types=types.ContentType.VIDEO)
-# async def get_video_id(message: types.Message):
-#     print(message.video.file_id)  # Выведет новый file_id в консоль
+@dp.message_handler(content_types=types.ContentType.VIDEO)
+async def get_video_id(message: types.Message):
+    await message.answer(message.video.file_id)  # Выведет новый file_id в консоль
 
 
 @dp.message_handler(commands=['start'])
@@ -242,11 +246,17 @@ async def my_orders(callback_query: CallbackQuery):
                 file = await bot.get_file(file_id)
                 file_path = file.file_path
 
-                save_path = f'static/user_{user_uuid}.png'
+                save_directory = 'static'
+                if not os.path.exists(save_directory):
+                    os.makedirs(save_directory)
 
-                if not os.path.exists('static'):
-                    os.makedirs('static')
+                save_path = os.path.join(save_directory, f'user_{user_uuid}.png')
 
+                # Удаляем старый файл, если он существует
+                if os.path.exists(save_path):
+                    os.remove(save_path)
+
+                # Скачиваем новый файл
                 await bot.download_file(file_path, save_path)
 
                 await callback_query.message.answer("✅ Ваше фото успешно обновлено!")
@@ -254,9 +264,11 @@ async def my_orders(callback_query: CallbackQuery):
                 await callback_query.message.answer("❌ У вас нет фотографий в профиле.")
         else:
             await callback_query.message.answer("🚨 Вы не зарегистрированы в системе.")
+    except FileIsTooBig:
+        await callback_query.message.answer("❌ Ваше фото слишком большое для загрузки.")
     except Exception as e:
-        logging.error(f"Ошибка получения заказов: {e}")
-        await callback_query.message.answer("Произошла ошибка при получении заказов.")
+        logging.error(f"Ошибка при смене фото: {e}")
+        await callback_query.message.answer("🚨 Произошла ошибка при смене фото.")
 
 
 @dp.message_handler(lambda message: message.text == "Рекламы")
@@ -367,13 +379,13 @@ async def ad_details(callback_query: CallbackQuery):
                 )
                 price = nano_ton_to_ton(ad_details['total_price'])
                 response = (
-                    f"**Детали рекламы №{ad_details['order_id']}**\n"
-                    f"Название: {ad_details['title']}\n"
-                    f"Общая цена: {price:.2f} ton.\n"
-                    f"Время постинга: {post_times}\n"
-                    f"Формат публикации: {ad_details['format_name']}\n"
-                    f"ID сообщения: {ad_details['message_id']}\n"
-                    f"ID продукта: {ad_details['product_id']}\n"
+                    f"**Детали рекламы №{escape_md(str(ad_details['order_id']))}**\n"
+                    f"Название: {escape_md(ad_details['title'])}\n"
+                    f"Общая цена: {price:.2f} TON\n"
+                    f"Время постинга: {escape_md(post_times)}\n"
+                    f"Формат публикации: {escape_md(ad_details['format_name'])}\n"
+                    f"ID сообщения: {escape_md(str(ad_details['message_id']))}\n"
+                    f"ID продукта: {escape_md(str(ad_details['product_id']))}\n"
                 )
                 # Кнопка "Пост"
                 keyboard = InlineKeyboardMarkup().add(
@@ -598,7 +610,7 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             subscribers_count = await bot.get_chat_members_count(my_chat_member.chat.id)
 
             # Проверка на количество подписчиков
-            if subscribers_count <= 1000:
+            if subscribers_count <= 0:
                 await bot.send_message(
                     chat_id=my_chat_member.from_user.id,
                     text="Канал не может быть добавлен, так как количество подписчиков должно быть больше 1000."
@@ -663,35 +675,101 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             )
 
 
+# Хендлер: Выводит список каналов с уникальным callback_data
 @dp.message_handler(lambda message: message.text == "Мои каналы")
 async def my_channels(message: types.Message):
     user_id = message.from_user.id
     try:
         async with db_pool.acquire() as connection:
             channels = await connection.fetch(
-                """SELECT channel_name, subscribers_count, channel_url
+                """SELECT channel_id, channel_name, channel_url, channel_tg_id
                    FROM verifiedchannels 
                    WHERE user_id = $1 ORDER BY created_at DESC""", user_id
             )
 
             if channels:
-                response = "<b>Ваши каналы:</b>\n\n"
+                keyboard = InlineKeyboardMarkup(row_width=1)
+
                 for channel in channels:
+                    channel_tg_id = channel['channel_tg_id']
                     channel_name = channel['channel_name']
-                    subscribers_count = channel['subscribers_count']
-                    channel_url = channel['channel_url']
 
-                    response += (
-                        f"<b>Название:</b> <a href='{channel_url}'>{channel_name}</a>\n"
-                        f"<b>Количество подписчиков:</b> {subscribers_count}\n\n"
+                    button = InlineKeyboardButton(
+                        text=channel_name,
+                        callback_data=f"channel_{channel_tg_id}"
                     )
+                    keyboard.add(button)
 
-                await message.answer(response, parse_mode="HTML")
+                await message.answer("<b>Ваши каналы:</b>", parse_mode="HTML", reply_markup=keyboard)
             else:
                 await message.answer("У вас пока нет верифицированных каналов.", parse_mode="HTML")
     except Exception as e:
         logging.error(f"Ошибка получения каналов: {e}")
         await message.answer("Произошла ошибка при получении каналов.", parse_mode="HTML")
+
+
+# Хендлер: Обрабатывает нажатие на кнопку с каналом и показывает кнопку "Смена картинки"
+@dp.callback_query_handler(lambda call: call.data.startswith("channel_"))
+async def channel_selected(call: types.CallbackQuery):
+    channel_tg_id = call.data.split("_")[1]
+
+    keyboard = InlineKeyboardMarkup().add(
+        InlineKeyboardButton(
+            text="Смена картинки",
+            callback_data=f"change_photo_{channel_tg_id}"
+        )
+    )
+
+    await call.message.answer(f"Вы выбрали канал {channel_tg_id}.", reply_markup=keyboard)
+    await call.answer()
+
+
+# Функция для скачивания аватарки канала
+async def download_channel_photo(bot: Bot, channel_tg_id: str):
+    try:
+        chat = await bot.get_chat(channel_tg_id)
+        if chat.photo:
+            file = await bot.get_file(chat.photo.big_file_id)
+            file_path = file.file_path
+
+            # Создаем директорию, если её нет
+            save_directory = 'static'
+            os.makedirs(save_directory, exist_ok=True)
+
+            save_path = os.path.join(save_directory, f'channel_{channel_tg_id}.png')
+
+            # Удаляем старый файл, если он существует
+            if os.path.exists(save_path):
+                os.remove(save_path)
+
+            # Скачиваем новый файл
+            await bot.download_file(file_path, save_path)
+
+            return save_path  # Возвращаем путь к сохранённому файлу
+        else:
+            return None
+    except Exception as e:
+        logging.error(f"Ошибка скачивания фото канала {channel_tg_id}: {e}")
+        return None
+
+
+# Хендлер: Обрабатывает нажатие на "Смена картинки"
+@dp.callback_query_handler(lambda call: call.data.startswith("change_photo_"))
+async def change_channel_photo(call: types.CallbackQuery):
+    channel_tg_id = call.data.split("_")[2]
+
+    # Скачиваем аватарку канала
+    photo_path = await download_channel_photo(call.bot, channel_tg_id)
+
+    if photo_path:
+        await call.message.answer_photo(
+            photo=InputFile(photo_path),
+            caption="Фото канала обновлено и сохранено!"
+        )
+    else:
+        await call.message.answer("Не удалось скачать фото канала.")
+
+    await call.answer()
 
 @dp.callback_query_handler(lambda query: query.data.startswith("order_"))
 async def process_order_callback(callback_query: types.CallbackQuery, state: FSMContext):
@@ -915,20 +993,42 @@ class OrderRequest(BaseModel):
 
 @app.post('/order')
 async def handle_order(order: OrderRequest):
+    user_id = order.user_id
+    order_id = order.order_id
+
     try:
-        # Получаем данные из тела запроса
-        user_id = order.user_id
-        order_id = order.order_id
+        async with db_pool.acquire() as connection:
+            result = await connection.fetchrow(
+                """SELECT p.user_id
+                   FROM Products p
+                   JOIN OrderItems oi ON oi.product_id = p.product_id
+                   JOIN Orders o ON o.order_id = oi.order_id
+                   WHERE o.order_id = $1""", order_id
+            )
 
-        # Формируем текст сообщения
-        message_text = f"Вы сделали заказ {order_id}"
+        if result:
+            target_user_id = result['user_id']
 
-        # Отправляем сообщение пользователю
-        await bot.send_message(user_id, message_text, parse_mode=ParseMode.MARKDOWN)
+            # Отправляем сообщение пользователю
+            await bot.send_message(
+                user_id,
+                "✅ Ваше рекламное предложение будет отправлено продавцу для утверждения. "
+                "Отправьте сообщение для пересылки."
+            )
+
+            # Используем FSMContext через dispatcher, а не напрямую в FastAPI
+            state = dp.current_state(user=user_id)
+            await state.update_data(target_user_id=target_user_id, order_id=order_id)
+            await state.set_state(OrderState.waiting_for_advertisement)
+
+        else:
+            await bot.send_message(user_id, "❌ Заказ с таким ID не найден.")
+            return {"status": "error", "message": "Order not found"}
 
         return {"status": "success", "message": "Message sent and data saved"}
+
     except Exception as e:
-        logging.error(f"Ошибка при обработке запроса: {e}")
+        logging.error(f"❌ Ошибка при обработке запроса: {e}")
         raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
 
 class BuyRequest(BaseModel):

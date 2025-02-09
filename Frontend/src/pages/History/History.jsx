@@ -121,7 +121,7 @@ const History = () => {
                     value="rejected"
                     onClick={handlerSubmit}
                 >
-                    откланены
+                    отклонены
                 </button>
             </div>
 

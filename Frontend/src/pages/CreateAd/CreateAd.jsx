@@ -96,7 +96,7 @@ const CreateAd = () => {
                     setSelectedCategories(null)
                     setSelectedFormat([])
                     setPublicationTime('')
-                    setPublicationTimes('')
+                    setPublicationTimes([])
                     setPrice('')
                     setDescription('')
                 } catch (error) {

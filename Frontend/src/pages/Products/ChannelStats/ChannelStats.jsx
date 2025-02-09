@@ -332,7 +332,7 @@ const ChannelStats = () => {
                             ))}
                         </select>
                     </div>
-                    <div className="flex justify-between bg-card-white p-6 mb-6 rounded-xl">
+                    <div className="flex flex-col justify-between bg-card-white p-6 mb-6 rounded-xl">
                         {/* Выбор времени публикации */}
                         <div className="mb-4">
                             <label
