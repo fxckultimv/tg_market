@@ -7,13 +7,14 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import (
     ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery,
-    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo
+    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo, InputFile
 )
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import logging
 import asyncpg
 from datetime import datetime, timedelta
+from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.exceptions import FileIsTooBig
 from aiogram.utils.markdown import escape_md
 from pydantic import BaseModel
@@ -675,35 +676,101 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
             )
 
 
+# Хендлер: Выводит список каналов с уникальным callback_data
 @dp.message_handler(lambda message: message.text == "Мои каналы")
 async def my_channels(message: types.Message):
     user_id = message.from_user.id
     try:
         async with db_pool.acquire() as connection:
             channels = await connection.fetch(
-                """SELECT channel_name, subscribers_count, channel_url
+                """SELECT channel_id, channel_name, channel_url, channel_tg_id
                    FROM verifiedchannels 
                    WHERE user_id = $1 ORDER BY created_at DESC""", user_id
             )
 
             if channels:
-                response = "<b>Ваши каналы:</b>\n\n"
+                keyboard = InlineKeyboardMarkup(row_width=1)
+
                 for channel in channels:
+                    channel_tg_id = channel['channel_tg_id']
                     channel_name = channel['channel_name']
-                    subscribers_count = channel['subscribers_count']
-                    channel_url = channel['channel_url']
 
-                    response += (
-                        f"<b>Название:</b> <a href='{channel_url}'>{channel_name}</a>\n"
-                        f"<b>Количество подписчиков:</b> {subscribers_count}\n\n"
+                    button = InlineKeyboardButton(
+                        text=channel_name,
+                        callback_data=f"channel_{channel_tg_id}"
                     )
+                    keyboard.add(button)
 
-                await message.answer(response, parse_mode="HTML")
+                await message.answer("<b>Ваши каналы:</b>", parse_mode="HTML", reply_markup=keyboard)
             else:
                 await message.answer("У вас пока нет верифицированных каналов.", parse_mode="HTML")
     except Exception as e:
         logging.error(f"Ошибка получения каналов: {e}")
         await message.answer("Произошла ошибка при получении каналов.", parse_mode="HTML")
+
+
+# Хендлер: Обрабатывает нажатие на кнопку с каналом и показывает кнопку "Смена картинки"
+@dp.callback_query_handler(lambda call: call.data.startswith("channel_"))
+async def channel_selected(call: types.CallbackQuery):
+    channel_tg_id = call.data.split("_")[1]
+
+    keyboard = InlineKeyboardMarkup().add(
+        InlineKeyboardButton(
+            text="Смена картинки",
+            callback_data=f"change_photo_{channel_tg_id}"
+        )
+    )
+
+    await call.message.answer(f"Вы выбрали канал {channel_tg_id}.", reply_markup=keyboard)
+    await call.answer()
+
+
+# Функция для скачивания аватарки канала
+async def download_channel_photo(bot: Bot, channel_tg_id: str):
+    try:
+        chat = await bot.get_chat(channel_tg_id)
+        if chat.photo:
+            file = await bot.get_file(chat.photo.big_file_id)
+            file_path = file.file_path
+
+            # Создаем директорию, если её нет
+            save_directory = 'static'
+            os.makedirs(save_directory, exist_ok=True)
+
+            save_path = os.path.join(save_directory, f'channel_{channel_tg_id}.png')
+
+            # Удаляем старый файл, если он существует
+            if os.path.exists(save_path):
+                os.remove(save_path)
+
+            # Скачиваем новый файл
+            await bot.download_file(file_path, save_path)
+
+            return save_path  # Возвращаем путь к сохранённому файлу
+        else:
+            return None
+    except Exception as e:
+        logging.error(f"Ошибка скачивания фото канала {channel_tg_id}: {e}")
+        return None
+
+
+# Хендлер: Обрабатывает нажатие на "Смена картинки"
+@dp.callback_query_handler(lambda call: call.data.startswith("change_photo_"))
+async def change_channel_photo(call: types.CallbackQuery):
+    channel_tg_id = call.data.split("_")[2]
+
+    # Скачиваем аватарку канала
+    photo_path = await download_channel_photo(call.bot, channel_tg_id)
+
+    if photo_path:
+        await call.message.answer_photo(
+            photo=InputFile(photo_path),
+            caption="Фото канала обновлено и сохранено!"
+        )
+    else:
+        await call.message.answer("Не удалось скачать фото канала.")
+
+    await call.answer()
 
 @dp.callback_query_handler(lambda query: query.data.startswith("order_"))
 async def process_order_callback(callback_query: types.CallbackQuery, state: FSMContext):
