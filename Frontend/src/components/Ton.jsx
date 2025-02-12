@@ -37,6 +37,11 @@ const Ton = () => {
             return
         }
 
+        // if (wallet.account.chain === CHAIN.TESTNET) {
+        //     addToast('Подключите MainNet кошелёк.', 'error')
+        //     return
+        // }
+
         const myTransaction = {
             validUntil: Math.floor(Date.now() / 1000) + 60, // Срок действия - 60 сек
             messages: [
@@ -78,6 +83,11 @@ const Ton = () => {
             addToast('Введите корректную сумму.', 'error')
             return
         }
+
+        // if (wallet.account.chain === CHAIN.TESTNET) {
+        //     addToast('Подключите MainNet кошелёк.', 'error')
+        //     return
+        // }
 
         try {
             handleWithdrawal(

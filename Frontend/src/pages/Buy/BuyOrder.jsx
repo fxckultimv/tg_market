@@ -7,6 +7,7 @@ import Ton from '../../assets/ton_symbol.svg'
 import Loading from '../../Loading'
 import Error from '../../Error'
 import { useToast } from '../../components/ToastProvider'
+import duckMoney from '../../assets/duckMoney.webp'
 
 const BuyOrder = () => {
     const { id } = useParams() // Получаем ID заказа из URL
@@ -75,10 +76,9 @@ const BuyOrder = () => {
     // Если заказ уже оплачен, отображаем сообщение
     if (['completed', 'paid'].includes(orderInfo.status)) {
         return (
-            <div className="container mx-auto p-4">
-                <div className="text-xl font-semibold text-green-600">
-                    Заказ уже оплачен
-                </div>
+            <div className="flex flex-col items-center justify-center min-h-screen">
+                <img src={duckMoney} alt="" className="px-10" />
+                <div className="text-xl font-semibold pt-4">Заказ оплачен</div>
             </div>
         )
     }
@@ -89,14 +89,13 @@ const BuyOrder = () => {
     return (
         <div className="container mx-auto p-4 flex-row min-h-screen">
             <h1 className="text-2xl font-bold mb-4">Заказ с ID: {id}</h1>
-            <p className="mb-4">
-                Для подтверждения покупки нажмите на кнопку ниже.
+            <p className="py-3">Ваш баланс: {nanoTonToTon(balance)} TON</p>
+            <p className="py-3">
+                Стоимость заказа: {nanoTonToTon(orderInfo.total_price)} TON
             </p>
-            <p>Ваш баланс: {nanoTonToTon(balance)} TON</p>
-            <p>Стоимость заказа: {nanoTonToTon(orderInfo.total_price)} TON</p>
             <button
                 onClick={handleBuyProduct}
-                className={`bg-accent-green bg-white px-6 py-3 rounded-full font-semibold transition-transform transform hover:scale-105 ${
+                className={`bg-blue px-6 py-3 rounded-2xl font-semibold transition-transform transform${
                     isOrderProcessing || !isBalanceSufficient
                         ? 'opacity-50 cursor-not-allowed'
                         : ''

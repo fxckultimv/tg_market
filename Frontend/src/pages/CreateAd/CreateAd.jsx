@@ -459,7 +459,7 @@ const CreateAd = () => {
                                 вам необходимо верифицировать ваш канал.
                             </p>
                             <Link
-                                to="/verification-instructions"
+                                to="/how-create"
                                 className="rounded-full bg-blue-500 px-6 py-2 font-bold shadow-xl transition duration-300 hover:bg-blue-600"
                             >
                                 Как верифицировать канал?
