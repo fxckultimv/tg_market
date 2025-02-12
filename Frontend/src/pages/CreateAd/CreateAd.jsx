@@ -89,14 +89,14 @@ const CreateAd = () => {
                         format: selectedFormat,
                         post_time: publicationTimes,
                     })
-                    addToast('Рекламное предложение успешно создано!')
+                    addToast('Успешно создано!')
 
                     // Очистка формы после успешного создания
                     setSelectedChannel(null)
                     setSelectedCategories(null)
                     setSelectedFormat([])
                     setPublicationTime('')
-                    setPublicationTimes('')
+                    setPublicationTimes([])
                     setPrice('')
                     setDescription('')
                 } catch (error) {
@@ -377,7 +377,7 @@ const CreateAd = () => {
                                         >
                                             <input
                                                 type="time"
-                                                className="w-full p-3 rounded  text-black"
+                                                className="w-full p-3 rounded text-black"
                                                 value={time}
                                                 onChange={(e) =>
                                                     handleTimeChange(
@@ -459,7 +459,7 @@ const CreateAd = () => {
                                 вам необходимо верифицировать ваш канал.
                             </p>
                             <Link
-                                to="/verification-instructions"
+                                to="/how-create"
                                 className="rounded-full bg-blue-500 px-6 py-2 font-bold shadow-xl transition duration-300 hover:bg-blue-600"
                             >
                                 Как верифицировать канал?

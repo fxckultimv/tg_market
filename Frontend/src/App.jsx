@@ -46,6 +46,7 @@ import { useLocation } from 'react-router-dom'
 import SessionExpiredModal from './SessionExpiredModal'
 import Rulers from './pages/Rules/Rules'
 import AdminTransactions from './pages/adminDashboard/AdminTransactions/AdminTransactions'
+import HowCreate from './pages/CreateAd/HowCreate'
 // import { useStore } from '../store'
 
 const App = () => {
@@ -175,6 +176,15 @@ const App = () => {
                             element={
                                 <AnimatedPage>
                                     <CreateAd />
+                                </AnimatedPage>
+                            }
+                        />
+
+                        <Route
+                            path="how-create"
+                            element={
+                                <AnimatedPage>
+                                    <HowCreate />
                                 </AnimatedPage>
                             }
                         />
