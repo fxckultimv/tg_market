@@ -392,8 +392,8 @@ async def ad_details(callback_query: CallbackQuery):
                     InlineKeyboardButton(
                         text="Пост",
                         callback_data=f"post_{ad_details['message_id']}"
-                    ),InlineKeyboardButton("Выполнено", callback_data=f"addone_{ad_details['order_id']}"),
-                        InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
+                    ),InlineKeyboardButton("Подтвердить", web_app=WebAppInfo(url="https://marusinohome.ru/profile/history/{order_id}")),
+                        # InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
                 )
                 await callback_query.message.edit_text(response, parse_mode="Markdown", reply_markup=keyboard)
             else:

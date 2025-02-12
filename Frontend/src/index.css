@@ -105,10 +105,10 @@ input[type='datetime-local']:focus {
     content: '';
     position: absolute;
     left: 20%;
-    bottom: -26px; /* Расстояние до следующего элемента */
+    bottom: -25px; /* Расстояние до следующего элемента */
     transform: translateX(-50%);
     width: 2px;
-    height: 26px; /* Длина линии */
+    height: 25px; /* Длина линии */
     background-color: #ccc; /* Цвет линии */
     border-right: 2px dashed #999; /* Прерывистая линия */
 }

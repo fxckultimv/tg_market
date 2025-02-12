@@ -119,10 +119,7 @@ const ProductCard = ({ product }) => {
                         />
                     </div>
                 </div>
-                <div className="bg-gray w-full h-[1px] my-8"></div>
-                <p className="text-base mb-3 max-sm:text-xs">
-                    Время публикации:
-                </p>
+                <div className="bg-gray w-full h-[1px] my-6"></div>
                 <div className="flex justify-between gap-4">
                     <div className="relative w-full text-center">
                         <button
@@ -207,14 +204,14 @@ const ProductCard = ({ product }) => {
                     </div>
                 </div>
 
-                <div className="bg-gray w-full h-[1px] my-8"></div>
+                <div className="bg-gray w-full h-[1px] my-6"></div>
                 <div>
                     <p className="text-base max-sm:text-xs">Статистика</p>
                     <InfoBox product={product} />
                 </div>
-                <div className="bg-gray w-full h-[1px] my-8"></div>
-                <p className="max-sm:text-xs">Стоимость:</p>
-                <div className="flex justify-between items-center">
+                <div className="bg-gray w-full h-[1px] my-6"></div>
+
+                <div className="flex justify-center items-center">
                     <div>
                         <div className="flex items-center gap-2">
                             <img
@@ -228,14 +225,6 @@ const ProductCard = ({ product }) => {
                             </p>
                         </div>
                         {/* <h2 className="text-3xl">{product.price} ₽</h2> */}
-                    </div>
-                    <div className="bg-blue rounded-2xl flex items-center">
-                        <div className="px-4 py-3 text-xl text-white flex items-center gap-2">
-                            <img src={Arrow} alt="" />
-                            <p className="text-base font-normal">
-                                Начать сейчас
-                            </p>
-                        </div>
                     </div>
                 </div>
 

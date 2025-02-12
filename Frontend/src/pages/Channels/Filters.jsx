@@ -121,7 +121,7 @@ const Filters = () => {
 
     return (
         <>
-            <div className="flex flex-col items-center justify-center gap-3 mt-16">
+            <div className="flex flex-col items-center justify-center gap-3 mt-16 max-md:hidden">
                 <div className="p-4 bg-blue rounded-2xl">
                     <img src={Document} alt="Документ" className="h-[32px]" />
                 </div>
@@ -141,9 +141,55 @@ const Filters = () => {
                     />
                 </div>
                 {/* Кнопка для фильтров */}
-                <div>
+                <div className="flex items-center w-full relative">
                     {' '}
-                    <div className="w-full">
+                    <div className="flex mr-auto justify-start mx-3 relative pr-16 max-md:pr-5 max-xl:pr-8">
+                        <div
+                            className="p-1 rounded-full bg-gray items-center"
+                            onClick={toggleSort}
+                        >
+                            <motion.img
+                                animate={sort ? { rotate: 360 } : {}}
+                                transition={{ duration: 0.5 }}
+                                src={settings}
+                                alt="Tune icon"
+                                className="w-5 h-5 m-2"
+                            />
+                        </div>
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={
+                                sort
+                                    ? { height: 'auto', opacity: 1 }
+                                    : { height: 0, opacity: 0 }
+                            }
+                            transition={{ duration: 0.5 }}
+                            style={{ overflow: 'hidden' }}
+                            className="absolute flex flex-col m-2 rounded-xl bg-card-white text-base top-10"
+                        >
+                            <ul>
+                                <li
+                                    onClick={() => handlerSort('asc')}
+                                    className={`cursor-pointer p-2 rounded-lg ${
+                                        filters?.sort === 'asc' ? 'bg-blue' : ''
+                                    }`}
+                                >
+                                    Дешевле
+                                </li>
+                                <li
+                                    onClick={() => handlerSort('desc')}
+                                    className={`cursor-pointer p-2 rounded-lg ${
+                                        filters?.sort === 'desc'
+                                            ? 'bg-blue'
+                                            : ''
+                                    }`}
+                                >
+                                    Дороже
+                                </li>
+                            </ul>
+                        </motion.div>
+                    </div>
+                    <div className="absolute left-1/2 transform -translate-x-1/2">
                         <button
                             onClick={toggleFilters}
                             className="flex items-center px-4 py-2 bg-blue text-white rounded-full hover:bg-blue-600 transition"
@@ -153,53 +199,11 @@ const Filters = () => {
                                 alt="Tune icon"
                                 className="w-5 h-5 mr-2"
                             />
-                            Показать фильтры
+                            Фильтры
                         </button>
                     </div>
                 </div>
             </div>
-            <div className="flex justify-start mx-3 relative pr-16 max-md:pr-5 max-xl:pr-8">
-                <div className="p-1 rounded-full bg-gray" onClick={toggleSort}>
-                    <motion.img
-                        animate={sort ? { rotate: 360 } : {}}
-                        transition={{ duration: 0.5 }}
-                        src={settings}
-                        alt="Tune icon"
-                        className="w-5 h-5 m-2"
-                    />
-                </div>
-            </div>
-
-            <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                style={{ opacity: 'hidden' }}
-                animate={
-                    sort
-                        ? { height: 'auto', opacity: 1 }
-                        : { height: 0, opacity: 0 }
-                }
-                className="absolute flex flex-col m-2 p-2 rounded-xl bg-card-white text-base "
-            >
-                <ul>
-                    <li
-                        onClick={() => handlerSort('asc')}
-                        className={`cursor-pointer p-2 rounded-lg ${
-                            filters.sort === 'asc' ? 'bg-blue' : ''
-                        }`}
-                    >
-                        Дешевле
-                    </li>
-                    <li
-                        onClick={() => handlerSort('desc')}
-                        className={`cursor-pointer p-2 rounded-lg ${
-                            filters.sort === 'desc' ? 'bg-blue' : ''
-                        }`}
-                    >
-                        Дороже
-                    </li>
-                </ul>
-            </motion.div>
 
             <motion.div
                 initial={{ height: 0, opacity: 0 }}
@@ -210,7 +214,7 @@ const Filters = () => {
                 }
                 transition={{ duration: 0.5 }}
                 style={{ overflow: 'hidden' }}
-                className="bg-medium-gray  rounded-b-lg p-5"
+                className="bg-medium-gray  rounded-b-lg mx-5"
             >
                 <div className="space-y-2">
                     {/* Category Filter */}

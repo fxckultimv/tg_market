@@ -1,5 +1,6 @@
 import {
     useBackButton,
+    useHapticFeedback,
     useLaunchParams,
     useMainButton,
 } from '@tma.js/sdk-react'
@@ -22,6 +23,7 @@ const ChannelDetails = () => {
     const mainButton = useMainButton()
     const navigate = useNavigate()
     const { initDataRaw } = useLaunchParams()
+    const hapticFeedback = useHapticFeedback()
     const {
         productDetails,
         busyDay,
@@ -112,6 +114,9 @@ const ChannelDetails = () => {
                 setSelectedDates([])
                 setPostTime('')
                 setFormat('')
+
+                hapticFeedback.notificationOccurred('success')
+                console.log("hapticFeedback.notificationOccurred('success')")
 
                 // Перенаправление
                 navigate('/basket')
