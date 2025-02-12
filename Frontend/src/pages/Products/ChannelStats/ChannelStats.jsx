@@ -110,15 +110,22 @@ const ChannelStats = () => {
     }
 
     const handleSave = async () => {
+        // Преобразуем в число и проверяем
+        const priceValue = parseFloat(price)
+        if (isNaN(priceValue) || priceValue < 0.1) {
+            addToast('Цена должна быть больше 0.1 TON!', 'error')
+            return
+        }
+
         if (window.confirm('Вы хотите сохранить изменения?')) {
             const updatedDetails = {
                 product_id: product_id,
-                channel_id: productDetails.channel_id, // ID канала
+                channel_id: productDetails.channel_id,
                 category_id: category,
                 description,
                 price: tonToNanoTon(price),
-                post_time: publicationTimes, // Массив с временем публикации
-                format: selectedFormats, // Массив с форматами
+                post_time: publicationTimes,
+                format: selectedFormats,
             }
 
             try {
@@ -136,6 +143,18 @@ const ChannelStats = () => {
             } catch (error) {
                 console.error('Ошибка:', error)
             }
+        }
+    }
+
+    // Ограничиваем ввод в поле цены
+    const handlePriceChange = (e) => {
+        let value = e.target.value.replace(',', '.') // Заменяем запятую на точку
+        const parsedValue = parseFloat(value)
+
+        if (isNaN(parsedValue) || parsedValue < 0) {
+            setPrice('') // Очищаем поле при неверном вводе
+        } else {
+            setPrice(value)
         }
     }
 
@@ -395,7 +414,7 @@ const ChannelStats = () => {
                                     className="bg-info-box w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
                                     placeholder="Введите цену"
                                     value={price ? price : ''}
-                                    onChange={(e) => setPrice(e.target.value)}
+                                    onChange={handlePriceChange}
                                     style={{
                                         appearance: 'textfield',
                                     }}

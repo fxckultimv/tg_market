@@ -112,13 +112,22 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 allDatesInPast && (
                     <>
                         {status === 'paid' && (
-                            <button
-                                type="submit"
-                                className="bg-green px-4 py-2 rounded-md"
-                                onClick={handlerConfirmationOrder}
-                            >
-                                Подтвердить заказ
-                            </button>
+                            <div className="flex flex-col justify-between gap-3">
+                                <button
+                                    type="submit"
+                                    className="bg-green px-4 py-2 rounded-md"
+                                    onClick={handlerConfirmationOrder}
+                                >
+                                    Подтвердить заказ
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-red px-4 py-2 rounded-md"
+                                    onClick={alert('Обратитесь в поддержку')}
+                                >
+                                    Открыть спор
+                                </button>
+                            </div>
                         )}
                     </>
                 )}

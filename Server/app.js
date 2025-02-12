@@ -72,7 +72,7 @@ const PORT = port || 5000
 app.listen(PORT, () => {
     logger.info(`Server is running on port ${PORT}`)
     // раскоментить чтобы запустить шедулю
-    // startScheduler()
+    startScheduler()
 })
 
 module.exports = app

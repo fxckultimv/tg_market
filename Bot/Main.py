@@ -209,7 +209,7 @@ async def user_profile(message: types.Message):
             response = (
                 f"👤 <b>Имя:</b> {user['username']}\n"
                 f"🆔 <b>User ID:</b> {user['user_id']}\n"
-                f"💰 <b>Баланс:</b> 10 TON\n"
+                # f"💰 <b>Баланс:</b> 10 TON\n"
                 f"📅 <b>Дата регистрации:</b> {user['created_at'].strftime('%d.%m.%Y')}\n"
                 f"🛠 <b>Статус:</b> {user['rating']}\n"
             )
@@ -393,8 +393,8 @@ async def ad_details(callback_query: CallbackQuery):
                     InlineKeyboardButton(
                         text="Пост",
                         callback_data=f"post_{ad_details['message_id']}"
-                    ),InlineKeyboardButton("Выполнено", callback_data=f"addone_{ad_details['order_id']}"),
-                        InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
+                    ),InlineKeyboardButton("Подтвердить", web_app=WebAppInfo(url="https://marusinohome.ru/profile/history/{order_id}")),
+                        # InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
                 )
                 await callback_query.message.edit_text(response, parse_mode="Markdown", reply_markup=keyboard)
             else:

@@ -147,11 +147,11 @@ const Layout = () => {
             <div className="flex justify-between px-16 py-8 items-center max-md:justify-center  max-md:flex-col max-md:text-sm bg-background">
                 {' '}
                 <div
-                    className="flex gap-6 items-center text-text
+                    className="flex gap-6 items-center text-text max-md:flex-col
                 "
                 >
                     <p>support@teleadmarket.com</p>
-                    <div className="w-2 h-2 bg-gray rounded-full"></div>
+                    <div className="w-2 h-2 bg-gray rounded-full max-md:hidden"></div>
                     <p>© TeleAdMarket, 2024</p>
                 </div>{' '}
                 <div className="flex gap-2 max-md:hidden">
