@@ -119,7 +119,7 @@ const ProductCard = ({ product }) => {
                         />
                     </div>
                 </div>
-                <div className="bg-gray w-full h-[1px] my-8"></div>
+                <div className="bg-gray w-full h-[1px] my-6"></div>
                 <div className="flex justify-between gap-4">
                     <div className="relative w-full text-center">
                         <button
@@ -128,35 +128,39 @@ const ProductCard = ({ product }) => {
                                     setIsOpenFormat(!isOpenFormat)
                                 )
                             }
-                            className="flex justify-between items-center w-full p-3 border-2 rounded-full border-gray text-gray hover:border-gray-400 transition-all duration-200"
+                            className="flex flex-col justify-between items-center w-full p-3 border-2 rounded-2xl border-gray text-gray hover:border-gray-400 transition-all duration-200"
                         >
-                            <p className="flex-grow text-left">
-                                {firstFormatName}
-                            </p>
-                            <img
-                                src={arrowDown}
-                                alt="Toggle"
-                                className={`transform transition-transform duration-300 ${isOpenFormat ? 'rotate-180' : 'rotate-0'}`}
-                            />
+                            <div className="flex justify-between w-full">
+                                <p className="flex-grow text-left">
+                                    {firstFormatName}
+                                </p>
+                                <img
+                                    src={arrowDown}
+                                    alt="Toggle"
+                                    className={`transform transition-transform duration-300 ${isOpenFormat ? 'rotate-180' : 'rotate-0'}`}
+                                />
+                            </div>{' '}
+                            <div
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenFormat ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                            >
+                                <ul className="bg-card-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
+                                    {product.format_names.map(
+                                        (format, index) => (
+                                            <li
+                                                key={index}
+                                                className="p-2 hover:text-gray cursor-pointer transition-all"
+                                                onClick={() => {
+                                                    console.log(format)
+                                                    setIsOpenFormat(false)
+                                                }}
+                                            >
+                                                {format}
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            </div>
                         </button>
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenFormat ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                        >
-                            <ul className="bg-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
-                                {product.format_names.map((format, index) => (
-                                    <li
-                                        key={index}
-                                        className="p-2 hover:text-gray cursor-pointer transition-all"
-                                        onClick={() => {
-                                            console.log(format)
-                                            setIsOpenFormat(false)
-                                        }}
-                                    >
-                                        {format}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
                     </div>
 
                     <div className="relative w-full text-center">
@@ -166,35 +170,37 @@ const ProductCard = ({ product }) => {
                                     setIsOpenPostTime(!isOpenPostTime)
                                 )
                             }
-                            className="flex justify-between items-center w-full p-3 border-2 rounded-full border-gray text text-gray hover:border-gray-400 transition-all duration-200"
+                            className="flex flex-col justify-between items-center w-full p-3 border-2 rounded-2xl border-gray text text-gray hover:border-gray-400 transition-all duration-200"
                         >
-                            <p className="flex-grow text-left">
-                                {firstPostTime}
-                            </p>
-                            <img
-                                src={arrowDown}
-                                alt="Toggle"
-                                className={`transform transition-transform duration-300 ${isOpenPostTime ? 'rotate-180' : 'rotate-0'}`}
-                            />
+                            <div className="flex justify-between w-full">
+                                <p className="flex-grow text-left">
+                                    {firstPostTime}
+                                </p>
+                                <img
+                                    src={arrowDown}
+                                    alt="Toggle"
+                                    className={`transform transition-transform duration-300 ${isOpenPostTime ? 'rotate-180' : 'rotate-0'}`}
+                                />
+                            </div>
+                            <div
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenPostTime ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                            >
+                                <ul className="bg-card-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
+                                    {product.post_times.map((time, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 hover:text-gray cursor-pointer transition-all"
+                                            onClick={() => {
+                                                console.log(time)
+                                                setIsOpenPostTime(false)
+                                            }}
+                                        >
+                                            {time.slice(0, 5)}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         </button>
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenPostTime ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                        >
-                            <ul className="bg-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
-                                {product.post_times.map((time, index) => (
-                                    <li
-                                        key={index}
-                                        className="p-2 hover:text-gray cursor-pointer transition-all"
-                                        onClick={() => {
-                                            console.log(time)
-                                            setIsOpenPostTime(false)
-                                        }}
-                                    >
-                                        {time.slice(0, 5)}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
                     </div>
                 </div>
 
