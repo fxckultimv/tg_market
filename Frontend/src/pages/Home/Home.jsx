@@ -46,6 +46,7 @@ import Scr5 from '../../assets/phones/scr5.png'
 import Scr6 from '../../assets/phones/scr6.png'
 import Whell1 from './Whell1'
 import Whell2 from './Whell2'
+import FAQ from './FAQ'
 
 const Home = () => {
     const { initDataRaw } = useLaunchParams()
@@ -141,8 +142,8 @@ const Home = () => {
                     Популярные категории
                 </h2>
                 <div className="flex gap-8 items-center overflow-x-auto max-md:gap-4">
-                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px]">
-                        <div className="w-full flex justify-between mb-8">
+                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px] max-w-full">
+                        <div className="w-full flex justify-between mb-4">
                             <h2 className="text-white text-3xl max-md:text-lg">
                                 Бизнес
                             </h2>{' '}
@@ -157,7 +158,7 @@ const Home = () => {
                             />
 
                             {/* Контент */}
-                            <div className="relative z-10 p-4 text-white">
+                            <div className="relative z-10 text-white">
                                 <div className="flex justify-between items-center p-7">
                                     <p className="text-white">9:41</p>
                                     <div className="flex gap-2">
@@ -210,8 +211,8 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex-grow bg-dark-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px]">
-                        <div className="w-full flex justify-between mb-8">
+                    <div className="flex-grow bg-dark-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px] max-w-full">
+                        <div className="w-full flex justify-between mb-4">
                             <h2 className="text-white text-2xl max-md:text-lg">
                                 Развлекательные каналы
                             </h2>{' '}
@@ -226,7 +227,7 @@ const Home = () => {
                             />
 
                             {/* Контент */}
-                            <div className="relative z-10 p-4 text-white">
+                            <div className="relative z-10 text-white">
                                 <div className="flex justify-between items-center p-7">
                                     <p className="text-white">9:41</p>
                                     <div className="flex gap-2">
@@ -280,8 +281,8 @@ const Home = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px]">
-                        <div className="w-full flex justify-between mb-8">
+                    <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px] max-w-full">
+                        <div className="w-full flex justify-between mb-4">
                             <h2 className="text-white text-2xl max-md:text-lg">
                                 Новости и медиа
                             </h2>{' '}
@@ -296,7 +297,7 @@ const Home = () => {
                             />
 
                             {/* Контент */}
-                            <div className="relative z-10 p-4 text-white">
+                            <div className="relative z-10 text-white">
                                 <div className="flex justify-between items-center p-7">
                                     <p className="text-white">9:41</p>
                                     <div className="flex gap-2">
@@ -665,51 +666,15 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                <div className="px-16 py-20 bg-background">
-                    <h1 className="text-5xl">Часто задаваемые вопросы</h1>
-                    <div className="flex flex-col gap-6 mt-8">
-                        <div className="px-5 py-8 bg-blue rounded-3xl">
-                            <h2 className="text-xl text-white mb-5">
-                                Как быстро я увижу результаты своего объявления?
-                            </h2>{' '}
-                            <p className="text-base bg text-white">
-                                Результаты могут варьироваться в зависимости от
-                                категории и бюджета, но большинство
-                                пользователей отмечают первые результаты уже в
-                                течение 24-48 часов после публикации.
-                            </p>
-                        </div>
-                        <div className="px-5 py-8 bg-cardGradient rounded-3xl">
-                            <h2 className="text-xl text-black mb-5">
-                                Можно ли отслеживать эффективность рекламной
-                                кампании?
-                            </h2>{' '}
-                        </div>
-                        <div className="px-5 py-8 bg-cardGradient rounded-3xl">
-                            <h2 className="text-xl text-black mb-5">
-                                Как выбрать подходящие каналы для продвижения?
-                            </h2>{' '}
-                        </div>
-                        <div className="px-5 py-8 bg-cardGradient rounded-3xl">
-                            <h2 className="text-xl text-black mb-5">
-                                Есть ли ограничения по количеству объявлений?
-                            </h2>{' '}
-                        </div>
-                        <div className="px-5 py-8 bg-cardGradient rounded-3xl">
-                            <h2 className="text-xl text-black mb-5">
-                                Как я могу изменить или удалить свое объявление?
-                            </h2>{' '}
-                        </div>
-                    </div>
-                </div>
+                <FAQ className="z-50" />
 
                 <div className="flex flex-col items-center text-center py-10 relative bg-background">
                     {/* Фоновое изображение */}
-                    <img
+                    {/* <img
                         src={Ellipse}
                         alt="Background2"
                         className="absolute bottom-20 z-0 rotate-180"
-                    />
+                    /> */}
                     {/* Иконки вокруг
                 <div className="absolute -top-10 left-10 w-20 h-20 bg-white rounded-xl shadow-md flex items-center justify-center">
                     <img src={iconPhone} alt="Phone" className="w-10 h-10" />
