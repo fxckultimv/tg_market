@@ -34,4 +34,4 @@ COPY static /app/static
 EXPOSE 5001
 
 # Указываем команду запуска
-CMD ["python", "Main.py"]
+CMD ["python", "main.py"]
