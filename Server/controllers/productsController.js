@@ -517,7 +517,7 @@ class productController {
                 `SELECT oi.post_time  FROM products p
                 JOIN orderitems oi ON p.product_id = oi.product_id
                 JOIN orders o ON oi.order_id = o.order_id
-                WHERE p.product_id = $1 AND o.status IN ('completed', 'paid') AND oi.post_time IS NOT NULL`,
+                WHERE p.product_id = $1 AND o.status IN ('pending_payment', 'paid', 'complited') AND oi.post_time IS NOT NULL`,
                 [id]
             )
 
@@ -552,6 +552,7 @@ class productController {
             res.status(500).json({ error: 'Database error' })
         }
     }
+
     async pauseProduct(req, res) {
         const initData = res.locals.initData
         const user_id = initData.user.id

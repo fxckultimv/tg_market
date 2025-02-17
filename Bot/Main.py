@@ -270,7 +270,6 @@ async def my_orders(callback_query: CallbackQuery):
         logging.error(f"Ошибка при смене фото: {e}")
         await callback_query.message.answer("🚨 Произошла ошибка при смене фото.")
 
-
 @dp.message_handler(lambda message: message.text == "Рекламы")
 async def ads_menu(message: types.Message):
     # Создаём inline-кнопки
@@ -282,7 +281,6 @@ async def ads_menu(message: types.Message):
     ])
 
     await message.answer("📢 Выберите действие:", reply_markup=keyboard)
-
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "my_orders")
 async def my_orders(callback_query: CallbackQuery):
@@ -310,7 +308,6 @@ async def my_orders(callback_query: CallbackQuery):
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
         await callback_query.message.answer("Произошла ошибка при получении заказов.")
-
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "my_ads")
 async def my_orders(callback_query: CallbackQuery):
@@ -340,7 +337,6 @@ async def my_orders(callback_query: CallbackQuery):
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
         await callback_query.message.answer("Произошла ошибка при получении заказов.")
-
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("ad_"))
 async def ad_details(callback_query: CallbackQuery):
@@ -417,7 +413,6 @@ async def post_ad(callback_query: CallbackQuery):
     except Exception as e:
         logging.error(f"Ошибка пересылки сообщения: {e}")
         await callback_query.answer("Произошла ошибка при пересылке сообщения.", show_alert=True)
-
 
 @dp.callback_query_handler(lambda call: call.data.startswith("addone_") or call.data.startswith("adnotdone_"))
 async def ad_confirmation_handler(call: CallbackQuery):
@@ -570,7 +565,6 @@ async def post_ad(callback_query: CallbackQuery):
         logging.error(f"Ошибка пересылки сообщения: {e}")
         await callback_query.answer("Произошла ошибка при пересылке сообщения.", show_alert=True)
 
-
 @dp.message_handler(lambda message: message.text == "Добавить канал")
 async def add_channel(message: types.Message):
     try:
@@ -672,7 +666,6 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
                 text="Произошла ошибка при получении информации о канале."
             )
 
-
 # Хендлер: Выводит список каналов с уникальным callback_data
 @dp.message_handler(lambda message: message.text == "Мои каналы")
 async def my_channels(message: types.Message):
@@ -704,7 +697,6 @@ async def my_channels(message: types.Message):
     except Exception as e:
         logging.error(f"Ошибка получения каналов: {e}")
         await message.answer("Произошла ошибка при получении каналов.", parse_mode="HTML")
-
 
 # Хендлер: Обрабатывает нажатие на кнопку с каналом и показывает кнопку "Смена картинки"
 @dp.callback_query_handler(lambda call: call.data.startswith("channel_"))
@@ -804,12 +796,12 @@ async def process_order_callback(callback_query: types.CallbackQuery, state: FSM
 @dp.message_handler(state=OrderState.waiting_for_advertisement, content_types=types.ContentType.ANY)
 async def forward_message(message: types.Message, state: FSMContext):
     data = await state.get_data()
+    specific_message_id = data.get('message_id')
     target_user_id = data.get('target_user_id')
     order_id = data.get('order_id')
 
     if target_user_id and order_id:
         try:
-            await bot.forward_message(chat_id=target_user_id, from_chat_id=message.chat.id, message_id=message.message_id)
 
             async with db_pool.acquire() as connection:
                 await connection.execute(
@@ -818,8 +810,8 @@ async def forward_message(message: types.Message, state: FSMContext):
                     SET message_id = $1, chat_id = $2 
                     WHERE order_id = $3
                     """,
-                    message.message_id,  # ID сообщения
-                    message.chat.id,     # Chat ID отправителя
+                    message.message_id,
+                    message.chat.id,
                     order_id
                 )
 
@@ -835,11 +827,37 @@ async def forward_message(message: types.Message, state: FSMContext):
             if order_info:
                 channel_name = order_info[0]['channel_name']
                 channel_url = order_info[0]['channel_url']
-                post_times = [record['post_time'].strftime("%d-%m-%Y %H:%M") for record in order_info]
+                post_times = [record['post_time'] for record in order_info]  
+                post_times_str = ", ".join([record['post_time'].strftime("%d-%m-%Y %H:%M") for record in order_info])
                 total_prices = sum(record['total_price'] for record in order_info)
                 formatted_total_price = f"{total_prices:,.0f}".replace(",", " ")
 
-                post_times_str = ", ".join(post_times)
+                async with db_pool.acquire() as connection:
+                    existing_orders = await connection.fetch(
+                        """
+                        SELECT o.order_id 
+                        FROM orders AS o
+                        JOIN orderitems oi ON o.order_id = oi.order_id
+                        WHERE oi.product_id = $1
+                        AND oi.post_time = ANY($2)
+                        AND o.status IN ('pending_payment', 'paid', 'complited', 'problem');;
+                        """,
+                        order_info[0]['product_id'],
+                        post_times
+                    )
+                print(len(existing_orders) > 1)
+                print(existing_orders)
+
+                if len(existing_orders) > 1:
+                    async with db_pool.acquire() as connection:
+                        await connection.execute(
+                            "UPDATE Orders SET status = 'problem' WHERE order_id = $1", order_id
+                        )
+                    await bot.send_message(
+                        chat_id=message.from_user.id,
+                        text="На одну из выбранных дат уже купили рекламу."
+                    )
+                    return
 
                 keyboard = InlineKeyboardMarkup(row_width=2)
                 keyboard.add(
@@ -869,6 +887,14 @@ async def forward_message(message: types.Message, state: FSMContext):
                         "UPDATE Orders SET status = 'waiting' WHERE order_id = $1", order_id
                     )
 
+                # Пересылаем сохраненное сообщение пользователю после успешной обработки заказа
+                if specific_message_id:
+                    try:
+                        await bot.forward_message(chat_id=message.from_user.id, from_chat_id=message.from_user.id, message_id=specific_message_id)
+                    except Exception as e:
+                        logging.error(f"Ошибка при пересылке сообщения: {e}")
+                        await message.answer("Произошла ошибка при пересылке сообщения.")
+
                 await state.finish()
 
             else:
@@ -879,12 +905,26 @@ async def forward_message(message: types.Message, state: FSMContext):
     else:
         await message.reply("Не удалось получить данные для пересылки сообщения.")
 
+
+
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('accept_'))
 async def accept_ad(callback_query: CallbackQuery):
     order_id = int(callback_query.data.split('_')[1])
 
     try:
         async with db_pool.acquire() as connection:
+            order_status = await connection.fetchval(
+                "SELECT status FROM Orders WHERE order_id = $1", order_id
+            )
+
+            if order_status != "waiting":
+                await bot.answer_callback_query(callback_query.id)
+                await bot.send_message(
+                    chat_id=callback_query.from_user.id,
+                    text=f"Заказ с ID {order_id} не может быть принят, так как его статус: {order_status}."
+                )
+                return
+                
             await connection.execute(
                 "UPDATE Orders SET status = 'pending_payment' WHERE order_id = $1", order_id
             )
@@ -970,20 +1010,20 @@ async def decline_ad(callback_query: CallbackQuery):
             text=f"Произошла ошибка при отклонении предложения."
         )
 
-@dp.message_handler(lambda message: message.text)
-async def forward_specified_message(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    specific_message_id = data.get('message_id')
-    user_id = message.from_user.id
+# @dp.message_handler(lambda message: message.text)
+# async def forward_specified_message(message: types.Message, state: FSMContext):
+#     data = await state.get_data()
+#     specific_message_id = data.get('message_id')
+#     user_id = message.from_user.id
 
-    if specific_message_id:
-        try:
-            await bot.forward_message(chat_id=user_id, from_chat_id=user_id, message_id=specific_message_id)
-        except Exception as e:
-            logging.error(f"Ошибка при пересылке сообщения: {e}")
-            await message.answer("Произошла ошибка при пересылке сообщения.")
-    else:
-        await message.answer("Не удалось найти сохраненный message_id.")
+#     if specific_message_id:
+#         try:
+#             await bot.forward_message(chat_id=user_id, from_chat_id=user_id, message_id=specific_message_id)
+#         except Exception as e:
+#             logging.error(f"Ошибка при пересылке сообщения: {e}")
+#             await message.answer("Произошла ошибка при пересылке сообщения.")
+#     else:
+#         await message.answer("Не удалось найти сохраненный message_id.")
 
 class OrderRequest(BaseModel):
     user_id: int
