@@ -7,13 +7,16 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import (
     ChatType, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery,
-    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo
+    KeyboardButton, ReplyKeyboardMarkup, ParseMode, ContentType, WebAppInfo, InputFile
 )
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import logging
 import asyncpg
 from datetime import datetime, timedelta
+from aiogram.utils.callback_data import CallbackData
+from aiogram.utils.exceptions import FileIsTooBig
+from aiogram.utils.markdown import escape_md
 from pydantic import BaseModel
 from telethon import TelegramClient
 import asyncio
@@ -84,14 +87,153 @@ async def create_db_pool():
     except Exception as e:
         logging.error(f"Ошибка подключения к базе данных: {e}")
 
+@dp.message_handler(content_types=types.ContentType.VIDEO)
+async def get_video_id(message: types.Message):
+    await message.answer(message.video.file_id)  # Выведет новый file_id в консоль
+
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     user_id = message.from_user.id
 
-    async with db_pool.acquire() as connection:
-        user = await connection.fetchrow(
-            "SELECT user_uuid FROM users WHERE user_id = $1", user_id
-        )
+    inline_keyboard = InlineKeyboardMarkup().add(
+        InlineKeyboardButton("Биржа", web_app=types.WebAppInfo(url="https://marusinohome.ru"))  # Замени ссылку
+    )
+
+    # async with db_pool.acquire() as connection:
+    #     user = await connection.fetchrow(
+    #         "SELECT user_uuid FROM users WHERE user_id = $1", user_id
+    #     )
+    #
+    #     if user:
+    #         user_uuid = user['user_uuid']
+    #         photos = await bot.get_user_profile_photos(user_id)
+    #
+    #         if photos.total_count > 0:
+    #             file_id = photos.photos[0][0].file_id
+    #             file = await bot.get_file(file_id)
+    #             file_path = file.file_path
+    #
+    #             save_path = f'static/user_{user_uuid}.png'
+    #
+    #             if not os.path.exists('static'):
+    #                 os.makedirs('static')
+    #
+    #             await bot.download_file(file_path, save_path)
+    #
+    #     else:
+    #         await message.answer("Вы не зарегистрированы в системе.")
+
+    button_orders = KeyboardButton('Профиль')
+    button_ads = KeyboardButton('Рекламы')
+    button_applications = KeyboardButton('Заказы на выполнение')
+    button_verified = KeyboardButton('Добавить канал')
+    button_my_channels = KeyboardButton('Мои каналы')
+    button_support = KeyboardButton('Поддержка')
+
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(button_orders, button_ads, button_applications, button_verified, button_my_channels, button_support)
+
+    text = (
+        "<b>🚀 Добро пожаловать на биржу рекламы <a>@TeleAd</a></b>\n\n"
+        "💼 Покупайте рекламу в <b>один клик!</b>\n"
+        "💰 Резерв средств до выполнения заказа – <b>безопасная сделка</b>.\n"
+        "📢 Продавайте рекламу в своих Telegram-каналах и зарабатывайте.\n"
+        "💎 Зарабатывайте TON на своей аудитории прямо в Telegram!\n\n"
+        "<b>📊 Быстро. Удобно. Надежно.</b>"
+    )
+
+    # Отправляем обычную (Reply) клавиатуру перед видео
+    await message.answer("Выберите действие:", reply_markup=keyboard)
+
+    # Отправляем видео с Inline-кнопками
+    await message.answer_video(
+        'BAACAgIAAxkBAAIBIWemgVETXDAB1wcgAkcOlOJfrQeGAAKjZgACXCQxSW75q1xN22tNNgQ',
+        caption=text,
+        reply_markup=inline_keyboard,
+        parse_mode="HTML"
+    )
+
+@dp.message_handler(commands=["menu"])
+async def menu_handler(message: types.Message):
+    user_id = message.from_user.id
+
+    # Текст сообщения
+    text = (
+        f"👤 <b>Имя:</b> Strep\n"
+        # f"💰 <b>Баланс:</b> 10 TON\n"
+        f"📆 <b>Стаж:</b> 5 месяцев\n\n"
+        "Выберите действие:"
+    )
+
+    # Inline-кнопки 4 кнопки, по 2 в ряд
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [
+            types.InlineKeyboardButton(text="📢 Рекламы", callback_data="ads"),
+            types.InlineKeyboardButton(text="👤 Профиль", callback_data="profile"),
+        ],
+        [
+            types.InlineKeyboardButton(text="📡 Каналы", callback_data="channels"),
+            types.InlineKeyboardButton(text="🛠 Поддержка", callback_data="support"),
+        ]
+    ])
+
+    await message.answer(text, reply_markup=keyboard, parse_mode="HTML")
+
+
+
+# @dp.message_handler(commands=['myProfile'])
+# async def send_welcome(message: types.Message):
+#     user_id = message.from_user.id
+#
+#     pay_button = InlineKeyboardMarkup().add(
+#         InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3"))
+#     )
+#
+#     await message.answer("Добро пожаловать! Выберите нужный пункт меню: тут(https://t.me/TeleAdMarketBot/tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3)", reply_markup=pay_button)
+
+
+
+@dp.message_handler(lambda message: message.text == "Профиль")
+async def user_profile(message: types.Message):
+    user_id = message.from_user.id
+
+    try:
+        async with db_pool.acquire() as connection:
+            user = await connection.fetchrow(
+                "SELECT * FROM users WHERE user_id = $1", user_id
+            )
+
+        if user:
+            # Форматируем информацию о пользователе
+            response = (
+                f"👤 <b>Имя:</b> {user['username']}\n"
+                f"🆔 <b>User ID:</b> {user['user_id']}\n"
+                # f"💰 <b>Баланс:</b> 10 TON\n"
+                f"📅 <b>Дата регистрации:</b> {user['created_at'].strftime('%d.%m.%Y')}\n"
+                f"🛠 <b>Статус:</b> {user['rating']}\n"
+            )
+
+            # Создаём inline-кнопку "Сменить фото"
+            keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+                [types.InlineKeyboardButton(text="🖼 Сменить фото", callback_data="change_photo")]
+            ])
+
+            await message.answer(response, reply_markup=keyboard, parse_mode="HTML")
+        else:
+            await message.answer("🚨 Ошибка: Пользователь не найден в базе данных.")
+    except Exception as e:
+        logging.error(f"Ошибка получения данных профиля: {e}")
+        await message.answer("🚨 Произошла ошибка при получении данных профиля.")
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "change_photo")
+async def my_orders(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+
+    try:
+        async with db_pool.acquire() as connection:
+            user = await connection.fetchrow(
+                "SELECT user_uuid FROM users WHERE user_id = $1", user_id
+            )
 
         if user:
             user_uuid = user['user_uuid']
@@ -102,44 +244,45 @@ async def send_welcome(message: types.Message):
                 file = await bot.get_file(file_id)
                 file_path = file.file_path
 
-                save_path = f'static/user_{user_uuid}.png'
+                save_directory = 'static'
+                if not os.path.exists(save_directory):
+                    os.makedirs(save_directory)
 
-                if not os.path.exists('static'):
-                    os.makedirs('static')
+                save_path = os.path.join(save_directory, f'user_{user_uuid}.png')
 
+                # Удаляем старый файл, если он существует
+                if os.path.exists(save_path):
+                    os.remove(save_path)
+
+                # Скачиваем новый файл
                 await bot.download_file(file_path, save_path)
 
+                await callback_query.message.answer("✅ Ваше фото успешно обновлено!")
+            else:
+                await callback_query.message.answer("❌ У вас нет фотографий в профиле.")
         else:
-            await message.answer("Вы не зарегистрированы в системе.")
+            await callback_query.message.answer("🚨 Вы не зарегистрированы в системе.")
+    except FileIsTooBig:
+        await callback_query.message.answer("❌ Ваше фото слишком большое для загрузки.")
+    except Exception as e:
+        logging.error(f"Ошибка при смене фото: {e}")
+        await callback_query.message.answer("🚨 Произошла ошибка при смене фото.")
 
-    button_orders = KeyboardButton('Мои заказы')
-    button_ads = KeyboardButton('Мои рекламы')
-    button_applications = KeyboardButton('Заказы на выполнение')
-    button_verified = KeyboardButton('Добавить канал')
-    button_my_channels = KeyboardButton('Мои каналы')
-    button_support = KeyboardButton('Поддержка')
+@dp.message_handler(lambda message: message.text == "Рекламы")
+async def ads_menu(message: types.Message):
+    # Создаём inline-кнопки
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [
+            types.InlineKeyboardButton(text="📦 Мои заказы", callback_data="my_orders"),
+            types.InlineKeyboardButton(text="📢 Мои рекламы", callback_data="my_ads"),
+        ]
+    ])
 
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(button_orders, button_ads, button_applications, button_verified, button_my_channels, button_support)
+    await message.answer("📢 Выберите действие:", reply_markup=keyboard)
 
-    await message.answer("Добро пожаловать! Выберите нужный пункт меню:", reply_markup=keyboard)
-
-
-@dp.message_handler(commands=['myProfile'])
-async def send_welcome(message: types.Message):
-    user_id = message.from_user.id
-
-    pay_button = InlineKeyboardMarkup().add(
-        InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3"))
-    )
-
-    await message.answer("Добро пожаловать! Выберите нужный пункт меню: тут(https://t.me/TeleAdMarketBot/tma.internal/user/4526c40d-3bb8-45ac-af4f-d751e64aceb3)", reply_markup=pay_button)
-
-
-
-@dp.message_handler(lambda message: message.text == "Мои заказы")
-async def my_orders(message: types.Message):
-    user_id = message.from_user.id
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "my_orders")
+async def my_orders(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
     try:
         async with db_pool.acquire() as connection:
             orders = await connection.fetch(
@@ -157,23 +300,24 @@ async def my_orders(message: types.Message):
                     callback_data = f"order_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
-                await message.answer(response, reply_markup=keyboard)
+                await callback_query.message.answer(response, reply_markup=keyboard)
             else:
-                await message.answer("У вас пока нет заказов.")
+                await callback_query.message.answer("У вас пока нет заказов.")
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
-        await message.answer("Произошла ошибка при получении заказов.")
-@dp.message_handler(lambda message: message.text == "Мои рекламы")
-async def my_orders(message: types.Message):
-    user_id = message.from_user.id
+        await callback_query.message.answer("Произошла ошибка при получении заказов.")
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "my_ads")
+async def my_orders(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
     try:
         async with db_pool.acquire() as connection:
             ads = await connection.fetch(
                 """SELECT DISTINCT o.user_id, o.order_id, p.product_id, total_price ,p.title FROM orders AS o
-JOIN orderitems oi ON o.order_id = oi.order_id
-JOIN products p ON p.product_id = oi.product_id
-WHERE o.user_id = $1 AND o.status = 'paid'
-ORDER BY o.order_id desc""", user_id
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON p.product_id = oi.product_id
+                WHERE o.user_id = $1 AND o.status = 'paid'
+                ORDER BY o.order_id desc""", user_id
             )
 
             if ads:
@@ -185,13 +329,12 @@ ORDER BY o.order_id desc""", user_id
                     callback_data = f"ad_{order['order_id']}"
                     keyboard.add(InlineKeyboardButton(button_text, callback_data=callback_data))
 
-                await message.answer(response, reply_markup=keyboard)
+                await callback_query.message.answer(response, reply_markup=keyboard)
             else:
-                await message.answer("У вас пока нет заказов.")
+                await callback_query.message.answer("У вас пока нет заказов.")
     except Exception as e:
         logging.error(f"Ошибка получения заказов: {e}")
-        await message.answer("Произошла ошибка при получении заказов.")
-
+        await callback_query.message.answer("Произошла ошибка при получении заказов.")
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("ad_"))
 async def ad_details(callback_query: CallbackQuery):
@@ -230,21 +373,21 @@ async def ad_details(callback_query: CallbackQuery):
                 )
                 price = nano_ton_to_ton(ad_details['total_price'])
                 response = (
-                    f"**Детали рекламы №{ad_details['order_id']}**\n"
-                    f"Название: {ad_details['title']}\n"
-                    f"Общая цена: {price:.2f} ton.\n"
-                    f"Время постинга: {post_times}\n"
-                    f"Формат публикации: {ad_details['format_name']}\n"
-                    f"ID сообщения: {ad_details['message_id']}\n"
-                    f"ID продукта: {ad_details['product_id']}\n"
+                    f"**Детали рекламы №{escape_md(str(ad_details['order_id']))}**\n"
+                    f"Название: {escape_md(ad_details['title'])}\n"
+                    f"Общая цена: {price:.2f} TON\n"
+                    f"Время постинга: {escape_md(post_times)}\n"
+                    f"Формат публикации: {escape_md(ad_details['format_name'])}\n"
+                    f"ID сообщения: {escape_md(str(ad_details['message_id']))}\n"
+                    f"ID продукта: {escape_md(str(ad_details['product_id']))}\n"
                 )
                 # Кнопка "Пост"
                 keyboard = InlineKeyboardMarkup().add(
                     InlineKeyboardButton(
                         text="Пост",
                         callback_data=f"post_{ad_details['message_id']}"
-                    ),InlineKeyboardButton("Выполнено", callback_data=f"addone_{ad_details['order_id']}"),
-                        InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
+                    ),InlineKeyboardButton("Подтвердить", web_app=WebAppInfo(url="https://marusinohome.ru/profile/history/{order_id}")),
+                        # InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
                 )
                 await callback_query.message.edit_text(response, parse_mode="Markdown", reply_markup=keyboard)
             else:
@@ -268,7 +411,6 @@ async def post_ad(callback_query: CallbackQuery):
     except Exception as e:
         logging.error(f"Ошибка пересылки сообщения: {e}")
         await callback_query.answer("Произошла ошибка при пересылке сообщения.", show_alert=True)
-
 
 @dp.callback_query_handler(lambda call: call.data.startswith("addone_") or call.data.startswith("adnotdone_"))
 async def ad_confirmation_handler(call: CallbackQuery):
@@ -421,14 +563,13 @@ async def post_ad(callback_query: CallbackQuery):
         logging.error(f"Ошибка пересылки сообщения: {e}")
         await callback_query.answer("Произошла ошибка при пересылке сообщения.", show_alert=True)
 
-
 @dp.message_handler(lambda message: message.text == "Добавить канал")
 async def add_channel(message: types.Message):
     try:
         add_bot_button = InlineKeyboardMarkup().add(
             InlineKeyboardButton(
                 text="Добавить бота в канал",
-                url="https://t.me/TeleAdMarketBot?startgroup=true"
+                url="https://t.me/Stok_dev_bot?startgroup=true"
             )
         )
         await message.answer(
@@ -468,11 +609,9 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
                 )
                 return
 
-            file_path = "Аватарка отсутствует"
-            if chat_info.photo:
-                file = await bot.get_file(chat_info.photo.big_file_id)
-                file_path = f'/usr/src/app/static/channel_{my_chat_member.chat.id}.png'
-                await bot.download_file(file.file_path, file_path)
+            file_path = await download_channel_photo(bot, my_chat_member.chat.id)
+            if not file_path:
+                file_path = "Аватарка отсутствует"
 
             administrators = await bot.get_chat_administrators(my_chat_member.chat.id)
             owner_id = None
@@ -525,36 +664,99 @@ async def on_bot_added_to_channel(my_chat_member: types.ChatMemberUpdated):
                 text="Произошла ошибка при получении информации о канале."
             )
 
-
+# Хендлер: Выводит список каналов с уникальным callback_data
 @dp.message_handler(lambda message: message.text == "Мои каналы")
 async def my_channels(message: types.Message):
     user_id = message.from_user.id
     try:
         async with db_pool.acquire() as connection:
             channels = await connection.fetch(
-                """SELECT channel_name, subscribers_count, channel_url
+                """SELECT channel_id, channel_name, channel_url, channel_tg_id
                    FROM verifiedchannels 
                    WHERE user_id = $1 ORDER BY created_at DESC""", user_id
             )
 
             if channels:
-                response = "<b>Ваши каналы:</b>\n\n"
+                keyboard = InlineKeyboardMarkup(row_width=1)
+
                 for channel in channels:
+                    channel_tg_id = channel['channel_tg_id']
                     channel_name = channel['channel_name']
-                    subscribers_count = channel['subscribers_count']
-                    channel_url = channel['channel_url']
 
-                    response += (
-                        f"<b>Название:</b> <a href='{channel_url}'>{channel_name}</a>\n"
-                        f"<b>Количество подписчиков:</b> {subscribers_count}\n\n"
+                    button = InlineKeyboardButton(
+                        text=channel_name,
+                        callback_data=f"channel_{channel_tg_id}"
                     )
+                    keyboard.add(button)
 
-                await message.answer(response, parse_mode="HTML")
+                await message.answer("<b>Ваши каналы:</b>", parse_mode="HTML", reply_markup=keyboard)
             else:
                 await message.answer("У вас пока нет верифицированных каналов.", parse_mode="HTML")
     except Exception as e:
         logging.error(f"Ошибка получения каналов: {e}")
         await message.answer("Произошла ошибка при получении каналов.", parse_mode="HTML")
+
+
+# Хендлер: Обрабатывает нажатие на кнопку с каналом и показывает кнопку "Смена картинки"
+@dp.callback_query_handler(lambda call: call.data.startswith("channel_"))
+async def channel_selected(call: types.CallbackQuery):
+    channel_tg_id = call.data.split("_")[1]
+
+    keyboard = InlineKeyboardMarkup().add(
+        InlineKeyboardButton(
+            text="Смена картинки",
+            callback_data=f"change_photo_{channel_tg_id}"
+        )
+    )
+
+    await call.message.answer(f"Вы выбрали канал {channel_tg_id}.", reply_markup=keyboard)
+    await call.answer()
+
+# Функция для скачивания аватарки канала
+async def download_channel_photo(bot: Bot, channel_tg_id: str):
+    try:
+        chat = await bot.get_chat(channel_tg_id)
+        if chat.photo:
+            file = await bot.get_file(chat.photo.big_file_id)
+            file_path = file.file_path
+
+            # Создаем директорию, если её нет
+            save_directory = 'static'
+            os.makedirs(save_directory, exist_ok=True)
+
+            save_path = os.path.join(save_directory, f'channel_{channel_tg_id}.png')
+
+            # Удаляем старый файл, если он существует
+            if os.path.exists(save_path):
+                os.remove(save_path)
+
+            # Скачиваем новый файл
+            await bot.download_file(file_path, save_path)
+
+            return save_path  # Возвращаем путь к сохранённому файлу
+        else:
+            return None
+    except Exception as e:
+        logging.error(f"Ошибка скачивания фото канала {channel_tg_id}: {e}")
+        return None
+
+# Хендлер: Обрабатывает нажатие на "Смена картинки"
+@dp.callback_query_handler(lambda call: call.data.startswith("change_photo_"))
+async def change_channel_photo(call: types.CallbackQuery):
+    channel_tg_id = call.data.split("_")[2]
+
+    # Скачиваем аватарку канала
+    photo_path = await download_channel_photo(call.bot, channel_tg_id)
+
+    if photo_path:
+        await call.message.answer_photo(
+            photo=InputFile(photo_path),
+            caption="Фото канала обновлено и сохранено!"
+        )
+    else:
+        await call.message.answer("Не удалось скачать фото канала.")
+
+    await call.answer()
 
 @dp.callback_query_handler(lambda query: query.data.startswith("order_"))
 async def process_order_callback(callback_query: types.CallbackQuery, state: FSMContext):
@@ -591,12 +793,12 @@ async def process_order_callback(callback_query: types.CallbackQuery, state: FSM
 @dp.message_handler(state=OrderState.waiting_for_advertisement, content_types=types.ContentType.ANY)
 async def forward_message(message: types.Message, state: FSMContext):
     data = await state.get_data()
+    specific_message_id = data.get('message_id')
     target_user_id = data.get('target_user_id')
     order_id = data.get('order_id')
 
     if target_user_id and order_id:
         try:
-            await bot.forward_message(chat_id=target_user_id, from_chat_id=message.chat.id, message_id=message.message_id)
 
             async with db_pool.acquire() as connection:
                 await connection.execute(
@@ -605,8 +807,8 @@ async def forward_message(message: types.Message, state: FSMContext):
                     SET message_id = $1, chat_id = $2 
                     WHERE order_id = $3
                     """,
-                    message.message_id,  # ID сообщения
-                    message.chat.id,     # Chat ID отправителя
+                    message.message_id,
+                    message.chat.id,
                     order_id
                 )
 
@@ -622,11 +824,37 @@ async def forward_message(message: types.Message, state: FSMContext):
             if order_info:
                 channel_name = order_info[0]['channel_name']
                 channel_url = order_info[0]['channel_url']
-                post_times = [record['post_time'].strftime("%d-%m-%Y %H:%M") for record in order_info]
+                post_times = [record['post_time'] for record in order_info]  
+                post_times_str = ", ".join([record['post_time'].strftime("%d-%m-%Y %H:%M") for record in order_info])
                 total_prices = sum(record['total_price'] for record in order_info)
                 formatted_total_price = f"{total_prices:,.0f}".replace(",", " ")
 
-                post_times_str = ", ".join(post_times)
+                async with db_pool.acquire() as connection:
+                    existing_orders = await connection.fetch(
+                        """
+                        SELECT o.order_id 
+                        FROM orders AS o
+                        JOIN orderitems oi ON o.order_id = oi.order_id
+                        WHERE oi.product_id = $1
+                        AND oi.post_time = ANY($2)
+                        AND o.status IN ('pending_payment', 'paid', 'complited', 'problem');;
+                        """,
+                        order_info[0]['product_id'],
+                        post_times
+                    )
+                print(len(existing_orders) > 1)
+                print(existing_orders)
+
+                if len(existing_orders) > 1:
+                    async with db_pool.acquire() as connection:
+                        await connection.execute(
+                            "UPDATE Orders SET status = 'problem' WHERE order_id = $1", order_id
+                        )
+                    await bot.send_message(
+                        chat_id=message.from_user.id,
+                        text="На одну из выбранных дат уже купили рекламу."
+                    )
+                    return
 
                 keyboard = InlineKeyboardMarkup(row_width=2)
                 keyboard.add(
@@ -656,6 +884,14 @@ async def forward_message(message: types.Message, state: FSMContext):
                         "UPDATE Orders SET status = 'waiting' WHERE order_id = $1", order_id
                     )
 
+                # Пересылаем сохраненное сообщение пользователю после успешной обработки заказа
+                if specific_message_id:
+                    try:
+                        await bot.forward_message(chat_id=message.from_user.id, from_chat_id=message.from_user.id, message_id=specific_message_id)
+                    except Exception as e:
+                        logging.error(f"Ошибка при пересылке сообщения: {e}")
+                        await message.answer("Произошла ошибка при пересылке сообщения.")
+
                 await state.finish()
 
             else:
@@ -666,12 +902,25 @@ async def forward_message(message: types.Message, state: FSMContext):
     else:
         await message.reply("Не удалось получить данные для пересылки сообщения.")
 
+
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('accept_'))
 async def accept_ad(callback_query: CallbackQuery):
     order_id = int(callback_query.data.split('_')[1])
 
     try:
         async with db_pool.acquire() as connection:
+            order_status = await connection.fetchval(
+                "SELECT status FROM Orders WHERE order_id = $1", order_id
+            )
+
+            if order_status != "waiting":
+                await bot.answer_callback_query(callback_query.id)
+                await bot.send_message(
+                    chat_id=callback_query.from_user.id,
+                    text=f"Заказ с ID {order_id} не может быть принят, так как его статус: {order_status}."
+                )
+                return
+                
             await connection.execute(
                 "UPDATE Orders SET status = 'pending_payment' WHERE order_id = $1", order_id
             )
@@ -697,7 +946,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             pay_button = InlineKeyboardMarkup().add(
-                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://marusinohome.ru/buy/{order_id}"))
+                InlineKeyboardButton("Оплатить", web_app=WebAppInfo(url=f"https://tma.internal/buy/{order_id}"))
             )
 
             await bot.send_message(
@@ -757,20 +1006,20 @@ async def decline_ad(callback_query: CallbackQuery):
             text=f"Произошла ошибка при отклонении предложения."
         )
 
-@dp.message_handler(lambda message: message.text)
-async def forward_specified_message(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    specific_message_id = data.get('message_id')
-    user_id = message.from_user.id
+# @dp.message_handler(lambda message: message.text)
+# async def forward_specified_message(message: types.Message, state: FSMContext):
+#     data = await state.get_data()
+#     specific_message_id = data.get('message_id')
+#     user_id = message.from_user.id
 
-    if specific_message_id:
-        try:
-            await bot.forward_message(chat_id=user_id, from_chat_id=user_id, message_id=specific_message_id)
-        except Exception as e:
-            logging.error(f"Ошибка при пересылке сообщения: {e}")
-            await message.answer("Произошла ошибка при пересылке сообщения.")
-    else:
-        await message.answer("Не удалось найти сохраненный message_id.")
+#     if specific_message_id:
+#         try:
+#             await bot.forward_message(chat_id=user_id, from_chat_id=user_id, message_id=specific_message_id)
+#         except Exception as e:
+#             logging.error(f"Ошибка при пересылке сообщения: {e}")
+#             await message.answer("Произошла ошибка при пересылке сообщения.")
+#     else:
+#         await message.answer("Не удалось найти сохраненный message_id.")
 
 class OrderRequest(BaseModel):
     user_id: int
@@ -778,20 +1027,42 @@ class OrderRequest(BaseModel):
 
 @app.post('/bot/order')
 async def handle_order(order: OrderRequest):
+    user_id = order.user_id
+    order_id = order.order_id
+
     try:
-        # Получаем данные из тела запроса
-        user_id = order.user_id
-        order_id = order.order_id
+        async with db_pool.acquire() as connection:
+            result = await connection.fetchrow(
+                """SELECT p.user_id
+                   FROM Products p
+                   JOIN OrderItems oi ON oi.product_id = p.product_id
+                   JOIN Orders o ON o.order_id = oi.order_id
+                   WHERE o.order_id = $1""", order_id
+            )
 
-        # Формируем текст сообщения
-        message_text = f"Вы сделали заказ {order_id}"
+        if result:
+            target_user_id = result['user_id']
 
-        # Отправляем сообщение пользователю
-        await bot.send_message(user_id, message_text, parse_mode=ParseMode.MARKDOWN)
+            # Отправляем сообщение пользователю
+            await bot.send_message(
+                user_id,
+                "✅ Ваше рекламное предложение будет отправлено продавцу для утверждения. "
+                "Отправьте сообщение для пересылки."
+            )
+
+            # Используем FSMContext через dispatcher, а не напрямую в FastAPI
+            state = dp.current_state(user=user_id)
+            await state.update_data(target_user_id=target_user_id, order_id=order_id)
+            await state.set_state(OrderState.waiting_for_advertisement)
+
+        else:
+            await bot.send_message(user_id, "❌ Заказ с таким ID не найден.")
+            return {"status": "error", "message": "Order not found"}
 
         return {"status": "success", "message": "Message sent and data saved"}
+
     except Exception as e:
-        logging.error(f"Ошибка при обработке запроса: {e}")
+        logging.error(f"❌ Ошибка при обработке запроса: {e}")
         raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
 
 class BuyRequest(BaseModel):
