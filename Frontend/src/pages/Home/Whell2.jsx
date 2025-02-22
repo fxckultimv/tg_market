@@ -34,7 +34,7 @@ const Whell2 = () => {
                 </div>
 
                 {/* Анимированные иконки */}
-                {icons.map((icon, index) => {
+                {/* {icons.map((icon, index) => {
                     const rotate = useMotionValue(180) // Отдельный `rotate` для каждого элемента
                     const opacity = useTransform(
                         rotate,
@@ -67,7 +67,7 @@ const Whell2 = () => {
                             </motion.div>
                         </motion.div>
                     )
-                })}
+                })} */}
             </div>
             <h1 className="text-4xl font-bold mt-8 z-10">
                 TeleAdMarket — это продвижение в{' '}

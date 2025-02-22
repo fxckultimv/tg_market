@@ -50,8 +50,8 @@ const ProfileLayout = () => {
                                     alt="User Profile"
                                     className="rounded-full w-24 h-24 m-2"
                                 />
-                                <div>
-                                    <p>Pop478</p>
+                                <div className="p-2">
+                                    <p>{user.username}</p>
                                     <div className="flex gap-2 items-center">
                                         <p className="text-lg font-semibold">
                                             {user.rating}
