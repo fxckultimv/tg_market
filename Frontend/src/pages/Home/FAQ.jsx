@@ -1,5 +1,5 @@
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import arrowDown from '../../assets/chevron-down-gray.svg'
 
@@ -53,23 +53,30 @@ const FAQ = () => {
                             <img
                                 src={arrowDown}
                                 alt=""
-                                className={`{transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : 'rotate-0'}`}
+                                className={`transform transition-transform duration-300 ${
+                                    openIndex === index
+                                        ? 'rotate-180'
+                                        : 'rotate-0'
+                                }`}
                             />
                         </div>
 
-                        {openIndex === index && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="mt-4"
-                            >
-                                <p className="text-base text-black">
-                                    {item.answer}
-                                </p>
-                            </motion.div>
-                        )}
+                        <AnimatePresence initial={false}>
+                            {openIndex === index && (
+                                <motion.div
+                                    key="content"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="mt-4"
+                                >
+                                    <p className="text-base text-black">
+                                        {item.answer}
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 ))}
             </div>

@@ -13,8 +13,8 @@ const Whell2 = () => {
     const icons = [Cat, Clover, Money, BankHome]
 
     return (
-        <div className="flex flex-col items-center text-center py-10">
-            <div className="relative w-full h-[300px] flex justify-center items-center">
+        <div className="flex flex-col items-center text-center py-10 relative w-screen h-screen overflow-hidden">
+            <div className=" w-full h-[300px] flex justify-center items-center">
                 <div className="flex flex-col items-center">
                     <h1 className="text-4xl font-bold mt-8 z-10">
                         Связаться с нами
@@ -32,10 +32,11 @@ const Whell2 = () => {
                         </button>
                     </div>
                 </div>
+                <div className="relative "></div>
 
                 {/* Анимированные иконки */}
-                {/* {icons.map((icon, index) => {
-                    const rotate = useMotionValue(180) // Отдельный `rotate` для каждого элемента
+                {icons.map((icon, index) => {
+                    const rotate = useMotionValue(0) // Отдельный `rotate` для каждого элемента
                     const opacity = useTransform(
                         rotate,
                         [90, 110, 180, 250, 270],
@@ -67,7 +68,7 @@ const Whell2 = () => {
                             </motion.div>
                         </motion.div>
                     )
-                })} */}
+                })}
             </div>
             <h1 className="text-4xl font-bold mt-8 z-10">
                 TeleAdMarket — это продвижение в{' '}
