@@ -1236,6 +1236,7 @@ export const useProductStore = create((set, get) => ({
     searchQuery: '',
     page: 1, // Начальная страница
     totalPages: 1,
+    totalProducts: 1,
     filters: {
         category: '',
         priceRange: [0, 10000],
@@ -1295,6 +1296,7 @@ export const useProductStore = create((set, get) => ({
             set({
                 products: data.products,
                 totalPages: data.totalPages || 1,
+                totalProducts: data.totalProducts || 1,
                 isLoading: false,
             })
         } catch (error) {

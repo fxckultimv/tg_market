@@ -9,7 +9,7 @@ const ProductCart = ({ order }) => {
         <div
             to={`/buy/${order.order_id}`}
             key={order.order_id}
-            className="bg-card-white flex flex-col justify-center p-8 h-full rounded-xl"
+            className="bg-card-white flex flex-col justify-center p-4 h-full rounded-xl"
         >
             <div className="flex justify-between">
                 <div>
@@ -35,14 +35,14 @@ const ProductCart = ({ order }) => {
                                 ).toLocaleDateString()}
                             </p> */}
             </div>
-            <div className="bg-gray w-full h-[1px] my-8"></div>
+            <div className="bg-gray w-full h-[1px] my-4"></div>
             <div>
                 <p className="">
                     От: {new Date(order.created_at).toLocaleDateString()}
                 </p>
                 <div className="flex items-center gap-2">
                     <img src={Ton} alt="" className="h-[2em]" />
-                    <p className="text-2xl">
+                    <p className="text-lg">
                         {nanoTonToTon(order.total_price)} Ton
                     </p>
                 </div>

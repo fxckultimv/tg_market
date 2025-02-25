@@ -133,11 +133,11 @@ const Ton = () => {
                     placeholder="Введите сумму"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="border p-2 rounded-lg min-w-10 text-black"
+                    className="border p-2 rounded-lg min-w-10 text-black w-2/3"
                 />
                 <button
                     onClick={handleTransaction}
-                    className="bg-blue rounded-xl p-3"
+                    className="bg-blue rounded-xl p-2 w-1/3"
                 >
                     Пополнить
                 </button>
@@ -150,9 +150,12 @@ const Ton = () => {
                     placeholder="Введите сумму"
                     value={amountWithdrawal}
                     onChange={(e) => setAmountWithdrawal(e.target.value)}
-                    className="border p-2 rounded-lg min-w-10 text-black"
+                    className="border p-2 rounded-lg min-w-10 text-black w-2/3"
                 />
-                <button onClick={Withdrawal} className="bg-blue rounded-xl p-3">
+                <button
+                    onClick={Withdrawal}
+                    className="bg-blue rounded-xl p-2 w-1/3"
+                >
                     Вывести
                 </button>
             </div>

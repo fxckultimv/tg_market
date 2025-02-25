@@ -156,7 +156,7 @@ const CartItem = ({ cart }) => {
                             <div
                                 key={productId}
                                 onClick={() => handleSelectProduct(productId)}
-                                className={`bg-card-white px-6 py-5 rounded-xl  flex flex-col gap-3 transform hover:scale-105 transition duration-300 ease-in-out ${
+                                className={`bg-card-white p-4 rounded-xl  flex flex-col gap-2 transform hover:scale-105 transition duration-300 ease-in-out ${
                                     selectedProductId === productId
                                         ? 'border-blue border-2'
                                         : 'hover:shadow-2xl hover:scale-105'
@@ -227,7 +227,7 @@ const CartItem = ({ cart }) => {
                                             alt=""
                                             className="h-[2em]"
                                         />
-                                        <p className=" text-2xl text-accent-green">
+                                        <p className=" text-lg text-accent-green">
                                             {nanoTonToTon(product.price)} Ton
                                         </p>
                                     </div>
@@ -236,7 +236,7 @@ const CartItem = ({ cart }) => {
                                         onClick={() =>
                                             handleDeleteItem(productId)
                                         }
-                                        className="p-3"
+                                        className=""
                                     >
                                         <img
                                             src={Delete}

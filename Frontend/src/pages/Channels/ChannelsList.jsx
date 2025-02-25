@@ -10,6 +10,8 @@ import arrowDown from '../../assets/chevron-down-gray.svg'
 import star from '../../assets/star.svg'
 import Arrow from '../../assets/Arrow.svg'
 import InfoBox from '../../components/InfoBox'
+import { motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 
 const ChannelsList = () => {
     const { products, page, totalPages, plusPage, minusPage, loading, error } =
@@ -62,6 +64,7 @@ const ChannelsList = () => {
 }
 
 const ProductCard = ({ product }) => {
+    const [isOpen, setIsOpen] = useState(false)
     const [isOpenFormat, setIsOpenFormat] = useState(false)
     const [isOpenPostTime, setIsOpenPostTime] = useState(false)
     const navigate = useNavigate()
@@ -94,135 +97,170 @@ const ProductCard = ({ product }) => {
         <div className="flex gap-4 flex-col">
             <Link
                 to={product.product_id}
-                className="bg-card-white  shadow-card p-8 rounded-3xl"
+                className="bg-card-white  shadow-card p-4 rounded-3xl"
             >
                 <div className="flex justify-between">
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
                         <h2 className=" text-2xl">{product.title}</h2>
-                        <div className="flex gap-2 items-center">
-                            <img src={star} alt="" />
-                            <p className=" text-base max-sm:text-xs">
-                                {product.rating}
-                            </p>
-                        </div>
-                        <div className="flex">
-                            <p className=" text-base border-2 border-gray rounded-full px-3 max-sm:text-xs">
-                                {product.category_name}
-                            </p>
+                        <div className="flex gap-3">
+                            <div className="flex">
+                                <p className=" text-base border-2 border-gray rounded-full px-3 max-sm:text-xs">
+                                    {product.category_name}
+                                </p>
+                            </div>
+                            <div className="flex gap-2 items-center">
+                                <img src={star} alt="" />
+                                <p className=" text-base max-sm:text-xs">
+                                    {product.rating}
+                                </p>
+                            </div>
                         </div>
                     </div>
                     <div className="aspect-square">
                         <img
                             src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                             alt={product.title}
-                            className="rounded-full max-h-[111px]"
+                            className="rounded-full max-h-[111px] max-w-[111px]"
                         />
                     </div>
                 </div>
-                <div className="bg-gray w-full h-[1px] my-6"></div>
-                <div className="flex justify-between gap-4">
-                    <div className="relative w-full text-center">
-                        <button
-                            onClick={(e) =>
-                                handleButtonClick(e, () =>
-                                    setIsOpenFormat(!isOpenFormat)
-                                )
-                            }
-                            className="flex flex-col justify-between items-center w-full p-3 border-2 rounded-2xl border-gray text-gray hover:border-gray-400 transition-all duration-200"
-                        >
-                            <div className="flex justify-between w-full">
-                                <p className="flex-grow text-left">
-                                    {firstFormatName}
-                                </p>
-                                <img
-                                    src={arrowDown}
-                                    alt="Toggle"
-                                    className={`transform transition-transform duration-300 ${isOpenFormat ? 'rotate-180' : 'rotate-0'}`}
-                                />
-                            </div>{' '}
-                            <div
-                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenFormat ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                            >
-                                <ul className="bg-card-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
-                                    {product.format_names.map(
-                                        (format, index) => (
-                                            <li
-                                                key={index}
-                                                className="p-2 hover:text-gray cursor-pointer transition-all"
-                                                onClick={() => {
-                                                    console.log(format)
-                                                    setIsOpenFormat(false)
-                                                }}
-                                            >
-                                                {format}
-                                            </li>
-                                        )
-                                    )}
-                                </ul>
-                            </div>
-                        </button>
+
+                <div className="bg-gray w-full h-[1px] my-3"></div>
+                <div
+                    onClick={(e) =>
+                        handleButtonClick(e, () => setIsOpen(!isOpen))
+                    }
+                >
+                    <div className="flex gap-3">
+                        {/* Заголовок с кнопкой для открытия/закрытия */}
+                        <p className="text-lg max-sm:text-base cursor-pointer">
+                            Статистика
+                        </p>
+                        <img
+                            src={arrowDown}
+                            alt="Toggle"
+                            className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+                        />
                     </div>
 
-                    <div className="relative w-full text-center">
-                        <button
-                            onClick={(e) =>
-                                handleButtonClick(e, () =>
-                                    setIsOpenPostTime(!isOpenPostTime)
-                                )
-                            }
-                            className="flex flex-col justify-between items-center w-full p-3 border-2 rounded-2xl border-gray text text-gray hover:border-gray-400 transition-all duration-200"
-                        >
-                            <div className="flex justify-between w-full">
-                                <p className="flex-grow text-left">
-                                    {firstPostTime}
-                                </p>
-                                <img
-                                    src={arrowDown}
-                                    alt="Toggle"
-                                    className={`transform transition-transform duration-300 ${isOpenPostTime ? 'rotate-180' : 'rotate-0'}`}
-                                />
-                            </div>
-                            <div
-                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpenPostTime ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                    {/* Анимированное появление */}
+                    <AnimatePresence>
+                        {isOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{
+                                    duration: 0.3,
+                                    ease: 'easeInOut',
+                                }}
+                                className="overflow-hidden"
                             >
-                                <ul className="bg-card-white shadow-lg rounded-md overflow-hidden mt-1 z-50">
-                                    {product.post_times.map((time, index) => (
-                                        <li
-                                            key={index}
-                                            className="p-2 hover:text-gray cursor-pointer transition-all"
-                                            onClick={() => {
-                                                console.log(time)
-                                                setIsOpenPostTime(false)
-                                            }}
-                                        >
-                                            {time.slice(0, 5)}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </button>
+                                <InfoBox product={product} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+                <div className="bg-gray w-full h-[1px] my-3"></div>
+
+                <div className="flex justify-between items-start text-text">
+                    <div className="flex gap-2">
+                        <div className="relative text-center">
+                            <button
+                                onClick={(e) =>
+                                    handleButtonClick(e, () =>
+                                        setIsOpenFormat(!isOpenFormat)
+                                    )
+                                }
+                                className="flex relative flex-col justify-between items-center w-full px-3 py-2 border-[1px] rounded-2xl border-gray hover:border-gray-400 transition-all duration-200"
+                            >
+                                <div className="flex justify-between w-full gap-1">
+                                    <p className="flex-grow text-left text-base">
+                                        {firstFormatName}
+                                    </p>
+                                    <img
+                                        src={arrowDown}
+                                        alt="Toggle"
+                                        className={`transform transition-transform duration-300 ${isOpenFormat ? 'rotate-180' : 'rotate-0'}`}
+                                    />
+                                </div>{' '}
+                                <div
+                                    className={`overflow-hidden absolute transition-all top-0 duration-300 ease-in-out border-gray border-[1px] rounded-2xl w-full ${isOpenFormat ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                                >
+                                    <ul className="bg-background shadow-lg rounded-md overflow-hidden mt-1 z-50">
+                                        {product.format_names.map(
+                                            (format, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="p-2 hover:text-gray cursor-pointer transition-all"
+                                                    onClick={() => {
+                                                        console.log(format)
+                                                        setIsOpenFormat(false)
+                                                    }}
+                                                >
+                                                    {format}
+                                                </li>
+                                            )
+                                        )}
+                                    </ul>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className="relative text-center">
+                            <button
+                                onClick={(e) =>
+                                    handleButtonClick(e, () =>
+                                        setIsOpenPostTime(!isOpenPostTime)
+                                    )
+                                }
+                                className="flex relative flex-col justify-between items-center w-full px-3 py-2 border-[1px] rounded-2xl border-gray transition-all duration-200"
+                            >
+                                <div className="flex justify-between w-full gap-1">
+                                    <p className="flex-grow text-left text-base">
+                                        {firstPostTime}
+                                    </p>
+                                    <img
+                                        src={arrowDown}
+                                        alt="Toggle"
+                                        className={`transform transition-transform duration-300 ${isOpenPostTime ? 'rotate-180' : 'rotate-0'}`}
+                                    />
+                                </div>
+                                <div
+                                    className={`overflow-hidden absolute top-0 transition-all duration-300 ease-in-out border-gray border-[1px] rounded-2xl w-full ${isOpenPostTime ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                                >
+                                    <ul className="bg-background shadow-lg rounded-md overflow-hidden mt-1 z-50">
+                                        {product.post_times.map(
+                                            (time, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="p-2 hover:text-gray cursor-pointer transition-all"
+                                                    onClick={() => {
+                                                        console.log(time)
+                                                        setIsOpenPostTime(false)
+                                                    }}
+                                                >
+                                                    {time.slice(0, 5)}
+                                                </li>
+                                            )
+                                        )}
+                                    </ul>
+                                </div>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <div className="bg-gray w-full h-[1px] my-6"></div>
-                <div>
-                    <p className="text-base max-sm:text-xs">Статистика</p>
-                    <InfoBox product={product} />
-                </div>
-                <div className="bg-gray w-full h-[1px] my-6"></div>
-
-                <div className="flex justify-center items-center">
                     <div>
                         <div className="flex items-center gap-2">
+                            <p className="text-3xl max-md:text-xl ">
+                                {nanoTonToTon(product.price)}
+                            </p>
                             <img
                                 src={Ton}
                                 alt=""
                                 className="h-[2em] w-auto inline-block align-middle"
                                 style={{ verticalAlign: 'middle' }}
                             />
-                            <p className="text-3xl max-md:text-xl ">
-                                {nanoTonToTon(product.price)} Ton
-                            </p>
                         </div>
                         {/* <h2 className="text-3xl">{product.price} ₽</h2> */}
                     </div>

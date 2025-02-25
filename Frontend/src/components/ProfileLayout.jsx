@@ -44,7 +44,7 @@ const ProfileLayout = () => {
                 <div className="basis-1/3">
                     <div className="flex flex-col  bg-card-white rounded-t-xl">
                         <div>
-                            <div className="flex gap-3 max-lg:flex-col">
+                            <div className="flex gap-3flex-col">
                                 <img
                                     src={`http://localhost:5000/user_${user.user_uuid}.png`}
                                     alt="User Profile"
