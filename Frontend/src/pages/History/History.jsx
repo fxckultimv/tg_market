@@ -85,39 +85,41 @@ const History = () => {
         )
     }
 
+    console.log(searchParams.get('status'))
+
     return (
         <div className="basis-2/3">
             <div className="flex items-center justify-start gap-2 flex-wrap">
                 <button
-                    className="rounded-md bg-blue p-2 text-white hover:text-gray"
+                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] ${searchParams.get('status') === 'waiting' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
                     value="waiting"
                     onClick={handlerSubmit}
                 >
                     ожидание
                 </button>
                 <button
-                    className="rounded-md bg-blue p-2 text-white hover:text-gray"
+                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] ${searchParams.get('status') === 'paid' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
                     value="paid"
                     onClick={handlerSubmit}
                 >
                     в процессе
                 </button>
                 <button
-                    className="rounded-md bg-blue p-2 text-white hover:text-gray"
+                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] ${searchParams.get('status') === 'completed' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
                     value="completed"
                     onClick={handlerSubmit}
                 >
                     выполненные
                 </button>
                 <button
-                    className="rounded-md bg-blue p-2 text-white hover:text-gray"
+                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] ${searchParams.get('status') === 'pending_payment' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
                     value="pending_payment"
                     onClick={handlerSubmit}
                 >
                     ожидает оплаты
                 </button>
                 <button
-                    className="rounded-md bg-blue p-2 text-white hover:text-gray"
+                    className={`rounded-md p-2 border-gray border-[1px] ${searchParams.get('status') === 'rejected' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
                     value="rejected"
                     onClick={handlerSubmit}
                 >

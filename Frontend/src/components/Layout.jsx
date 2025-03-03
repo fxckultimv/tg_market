@@ -74,16 +74,7 @@ const Layout = () => {
                     <CustomLink to="/profile">Профиль</CustomLink>
                 </div>
 
-                {/* Блок с кнопкой (видимый только на больших экранах) */}
-                <Link
-                    to="channels"
-                    className="bg-blue rounded-2xl items-center hidden lg:block"
-                >
-                    <p href="#" className="p-3 text-base text-white gap-3 flex">
-                        <img src={Arrow} alt="Arrow" />
-                        Начать сейчас
-                    </p>
-                </Link>
+                <div className="w-[27px] md:w-auto"></div>
 
                 {/* Бургер-иконка (видимая только на маленьких экранах) */}
                 <button

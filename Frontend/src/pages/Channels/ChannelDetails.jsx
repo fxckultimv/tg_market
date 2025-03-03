@@ -6,7 +6,7 @@ import {
 } from '@tma.js/sdk-react'
 import React, { useEffect, useState } from 'react'
 import { useProductStore } from '../../store'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import Calendar from 'react-calendar'
 import './CalendarStyles.css'
 import 'react-calendar/dist/Calendar.css'
@@ -24,6 +24,7 @@ const ChannelDetails = () => {
     const navigate = useNavigate()
     const { initDataRaw } = useLaunchParams()
     const hapticFeedback = useHapticFeedback()
+    const [searchParams, setSearchParams] = useSearchParams()
     const {
         productDetails,
         busyDay,
@@ -36,9 +37,11 @@ const ChannelDetails = () => {
     } = useProductStore()
     const { id } = useParams() // Получаем product_id из параметров URL
     const [selectedDates, setSelectedDates] = useState([]) // Хранит выбранные даты
-    const [format, setFormat] = useState()
-    const [post_time, setPostTime] = useState('') // Состояние для хранения выбранного времени
-    // const [postTimes, setPostTimes] = useState([]) // Состояние для хранения доступных времен
+    const [format, setFormat] = useState(searchParams.get('format'))
+    const [post_time, setPostTime] = useState(() => {
+        const time = searchParams.get('post_time')
+        return time ? time.replace(' ', '+') : ''
+    }) // Состояние для хранения выбранного времени
 
     useEffect(() => {
         fetchProductDetails(initDataRaw, id) // Загружаем данные при первом рендере
@@ -48,6 +51,12 @@ const ChannelDetails = () => {
     }, [fetchProductDetails, fetchBusyDay, initDataRaw, id])
 
     const formatList = productDetails?.format_ids || []
+
+    useEffect(() => {
+        if (!format && formatList.length > 0) {
+            setFormat(formatList[0]) // Берём первый доступный формат
+        }
+    }, [formatList, format])
 
     const handleFormatChange = (e) => {
         setFormat(e.target.value)

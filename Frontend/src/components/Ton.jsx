@@ -107,7 +107,6 @@ const Ton = () => {
     return (
         <>
             <div className="flex justify-between m-2">
-                <TonConnectButton />
                 <div
                     className={`px-4 py-3 text-base rounded-xl h-[40px] items-baseline ${
                         wallet
@@ -123,6 +122,7 @@ const Ton = () => {
                             : 'TestNet'
                         : 'N/A'}
                 </div>
+                <TonConnectButton />
             </div>
 
             <div className="flex justify-between items-center m-2 gap-1">

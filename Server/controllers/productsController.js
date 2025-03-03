@@ -174,7 +174,8 @@ class productController {
         }
 
         // 1. Запрос для получения товаров с учетом лимита и смещения
-        let productQuery = `SELECT p.product_id, p.category_id, p.title, p.price, p.channel_id, c.category_name, ARRAY_AGG(DISTINCT ppf.format_id) AS format_ids, ARRAY_AGG(DISTINCT pf.format_name) AS format_names, ARRAY_AGG(DISTINCT ppt.post_time) AS post_times, v.channel_tg_id, v.subscribers_count, v.views, v.subscribers_count, u.rating ${baseQuery} GROUP BY 
+        let productQuery = `SELECT p.product_id, p.category_id, p.title, p.price, p.channel_id, c.category_name, jsonb_object_agg(ppf.format_id, pf.format_name) AS formats, 
+    ARRAY_AGG(DISTINCT ppt.post_time) AS post_times, ARRAY_AGG(DISTINCT ppt.post_time) AS post_times, v.channel_tg_id, v.subscribers_count, v.views, v.subscribers_count, u.rating ${baseQuery} GROUP BY 
     p.product_id, 
     v.channel_tg_id, 
     v.subscribers_count, 

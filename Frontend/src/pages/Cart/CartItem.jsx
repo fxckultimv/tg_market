@@ -149,17 +149,17 @@ const CartItem = ({ cart }) => {
 
     return (
         <>
-            <div className="mr-auto basis-2/3 ">
+            <div className="mr-auto basis-2/3">
                 <ul className="space-y-6">
                     {Object.entries(cart.products).map(
                         ([productId, product]) => (
                             <div
                                 key={productId}
                                 onClick={() => handleSelectProduct(productId)}
-                                className={`bg-card-white p-4 rounded-xl  flex flex-col gap-2 transform hover:scale-105 transition duration-300 ease-in-out ${
+                                className={`bg-card-white p-4 rounded-xl  flex flex-col gap-2 transform transition duration-300 ease-in-out ${
                                     selectedProductId === productId
                                         ? 'border-blue border-2'
-                                        : 'hover:shadow-2xl hover:scale-105'
+                                        : 'hover:shadow-2xl'
                                 }`}
                             >
                                 <div className="flex gap-3">

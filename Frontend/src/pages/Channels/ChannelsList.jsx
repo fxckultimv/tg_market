@@ -12,6 +12,7 @@ import Arrow from '../../assets/Arrow.svg'
 import InfoBox from '../../components/InfoBox'
 import { motion } from 'framer-motion'
 import { AnimatePresence } from 'framer-motion'
+import { useEffect } from 'react'
 
 const ChannelsList = () => {
     const { products, page, totalPages, plusPage, minusPage, loading, error } =
@@ -67,6 +68,8 @@ const ProductCard = ({ product }) => {
     const [isOpen, setIsOpen] = useState(false)
     const [isOpenFormat, setIsOpenFormat] = useState(false)
     const [isOpenPostTime, setIsOpenPostTime] = useState(false)
+    const [postTime, setPostTime] = useState('')
+    const [format, setFormat] = useState(0)
     const navigate = useNavigate()
 
     const handleButtonClick = (event, action) => {
@@ -82,21 +85,32 @@ const ProductCard = ({ product }) => {
         }))
     }
 
-    const firstFormatName =
-        product.format_names.length > 0
-            ? product.format_names[0]
-            : 'Формат не указан'
+    // Устанавливаем значения по умолчанию при загрузке
+    useEffect(() => {
+        setFormat(Object.values(product.formats)[0])
+        setPostTime(product.post_times?.[0])
+    }, [product]) // Срабатывает при изменении product
 
-    // Получаем первое время из массива post_times или выводим "Время не указано"
-    const firstPostTime =
-        product.post_times.length > 0
-            ? product.post_times[0].slice(0, 5) // Предполагается, что в post_times есть поле label
-            : 'Время не указано'
+    const handleFormatSelect = (selectedFormat) => {
+        setFormat(selectedFormat)
+        setIsOpenFormat(false)
+    }
+
+    const handlePostTimeSelect = (selectedTime) => {
+        setPostTime(selectedTime.slice(0, 5))
+        setIsOpenPostTime(false)
+    }
+    console.log(postTime)
+
+    const selectedFormatId =
+        Object.entries(product.formats).find(
+            ([key, value]) => value === format
+        )?.[0] || ''
 
     return (
         <div className="flex gap-4 flex-col">
             <Link
-                to={product.product_id}
+                to={`${product.product_id}?format=${selectedFormatId}&post_time=${postTime}`}
                 className="bg-card-white  shadow-card p-4 rounded-3xl"
             >
                 <div className="flex justify-between">
@@ -176,7 +190,7 @@ const ProductCard = ({ product }) => {
                             >
                                 <div className="flex justify-between w-full gap-1">
                                     <p className="flex-grow text-left text-base">
-                                        {firstFormatName}
+                                        {format}
                                     </p>
                                     <img
                                         src={arrowDown}
@@ -188,17 +202,17 @@ const ProductCard = ({ product }) => {
                                     className={`overflow-hidden absolute transition-all top-0 duration-300 ease-in-out border-gray border-[1px] rounded-2xl w-full ${isOpenFormat ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
                                 >
                                     <ul className="bg-background shadow-lg rounded-md overflow-hidden mt-1 z-50">
-                                        {product.format_names.map(
-                                            (format, index) => (
+                                        {Object.entries(product.formats).map(
+                                            ([formatId, formatName]) => (
                                                 <li
-                                                    key={index}
+                                                    key={formatId}
                                                     className="p-2 hover:text-gray cursor-pointer transition-all"
                                                     onClick={() => {
-                                                        console.log(format)
+                                                        setFormat(formatName)
                                                         setIsOpenFormat(false)
                                                     }}
                                                 >
-                                                    {format}
+                                                    {formatName}
                                                 </li>
                                             )
                                         )}
@@ -218,7 +232,10 @@ const ProductCard = ({ product }) => {
                             >
                                 <div className="flex justify-between w-full gap-1">
                                     <p className="flex-grow text-left text-base">
-                                        {firstPostTime}
+                                        {postTime
+                                            .split(':')
+                                            .slice(0, 2)
+                                            .join(':')}
                                     </p>
                                     <img
                                         src={arrowDown}
@@ -236,7 +253,7 @@ const ProductCard = ({ product }) => {
                                                     key={index}
                                                     className="p-2 hover:text-gray cursor-pointer transition-all"
                                                     onClick={() => {
-                                                        console.log(time)
+                                                        setPostTime(time)
                                                         setIsOpenPostTime(false)
                                                     }}
                                                 >
