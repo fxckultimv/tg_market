@@ -188,7 +188,7 @@ class productController {
         params.push(skip)
 
         // 2. Запрос для получения общего количества товаров (без лимита и смещения)
-        let countQuery = `SELECT COUNT(*) ${baseQuery}`
+        let countQuery = `SELECT COUNT(DISTINCT p.product_id) ${baseQuery}`
 
         try {
             // Выполняем оба запроса параллельно

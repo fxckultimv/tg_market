@@ -25,8 +25,6 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
             post_times.some((time) => new Date(time) < now)
     }
 
-    console.log(allDatesInPast)
-
     const handlerConfirmationOrder = async () => {
         if (window.confirm('Подтвердить выполнение?')) {
             try {
@@ -95,7 +93,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 </div>
             )}
 
-            {allDatesInPast && (
+            {allDatesInPast && status === 'pending_payment' && (
                 <div>
                     <p className="bg-red rounded-xl p-2 text-center">
                         Вы опоздали с оплатой
