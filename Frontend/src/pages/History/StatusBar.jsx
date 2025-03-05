@@ -22,8 +22,10 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
     if (post_times != undefined) {
         allDatesInPast =
             Array.isArray(post_times) &&
-            post_times.every((time) => new Date(time) < now)
+            post_times.some((time) => new Date(time) < now)
     }
+
+    console.log(allDatesInPast)
 
     const handlerConfirmationOrder = async () => {
         if (window.confirm('Подтвердить выполнение?')) {
@@ -44,6 +46,9 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
     if (error) {
         return <Error error={error} />
     }
+    // if (allDatesInPast) {
+    //     return <div>Вы опоздали </div>
+    // }
 
     return (
         <div className="flex flex-col gap-6 relative">
@@ -78,13 +83,23 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 </div>
             )}
 
-            {status === 'pending_payment' && (
+            {status === 'pending_payment' && !allDatesInPast && (
                 <div>
                     {status === 'pending_payment' && (
                         <Link to={`/buy/${order_id}`}>
-                            <p className="bg-green rounded-xl p-2">Оплатить</p>
+                            <p className="bg-green rounded-xl p-2 pl-5">
+                                Оплатить
+                            </p>
                         </Link>
                     )}
+                </div>
+            )}
+
+            {allDatesInPast && (
+                <div>
+                    <p className="bg-red rounded-xl p-2 text-center">
+                        Вы опоздали с оплатой
+                    </p>
                 </div>
             )}
 
@@ -124,7 +139,9 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                                 <button
                                     type="submit"
                                     className="bg-red px-4 py-2 rounded-md"
-                                    onClick={alert('Обратитесь в поддержку')}
+                                    onClick={() =>
+                                        alert('Обратитесь в поддержку')
+                                    }
                                 >
                                     Открыть спор
                                 </button>

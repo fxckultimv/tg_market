@@ -54,10 +54,12 @@ const CartItem = ({ cart }) => {
 
                         await fetchCart(initDataRaw)
                         addToast('Товар заказан!')
+                        mainButton.hide()
                         // navigate('/basket')
                     } catch (error) {
                         addToast('Ошибка при создании заказа!', 'error')
                         console.error('Ошибка при создании заказа:', error)
+                        mainButton.hide()
                     }
                 }
 
@@ -104,6 +106,7 @@ const CartItem = ({ cart }) => {
         } catch (err) {
             addToast('Ошибка при создании заказа!', 'error')
             console.log('Ошибка при создании заказа:', error)
+            mainButton.hide()
         }
     }
 

@@ -796,7 +796,6 @@ async def process_order_callback(callback_query: types.CallbackQuery, state: FSM
 @dp.message_handler(state=OrderState.waiting_for_advertisement, content_types=types.ContentType.ANY)
 async def forward_message(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    specific_message_id = data.get('message_id')
     target_user_id = data.get('target_user_id')
     order_id = data.get('order_id')
 
@@ -816,7 +815,7 @@ async def forward_message(message: types.Message, state: FSMContext):
                 )
 
                 order_info = await connection.fetch(
-                    """SELECT oi.order_id, oi.post_time, p.product_id, vc.channel_name, vc.channel_url, 
+                    """SELECT oi.order_id, oi.post_time, oi.message_id, p.product_id, p.user_id, vc.channel_name, vc.channel_url, 
                               (oi.quantity * oi.price) AS total_price
                        FROM orderitems oi
                        JOIN products p ON oi.product_id = p.product_id
@@ -845,8 +844,6 @@ async def forward_message(message: types.Message, state: FSMContext):
                         order_info[0]['product_id'],
                         post_times
                     )
-                print(len(existing_orders) > 1)
-                print(existing_orders)
 
                 if len(existing_orders) > 1:
                     async with db_pool.acquire() as connection:
@@ -864,8 +861,10 @@ async def forward_message(message: types.Message, state: FSMContext):
                     InlineKeyboardButton("Разместить", callback_data=f"accept_{order_id}"),
                     InlineKeyboardButton("Отклонить", callback_data=f"decline_{order_id}")
                 )
+                try:
+                    await bot.forward_message(chat_id=order_info[0]['user_id'], from_chat_id=message.from_user.id, message_id=order_info[0]['message_id'])
 
-                await bot.send_message(
+                    await bot.send_message(
                     chat_id=target_user_id,
                     text=(
                         f"Пользователь @{message.from_user.username} хочет купить у вас рекламу \n"
@@ -875,28 +874,23 @@ async def forward_message(message: types.Message, state: FSMContext):
                     ),
                     parse_mode="HTML",
                     reply_markup=keyboard
-                )
+                    )   
 
-                await bot.send_message(
+                    await bot.send_message(
                     chat_id=message.from_user.id,
                     text="Ваше сообщение было успешно отправлено продавцу. Ожидайте его ответа."
-                )
-
-                async with db_pool.acquire() as connection:
-                    await connection.execute(
-                        "UPDATE Orders SET status = 'waiting' WHERE order_id = $1", order_id
                     )
 
-                # Пересылаем сохраненное сообщение пользователю после успешной обработки заказа
-                if specific_message_id:
-                    try:
-                        await bot.forward_message(chat_id=message.from_user.id, from_chat_id=message.from_user.id, message_id=specific_message_id)
-                    except Exception as e:
-                        logging.error(f"Ошибка при пересылке сообщения: {e}")
-                        await message.answer("Произошла ошибка при пересылке сообщения.")
+                    async with db_pool.acquire() as connection:
+                        await connection.execute(
+                        "UPDATE Orders SET status = 'waiting' WHERE order_id = $1", order_id
+                        )
 
-                await state.finish()
+                        await state.finish()
 
+                except Exception as e:
+                    logging.error(f"Ошибка при пересылке сообщения: {e}")
+                    await message.reply("Не удалось переслать сообщение. Попробуйте ещё раз или свяжитесь с поддержкой.")
             else:
                 await message.reply("Не удалось найти информацию о заказе.")
         except Exception as e:
@@ -1184,6 +1178,33 @@ async def process_completion_seller(callback_query: types.CallbackQuery):
 async def process_not_completion_seller(callback_query: types.CallbackQuery):
     order_id = callback_query.data.split('_')[2]
     pass
+
+class ConfirmationRequest(BaseModel):
+    user_id: int
+    order_id: Union[int, None] = None
+    price: int
+    channel_name: str
+
+@app.post('/confirmation')
+async def handle_buy(data: ConfirmationRequest):
+    print(data)
+    try:
+        # Создаем текст сообщения
+        text_message = (
+            f"✅ *Заказ успешно подтверждён!*\n\n"
+            f"💰 *Цена:* `{nano_ton_to_ton(data.price)} Ton`\n"
+            f"📢 *Канал:* `{data.channel_name}`\n"
+            f"💳 *Ваш баланс пополнен! 🎉*\n"
+        )
+        # Отправляем сообщение пользователю
+        await bot.send_message(data.user_id, text_message, parse_mode=ParseMode.MARKDOWN)
+
+        # Возвращаем успешный ответ
+        return {"status": "success", "message": "Message sent to seller",}
+
+    except Exception as e:
+        logging.error(f"Ошибка при обработке запроса: {e}")
+        raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
 
 async def start_fastapi():
     config = Config(app=app, host="0.0.0.0", port=5001, log_level="info")

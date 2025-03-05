@@ -16,6 +16,7 @@ import Error from '../../Error'
 import Loading from '../../Loading'
 import InfoBox from '../../components/InfoBox'
 import Ton from '../../assets/ton_symbol.svg'
+import star from '../../assets/star.svg'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 
 const ChannelDetails = () => {
@@ -68,6 +69,25 @@ const ChannelDetails = () => {
         const selectedTime = e.target.value // Получаем выбранное время
         setPostTime(selectedTime) // Обновляем состояние
     }
+
+    useEffect(() => {
+        if (!post_time || selectedDates.length === 0) return
+
+        const [hours, minutes] = post_time.split(':').map(Number)
+        const now = new Date() // Текущее время
+
+        // Берем первую выбранную дату (если их несколько, логика может быть сложнее)
+        const selectedDate = selectedDates[0]
+
+        const postDateTime = new Date(selectedDate)
+        postDateTime.setHours(hours, minutes, 0, 0) // Устанавливаем время поста
+
+        const timeDiff = (postDateTime - now) / (1000 * 60 * 60) // Разница в часах
+
+        if (timeDiff < 3) {
+            setPostTime('') // Сбрасываем время
+        }
+    }, [post_time, selectedDates])
 
     useEffect(() => {
         const handleBackClick = () => {
@@ -156,10 +176,11 @@ const ChannelDetails = () => {
 
     const tileDisabled = ({ date }) => {
         const busyDates = getBusyDays()
-        const today = new Date() // Получаем текущую дату
+        const today = new Date()
+        today.setHours(0, 0, 0, 0) // Обнуляем время у сегодняшней даты
 
-        // Делаем неактивными занятые дни и прошедшие дни
-        const isPast = date < today.setHours(0, 0, 0, 0) // Сравниваем даты без учета времени
+        const isPast = date < today // Проверяем только дату, без времени
+
         const isBusy = busyDates.some(
             (busyDate) =>
                 busyDate.getFullYear() === date.getFullYear() &&
@@ -167,7 +188,19 @@ const ChannelDetails = () => {
                 busyDate.getDate() === date.getDate()
         )
 
-        return isPast || isBusy // Возвращаем true для прошедших или занятых дней
+        // Если текущий день, проверяем разницу со временем поста
+        if (date.toDateString() === today.toDateString() && post_time) {
+            const [hours, minutes] = post_time.split(':').map(Number)
+            const postDateTime = new Date()
+            postDateTime.setHours(hours, minutes, 0, 0)
+
+            const now = new Date() // Получаем текущее время
+            const timeDiff = (postDateTime - now) / (1000 * 60 * 60) // Разница в часах
+
+            if (timeDiff < 3) return true // Блокируем день
+        }
+
+        return isPast || isBusy
     }
 
     const handleDateChange = (date) => {
@@ -175,8 +208,6 @@ const ChannelDetails = () => {
         const utcDate = new Date(
             Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
         )
-
-        console.log(utcDate) // Дата в UTC
 
         // Проверка на наличие даты в списке
         const isSelected = selectedDates.some(
@@ -262,31 +293,42 @@ const ChannelDetails = () => {
     }
 
     return (
-        <div className="flex flex-col gap-5 p-8">
-            <div className="bg-card-white flex flex-col justify-between">
-                <div className="flex gap-6 p-8 w-full rounded-xl">
+        <div className="flex flex-col gap-5 p-8 max-sm:gap-2">
+            <div className="bg-card-white flex flex-col justify-between rounded-xl">
+                <div className="flex gap-6 py-2 px-6 w-full">
                     <div className="flex-shrink-0">
                         <img
-                            className="rounded-full w-40 h-40 object-cover border-4 border-accent-green shadow-lg"
+                            className="rounded-full object-cover border-2 border-accent-green shadow-lg max-h-[111px] max-w-[111px]"
                             src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
                             alt={productDetails.channel_title}
                             style={{ aspectRatio: '1/1' }} // Сохранение пропорций изображения
                         />
                     </div>
                     <div className="flex flex-col justify-between">
-                        <h3 className="text-3xl font-extrabold text-main-green mb-4">
+                        <h3 className="text-xl font-extrabold text-main-green mb-4">
                             {productDetails.channel_title}
                         </h3>
                         <Link
                             to={`/user/${productDetails.user_uuid}`}
-                            className="block text-lg text-blue mb-4 items-center hover:font-bold"
+                            className="block text-lg text-blue mb-4 items-center"
                         >
-                            @{productDetails.username} ⭐️{' '}
-                            {productDetails.rating} (Рейтинг)
+                            <div className="flex gap-2">
+                                <div className="flex">
+                                    <p className=" text-xl px-1 max-sm:text-base">
+                                        {productDetails.username}
+                                    </p>
+                                </div>
+                                <div className="flex gap-2 items-center">
+                                    <img src={star} alt="" />
+                                    <p className=" text-xl max-sm:text-base">
+                                        {productDetails.rating}
+                                    </p>
+                                </div>
+                            </div>
                         </Link>
                     </div>
                 </div>
-                <div className="flex gap-5 p-8 max-md:flex-col">
+                <div className="flex gap-5 p-8 max-md:flex-col max-sm:gap-2">
                     <p className="text-base">
                         <span className="font-bold">Канал:</span>{' '}
                         {productDetails.channel_name}
@@ -301,7 +343,7 @@ const ChannelDetails = () => {
                             href={productDetails.channel_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-500 hover:underline"
+                            className="text-blue hover:underline"
                         >
                             {productDetails.channel_url}
                         </a>
@@ -309,7 +351,7 @@ const ChannelDetails = () => {
                 </div>
             </div>
             <div className="bg-card-white p-8 rounded-xl ">
-                <p className="text-lg mb-3 rounded-lg">
+                <p className="text-lg rounded-lg">
                     <span className="font-bold">Описание:</span>{' '}
                     {productDetails.description}
                 </p>
@@ -322,7 +364,7 @@ const ChannelDetails = () => {
                     </p>
                 </div>
             </div>
-            <div className="bg-card-white p-8">
+            <div className="bg-card-white p-8 rounded-xl">
                 <InfoBox product={productDetails} />
             </div>
 

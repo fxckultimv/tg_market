@@ -8,10 +8,15 @@ const Chennel = ({ channel }) => {
             className="flex h-full flex-col justify-center rounded-xl bg-card-white p-8"
         >
             <div className="flex justify-between flex-wrap">
-                <div>
+                <div className="flex flex-col">
                     <h3 className="text-xl font-extrabold mb-2">
                         {channel.channel_name}
                     </h3>
+                    <div>
+                        <p className="">Статистика</p>
+                        <div className="bg-gray w-full h-[1px] my-2"></div>
+                        <InfoBox product={channel} />
+                    </div>
                 </div>
                 <div className="aspect-square">
                     <img
@@ -20,12 +25,6 @@ const Chennel = ({ channel }) => {
                         alt={channel.title}
                     />
                 </div>
-            </div>
-
-            <div className="bg-gray w-full h-[1px] my-8"></div>
-            <div>
-                <p className="">Статистика</p>
-                <InfoBox product={channel} />
             </div>
         </div>
     )

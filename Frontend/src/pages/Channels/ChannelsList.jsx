@@ -100,7 +100,6 @@ const ProductCard = ({ product }) => {
         setPostTime(selectedTime.slice(0, 5))
         setIsOpenPostTime(false)
     }
-    console.log(postTime)
 
     const selectedFormatId =
         Object.entries(product.formats).find(

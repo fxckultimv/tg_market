@@ -25,7 +25,7 @@ const InfoBox = ({ product }) => (
                 %
             </p>
         </div>
-        {product.price && product.views && (
+        {product.price && product.views > 0 && (
             <div className="bg-info-box flex flex-col justify-between items-center w-1/4 px-auto py-2 rounded-xl gap-2 max-md:px-2 max-md:text-xs">
                 <h2 className="">CPV</h2>
                 <div className="bg-blue rounded-sm flex justify-center items-center">

@@ -18,10 +18,8 @@ const Ton = () => {
     const { initDataRaw } = useLaunchParams()
     const { addToast } = useToast()
     const languageCode = initDataRaw?.result?.user?.languageCode || 'en'
-
     const userFriendlyAddress = useTonAddress()
     const rawAddress = useTonAddress(false)
-
     const wallet = useTonWallet()
     const [amount, setAmount] = useState('')
     const [amountWithdrawal, setAmountWithdrawal] = useState('')
@@ -34,6 +32,11 @@ const Ton = () => {
     const handleTransaction = async () => {
         if (!amount || isNaN(amount) || Number(amount) <= 0.01) {
             addToast('Введите корректную сумму.', 'error')
+            return
+        }
+
+        if (wallet.account.chain === CHAIN.MAINNET) {
+            addToast('Подключите TestNet кошелёк.', 'error')
             return
         }
 
@@ -81,6 +84,11 @@ const Ton = () => {
             Number(amountWithdrawal) <= 0.01
         ) {
             addToast('Введите корректную сумму.', 'error')
+            return
+        }
+
+        if (wallet.account.chain === CHAIN.MAINNET) {
+            addToast('Подключите TestNet кошелёк.', 'error')
             return
         }
 

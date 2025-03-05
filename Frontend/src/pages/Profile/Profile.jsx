@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import Loading from '../../Loading'
 import Error from '../../Error'
 import ProfileLogo from '../../assets/profile-logo.svg'
+import userLogo from '../../assets/profileLogo.png'
 
 const Profile = () => {
     const { initDataRaw } = useLaunchParams()
@@ -52,6 +53,10 @@ const Profile = () => {
                                 src={`http://localhost:5000/user_${user.user_uuid}.png`}
                                 alt="User Profile"
                                 className="rounded-full w-24 h-24 m-2"
+                                onError={(e) => {
+                                    e.target.onerror = null
+                                    e.target.src = userLogo
+                                }}
                             />
                             <p className="text-lg font-semibold">
                                 Рейтинг: {user.rating}⭐️

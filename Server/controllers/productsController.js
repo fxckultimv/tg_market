@@ -518,7 +518,7 @@ class productController {
                 `SELECT oi.post_time  FROM products p
                 JOIN orderitems oi ON p.product_id = oi.product_id
                 JOIN orders o ON oi.order_id = o.order_id
-                WHERE p.product_id = $1 AND o.status IN ('pending_payment', 'paid', 'complited') AND oi.post_time IS NOT NULL`,
+                WHERE p.product_id = $1 AND o.status IN ('pending_payment', 'paid', 'complited', 'completed') AND oi.post_time IS NOT NULL`,
                 [id]
             )
 
@@ -611,13 +611,13 @@ class productController {
         try {
             // Первичная проверка в базе данных
             const checkResult = await db.query(
-                `SELECT o.order_id, o.total_price,o.status,o.user_id AS buyerId, p.user_id,
+                `SELECT o.order_id, o.total_price, o.status,o.user_id AS buyerId, p.user_id, p.title,
                     ARRAY_AGG(DISTINCT oi.post_time) as post_times
                 FROM orders AS o
                 JOIN orderitems oi ON o.order_id = oi.order_id
                 JOIN products p ON p.product_id = oi.product_id
                 WHERE o.order_id = $1 AND o.user_id = $2
-                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id`,
+                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id, p.title`,
                 [id, user_id]
             )
 
@@ -674,6 +674,34 @@ class productController {
                                 details: { order_id, buyerId },
                             }),
                         ])
+
+                        const requestBody = {
+                            user_id: order.user_id,
+                            order_id: order_id,
+                            channel_name: order.title,
+                            price: amount,
+                        }
+
+                        console.log(requestBody)
+
+                        const response = await fetch(
+                            'http://localhost:5001/confirmation',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(requestBody),
+                            }
+                        )
+
+                        if (!response.ok) {
+                            throw new Error(
+                                `Error from POST request: ${response.statusText}`
+                            )
+                        }
+
+                        const data = await response.json()
 
                         res.status(200).json({
                             message:
