@@ -109,11 +109,27 @@ const ChannelStats = () => {
         }
     }
 
+    const isUnique = (arr) => new Set(arr).size === arr.length
+
     const handleSave = async () => {
         // Преобразуем в число и проверяем
         const priceValue = parseFloat(price)
         if (isNaN(priceValue) || priceValue < 0.1) {
             addToast('Цена должна быть больше 0.1 TON!', 'error')
+            return
+        }
+
+        if (
+            !category ||
+            !Array.isArray(selectedFormats) ||
+            selectedFormats.length === 0 ||
+            !Array.isArray(publicationTimes) ||
+            publicationTimes.length === 0 ||
+            !isUnique(publicationTimes) ||
+            !description.trim()
+        ) {
+            addToast('Некорректные изменения', 'warning')
+            alert('Ошибка: Проверьте введенные данные!')
             return
         }
 

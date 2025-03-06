@@ -87,10 +87,44 @@ const BuyOrder = () => {
         nanoTonToTon(balance) >= nanoTonToTon(orderInfo.total_price)
 
     return (
-        <div className="container mx-auto p-4 flex-row min-h-screen">
-            <h1 className="text-2xl font-bold mb-4">Заказ с ID: {id}</h1>
-            <p className="py-3">Ваш баланс: {nanoTonToTon(balance)} TON</p>
-            <p className="py-3">
+        <div className="text-text container mx-auto p-4 flex-row min-h-screen">
+            {/* <h1 className="text-2xl font-bold mb-4">Заказ с ID: {id}</h1> */}
+            <div className="flex justify-between">
+                <div className="">
+                    <p className="text-2xl">{orderInfo.title}</p>
+                    <a
+                        href={orderInfo.channel_url}
+                        className="text-blue hover:"
+                    >
+                        канал
+                    </a>
+                </div>
+
+                <img
+                    src={`http://localhost:5000/channel_${orderInfo.channel_tg_id}.png`}
+                    alt={orderInfo.title}
+                    className="rounded-full max-h-[111px] max-w-[111px]"
+                />
+            </div>
+            <p className="text-base p-2">Формат: {orderInfo.format_name}</p>
+            <div className="bg-card-white rounded-xl p-2">
+                <strong>Дата и время поста:</strong>
+                {orderInfo.post_times.map((time, index) => (
+                    <div key={index} className="mt-4 rounded-xl">
+                        <p>
+                            {new Date(time).toLocaleDateString('ru-RU', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                            })}
+                        </p>
+                    </div>
+                ))}
+            </div>
+            <p className="py-2">Ваш баланс: {nanoTonToTon(balance)} TON</p>
+            <p className="py-2">
                 Стоимость заказа: {nanoTonToTon(orderInfo.total_price)} TON
             </p>
             <button

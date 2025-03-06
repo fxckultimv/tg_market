@@ -136,7 +136,7 @@ const Filters = () => {
             </div>
             <div className="flex flex-col items-center w-full mt-6 p-3">
                 {/* Поле поиска */}
-                <div className="w-full max-w-md mb-4">
+                <div className="text-black w-full max-w-md mb-4">
                     <input
                         type="search"
                         placeholder="Поиск объявлений"

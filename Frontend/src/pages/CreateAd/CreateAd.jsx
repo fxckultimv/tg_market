@@ -30,6 +30,8 @@ const CreateAd = () => {
         error,
     } = useUserStore()
 
+    const limitTimesPublication = 9
+
     const [selectedChannel, setSelectedChannel] = useState(null)
     const [selectedCategories, setSelectedCategories] = useState(null)
     const [selectedFormat, setSelectedFormat] = useState([])
@@ -40,6 +42,9 @@ const CreateAd = () => {
     const [publicationTimes, setPublicationTimes] = useState([])
 
     const addPublicationTime = () => {
+        if (publicationTimes.length > limitTimesPublication) {
+            return
+        }
         setPublicationTimes([...publicationTimes, '12:00']) // Добавление нового времени по умолчанию
     }
 
@@ -59,6 +64,8 @@ const CreateAd = () => {
         fetchFormats(initDataRaw)
     }, [initDataRaw, fetchVerifiedChannels, fetchCategories, fetchFormats])
 
+    const isUnique = (arr) => new Set(arr).size === arr.length
+
     // Обновление MainButton при изменении состояния полей
     useEffect(() => {
         if (mainButton) {
@@ -67,6 +74,7 @@ const CreateAd = () => {
                 selectedCategories &&
                 selectedFormat.length > 0 &&
                 publicationTimes.length > 0 &&
+                isUnique(publicationTimes) &&
                 price >= 0.1 &&
                 description &&
                 !timeError
@@ -99,6 +107,7 @@ const CreateAd = () => {
                     setPublicationTimes([])
                     setPrice('')
                     setDescription('')
+                    mainButton.hide()
                 } catch (error) {
                     console.error(
                         'Ошибка при создании рекламного предложения:',
@@ -397,16 +406,19 @@ const CreateAd = () => {
                                             </button>
                                         </div>
                                     ))}
-                                    <div>
-                                        <button
-                                            onClick={addPublicationTime}
-                                            className="px-4 py-2 rounded-md bg-green"
-                                        >
-                                            <p className="text-base bg">
-                                                Добавить время
-                                            </p>
-                                        </button>
-                                    </div>
+                                    {publicationTimes.length <=
+                                        limitTimesPublication && (
+                                        <div>
+                                            <button
+                                                onClick={addPublicationTime}
+                                                className="px-4 py-2 rounded-md bg-green"
+                                            >
+                                                <p className="text-base bg">
+                                                    Добавить время
+                                                </p>
+                                            </button>
+                                        </div>
+                                    )}
 
                                     {timeError && (
                                         <p className="text-red-500 mt-2">

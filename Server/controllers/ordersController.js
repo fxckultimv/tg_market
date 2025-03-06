@@ -27,7 +27,13 @@ class ordersController {
 
         try {
             const result = await db.query(
-                `SELECT status, total_price FROM orders WHERE order_id = $1`,
+                `SELECT o.status, o.total_price, p.title, vc.channel_tg_id, vc.channel_url, pf.format_name, ARRAY_AGG(DISTINCT oi.post_time) AS post_times FROM orders AS o 
+                JOIN orderItems oi ON o.order_id = oi.order_id
+                JOIN products p ON p.product_id = oi.product_id 
+                JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+                JOIN publication_formats pf ON oi.format = pf.format_id
+                WHERE o.order_id = $1
+                GROUP BY o.status, o.total_price, p.title, vc.channel_tg_id, vc.channel_url, pf.format_name`,
                 [id]
             )
 

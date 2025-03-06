@@ -68,6 +68,7 @@ const ChannelDetails = () => {
     const handlePostTimeChange = (e) => {
         const selectedTime = e.target.value // Получаем выбранное время
         setPostTime(selectedTime) // Обновляем состояние
+        setSelectedDates([])
     }
 
     useEffect(() => {
@@ -177,16 +178,20 @@ const ChannelDetails = () => {
     const tileDisabled = ({ date }) => {
         const busyDates = getBusyDays()
         const today = new Date()
-        today.setHours(0, 0, 0, 0) // Обнуляем время у сегодняшней даты
+        today.setHours(0, 0, 0, 0)
 
-        const isPast = date < today // Проверяем только дату, без времени
+        const isPast = date < today // Проверка на прошедшие даты
 
-        const isBusy = busyDates.some(
-            (busyDate) =>
+        // Проверяем, есть ли выбранное время среди занятых слотов для этой даты
+        const isBusy = busyDates.some((busyDate) => {
+            return (
                 busyDate.getFullYear() === date.getFullYear() &&
                 busyDate.getMonth() === date.getMonth() &&
-                busyDate.getDate() === date.getDate()
-        )
+                busyDate.getDate() === date.getDate() &&
+                post_time && // Проверяем, что уже выбрано время
+                busyDate.getHours() === Number(post_time.split(':')[0]) // Сравниваем часы
+            )
+        })
 
         // Если текущий день, проверяем разницу со временем поста
         if (date.toDateString() === today.toDateString() && post_time) {
