@@ -91,9 +91,6 @@ const SingleHistory = () => {
                     {singleHistory.post_times?.length || 0}
                 </p>
             </div>
-            <p className="text-lg mx-2 my-2">
-                Информация о времени размещении рекламы
-            </p>
             <div className="bg-card-white rounded-xl">
                 {singleHistory.post_times &&
                     singleHistory.post_times.map((time, index) => (

@@ -109,20 +109,27 @@ const BuyOrder = () => {
             <p className="text-base p-2">Формат: {orderInfo.format_name}</p>
             <div className="bg-card-white rounded-xl p-2">
                 <strong>Дата и время поста:</strong>
-                {orderInfo.post_times.map((time, index) => (
-                    <div key={index} className="mt-4 rounded-xl">
-                        <p>
-                            {new Date(time).toLocaleDateString('ru-RU', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                            })}
-                        </p>
-                    </div>
-                ))}
+                {orderInfo.post_times && orderInfo.post_times.length > 0 ? (
+                    orderInfo.post_times.map((time, index) => (
+                        <div key={index} className="mt-4 rounded-xl">
+                            <p>
+                                {new Date(time).toLocaleDateString('ru-RU', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                })}
+                            </p>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-500">
+                        Нет информации о времени поста
+                    </p>
+                )}
             </div>
+
             <p className="py-2">Ваш баланс: {nanoTonToTon(balance)} TON</p>
             <p className="py-2">
                 Стоимость заказа: {nanoTonToTon(orderInfo.total_price)} TON

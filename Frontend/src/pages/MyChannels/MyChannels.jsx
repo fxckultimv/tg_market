@@ -58,9 +58,7 @@ const MyChannels = () => {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {verifiedChannels.map((channel) => (
-                <Link to={`${channel.channel_id}`} key={channel.channel_id}>
-                    <Channel channel={channel} />
-                </Link>
+                <Channel channel={channel} />
             ))}
         </div>
     )
