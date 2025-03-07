@@ -71,7 +71,7 @@ const Whell2 = () => {
                 })}
             </div>
             <h1 className="text-4xl font-bold mt-8 z-10">
-                TeleAdMarket — это продвижение в{' '}
+                Carrot — это продвижение в{' '}
                 <span className="text-blue">Telegram</span>
             </h1>
 

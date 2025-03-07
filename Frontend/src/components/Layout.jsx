@@ -144,7 +144,7 @@ const Layout = () => {
                 >
                     <p>support@teleadmarket.com</p>
                     <div className="w-2 h-2 bg-gray rounded-full max-md:hidden"></div>
-                    <p>© TeleAdMarket, 2024</p>
+                    <p>© Carrot, 2024</p>
                 </div>{' '}
                 <div className="flex gap-2 max-md:hidden">
                     <img src={LogoGray} alt="" />

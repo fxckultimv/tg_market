@@ -699,7 +699,7 @@ const Home = () => {
                     <div className="max-w-[540px] flex flex-col max-lg:items-center">
                         <div className="flex gap-2 ">
                             <img src={Logo} alt="Logo" className="w-[27px]" />
-                            <p className="text-2xl text-text">TeleAd</p>
+                            <p className="text-2xl text-text">Carrot</p>
                             {/* <img
                                                     src={Name}
                                                     alt="Name"
