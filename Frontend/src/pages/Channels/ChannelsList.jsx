@@ -113,7 +113,7 @@ const ProductCard = ({ product }) => {
                 className="bg-card-white  shadow-card p-4 rounded-3xl"
             >
                 <div className="flex justify-between">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 max-w-[60%] break-words">
                         <h2 className=" text-2xl">{product.title}</h2>
                         <div className="flex gap-3">
                             <div className="flex">
@@ -133,7 +133,7 @@ const ProductCard = ({ product }) => {
                         <img
                             src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                             alt={product.title}
-                            className="rounded-full max-h-[111px] max-w-[111px]"
+                            className="rounded-full max-h-[111px]"
                         />
                     </div>
                 </div>

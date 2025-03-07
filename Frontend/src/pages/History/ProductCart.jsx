@@ -5,16 +5,31 @@ import Ton from '../../assets/ton_symbol.svg'
 import { log10 } from 'chart.js/helpers'
 
 const ProductCart = ({ order }) => {
+    const statusTranslations = {
+        waiting: 'Ожидание',
+        paid: 'В процессе',
+        completed: 'Выполненные',
+        pending_payment: 'Ожидает оплаты',
+        rejected: 'Отклонены',
+        problem: 'Проблема',
+    }
+
+    // Если статус не найден, подставляется "Неизвестный статус"
+    const translatedStatus =
+        statusTranslations[order.status] || 'Неизвестный статус'
+
     return (
         <div
             to={`/buy/${order.order_id}`}
             key={order.order_id}
             className="bg-card-white flex flex-col justify-center p-4 h-full rounded-xl"
         >
-            <div className="flex justify-between">
-                <div>
-                    <h3 className="text-xl mb-2">{order.title}</h3>
-                    <p className=" mb-2">{order.status}</p>
+            <div className="flex justify-between items-start gap-4">
+                <div className="max-w-[60%] break-words">
+                    {' '}
+                    {/* Ограничение ширины и перенос слов */}
+                    <h3 className="text-xl mb-2 break-words">{order.title}</h3>
+                    <p className="mb-2">{translatedStatus}</p>
                 </div>
                 <div className="aspect-square">
                     <img

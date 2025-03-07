@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import CustomLink from './HeaderCustomLink'
 import Logo from '../assets/logo.svg'
+import Carrot from '../assets/carrot.svg'
 import Name from '../assets/TeleAdMarket.svg'
 import Arrow from '../assets/Arrow.svg'
 import LogoGray from '../assets/logo grey.svg'
@@ -52,9 +53,9 @@ const Layout = () => {
         <div className="bg-background">
             <header className="bg-background flex space-x-0 min-w-full justify-between p-4 items-center">
                 {/* Логотип */}
-                <Link to="/" className="flex gap-2">
-                    <img src={Logo} alt="Logo" className="w-[27px]" />
-                    <p className="text-2xl text-text">TeleAd</p>
+                <Link to="/" className="flex gap-1">
+                    <img src={Carrot} alt="Logo" className="w-[27px]" />
+                    <p className="text-2xl text-text font-bold">Carrot</p>
                     {/* <img
                         src={Name}
                         alt="Name"

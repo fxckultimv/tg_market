@@ -108,6 +108,7 @@ const CreateAd = () => {
                     setPrice('')
                     setDescription('')
                     mainButton.hide()
+                    fetchVerifiedChannels(initDataRaw)
                 } catch (error) {
                     console.error(
                         'Ошибка при создании рекламного предложения:',

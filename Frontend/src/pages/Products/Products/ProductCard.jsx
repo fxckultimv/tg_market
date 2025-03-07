@@ -9,16 +9,14 @@ const ProductCard = ({ product }) => {
             className="bg-card-white flex flex-col justify-center p-8 h-full rounded-xl"
         >
             <div className="flex justify-between">
-                <div>
-                    <h3 className="text-xl mb-2 text-main-green">
-                        {product.title}
-                    </h3>
+                <div className="flex flex-col gap-2 max-w-[60%] break-words">
+                    <h2 className="text-2xl">{product.title}</h2>
                 </div>
                 <div className="aspect-square">
                     <img
-                        className="rounded-full max-h-[111px]"
                         src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
-                        alt={product.channel_name}
+                        alt={product.title}
+                        className="rounded-full max-h-[111px]"
                     />
                 </div>
             </div>

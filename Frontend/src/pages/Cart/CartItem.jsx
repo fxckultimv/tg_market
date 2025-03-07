@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/ToastProvider'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
+import star from '../../assets/star.svg'
 
 const CartItem = ({ cart }) => {
     const { initDataRaw } = useLaunchParams()
@@ -132,11 +133,10 @@ const CartItem = ({ cart }) => {
         } else {
             // Устанавливаем выбранный товар и пересчитываем цену
             setSelectedProductId(productId)
-            cart.products[productId].items.forEach((item) => {
-                updatedTotalPrice += cart.products[productId].price
-            })
+            updatedTotalPrice =
+                cart.products[productId].items.length *
+                cart.products[productId].price
         }
-
         setTotalPrice(nanoTonToTon(updatedTotalPrice))
     }
 
@@ -152,41 +152,39 @@ const CartItem = ({ cart }) => {
 
     return (
         <>
-            <div className="mr-auto basis-2/3">
-                <ul className="space-y-6">
+            <div className="">
+                <ul className="flex flex-col gap-4">
                     {Object.entries(cart.products).map(
                         ([productId, product]) => (
                             <div
                                 key={productId}
                                 onClick={() => handleSelectProduct(productId)}
-                                className={`bg-card-white p-4 rounded-xl  flex flex-col gap-2 transform transition duration-300 ease-in-out ${
+                                className={`bg-card-white p-4 rounded-xl flex flex-col gap-2 ${
                                     selectedProductId === productId
                                         ? 'border-blue border-2'
                                         : 'hover:shadow-2xl'
                                 }`}
                             >
-                                <div className="flex gap-3">
+                                <div className="flex justify-between">
+                                    <div className="flex flex-col gap-2 max-w-[60%] break-words">
+                                        <h2 className="text-2xl">
+                                            {product.title}
+                                        </h2>
+                                        <div className="flex gap-3">
+                                            <div className="flex gap-2 items-center">
+                                                <img src={star} alt="" />
+                                                <p className=" text-base max-sm:text-xs">
+                                                    {product.rating}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div className="aspect-square">
                                         <img
-                                            className="rounded-full max-h-[111px]"
                                             src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
                                             alt={product.title}
+                                            className="rounded-full max-h-[111px]"
                                         />
-                                    </div>
-                                    <div className="flex gap-5">
-                                        <div className="flex flex-col justify-between text-center items-start">
-                                            <p className="text-xl">
-                                                {product.title}
-                                            </p>
-                                            <p className="text-base">
-                                                ⭐️ {product.rating}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-base px-4 py-1 border-[1px] border-gray rounded-full">
-                                                {product.category}
-                                            </p>
-                                        </div>
                                     </div>
                                 </div>
                                 <div className="bg-gray w-full h-[1px]"></div>
@@ -253,36 +251,26 @@ const CartItem = ({ cart }) => {
                     )}
                 </ul>
             </div>
-            <div className="basis-1/3 max-md:hidden">
-                <div className="bg-dark-blue text-white p-6 rounded-xl mx-auto basis-1/3 w-full">
-                    <h2 className="text-lg  mb-4">Оформление заказа</h2>
-                    <div className="space-y-2">
+            <div className="flex-1 min-w-0 max-md:hidden">
+                <div className="bg-dark-blue text-white p-6 rounded-xl">
+                    <h2 className="text-lg mb-4">Оформление заказа</h2>
+                    <div className="">
                         {selectedProductId !== null && (
                             // Отображаем выбранный товар и его цену
                             <div
                                 className="flex justify-between"
                                 key={selectedProductId}
                             >
-                                <p>
-                                    {cart.products[selectedProductId].title} (3
-                                    дня)
+                                <p className="max-w-[80%] break-words">
+                                    {cart.products[selectedProductId].title}
                                 </p>
-                                <p>
-                                    {cart.products[
-                                        selectedProductId
-                                    ].items.reduce(
-                                        (total, item) =>
-                                            total +
-                                            item.quantity *
-                                                nanoTonToTon(
-                                                    cart.products[
-                                                        selectedProductId
-                                                    ].price
-                                                ),
-                                        0
-                                    )}{' '}
+                                {/* <p>
+                                    {nanoTonToTon(
+                                        cart.products[selectedProductId].items
+                                            .length 
+                                    )}
                                     Ton
-                                </p>
+                                </p> */}
                             </div>
                         )}
                     </div>
@@ -292,12 +280,10 @@ const CartItem = ({ cart }) => {
                         <p>{totalPrice} Ton</p>
                     </div>
                     <button
-                        className="w-full bg-white py-2 mt-4 rounded-lg  hover:bg-blue transition duration-300"
+                        className="w-full bg-white py-2 mt-4 rounded-lg  hover:bg-blue"
                         onClick={() => handleButtonClick()}
                     >
-                        <p className="text-black hover:text-white duration-300">
-                            Заказать
-                        </p>
+                        <p className="text-black hover:text-white">Заказать</p>
                     </button>
                 </div>
             </div>
