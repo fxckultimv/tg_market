@@ -53,7 +53,7 @@ const App = () => {
     const { initDataRaw } = useLaunchParams()
     const navigate = useNavigate()
     const settingsButton = useSettingsButton()
-    const { theme, setTheme } = useUserStore()
+    const { fetchAuth, theme, setTheme } = useUserStore()
     const initData = useInitDataRaw()
     const setInitData = useUserStore((state) => state.setInitData)
     useEffect(() => {
@@ -72,6 +72,10 @@ const App = () => {
 
     //Открытие приложения на всё высоту при запуске
     const viewport = useViewport()
+
+    useEffect(() => {
+        fetchAuth(initDataRaw)
+    }, [initDataRaw, fetchAuth])
 
     // Проверка прав администратора при загрузке
     useEffect(() => {

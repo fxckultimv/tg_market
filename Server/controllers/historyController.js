@@ -10,11 +10,11 @@ class historyController {
 
         let query = `
             SELECT DISTINCT o.order_id, o.total_price, o.status, o.created_at, p.product_id, 
-                   p.title, p.description, v.channel_tg_id, v.channel_url
+                   p.title, p.description, vc.channel_title, vc.channel_tg_id, vc.channel_url
             FROM orders o
             LEFT JOIN orderitems oi ON o.order_id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.product_id
-            LEFT JOIN verifiedchannels v ON p.channel_id = v.channel_id
+            LEFT JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
             WHERE o.user_id = $1
         `
 

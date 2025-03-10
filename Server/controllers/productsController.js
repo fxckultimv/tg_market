@@ -344,7 +344,6 @@ class productController {
     async addProduct(req, res) {
         const initData = res.locals.initData
         const user_id = initData.user.id
-
         const {
             channel_id,
             category_id,
@@ -353,7 +352,27 @@ class productController {
             post_time,
             format,
         } = req.body
-        // console.log(req.body)
+
+        const isUnique = (arr) => new Set(arr).size === arr.length
+
+        if (
+            !channel_id ||
+            !category_id ||
+            !description ||
+            description.trim().length === 0 ||
+            !format ||
+            !Array.isArray(format) ||
+            format.length === 0 ||
+            !post_time ||
+            !Array.isArray(post_time) ||
+            post_time.length === 0 ||
+            price < 0.1 ||
+            !isUnique(post_time)
+        ) {
+            return res
+                .status(400)
+                .json({ error: 'Некорректные входные данные' })
+        }
 
         try {
             const productPublished = await db.query(
@@ -368,7 +387,7 @@ class productController {
             }
             // Проверка, верифицирован ли канал и получение channel_name
             const verificationResult = await db.query(
-                `SELECT channel_name FROM verifiedchannels WHERE user_id = $1 AND channel_id = $2`,
+                `SELECT channel_name, channel_title FROM verifiedchannels WHERE user_id = $1 AND channel_id = $2`,
                 [user_id, channel_id]
             )
 
@@ -381,6 +400,7 @@ class productController {
 
             // Получаем channel_name
             const channel_name = verificationResult.rows[0].channel_name
+            const channel_title = verificationResult.rows[0].channel_title
 
             // Добавляем новый продукт с использованием channel_name в качестве title
             const result = await db.query(
@@ -388,7 +408,7 @@ class productController {
                 [
                     user_id,
                     category_id,
-                    channel_name,
+                    channel_title,
                     description,
                     price,
                     post_time[0],
@@ -435,6 +455,28 @@ class productController {
             post_time,
             format,
         } = req.body
+
+        const isUnique = (arr) => new Set(arr).size === arr.length
+
+        if (
+            !channel_id ||
+            !reqProduct_id ||
+            !category_id ||
+            !description ||
+            description.trim().length === 0 ||
+            !format ||
+            !Array.isArray(format) ||
+            format.length === 0 ||
+            !post_time ||
+            !Array.isArray(post_time) ||
+            post_time.length === 0 ||
+            price < 0.1 ||
+            !isUnique(post_time)
+        ) {
+            return res
+                .status(400)
+                .json({ error: 'Некорректные входные данные' })
+        }
 
         try {
             // Проверка, верифицирован ли канал и получение channel_name

@@ -46,13 +46,7 @@ const SingleHistory = () => {
 
     return (
         <>
-            <div className="mb-6">
-                <p className="text-3xl text-main-green mb-8 ">
-                    История заказа: {order_id}
-                </p>
-            </div>
-
-            <div className="flex justify-between mb-6">
+            <div className="flex justify-between my-6">
                 <p className="text-xl mb-2">{singleHistory.channel_title}</p>
                 <div className="aspect-square">
                     <img

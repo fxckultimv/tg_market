@@ -10,7 +10,7 @@ const Chennel = ({ channel }) => {
             <div className="flex justify-between flex-wrap">
                 <div className="flex flex-col">
                     <h3 className="text-xl font-extrabold mb-2">
-                        {channel.channel_name}
+                        {channel.channel_title}
                     </h3>
                     <div>
                         <p className="">Статистика</p>

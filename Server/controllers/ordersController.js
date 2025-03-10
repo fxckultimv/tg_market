@@ -76,6 +76,20 @@ class ordersController {
                 return res.status(400).json({ error: 'No valid items in cart' })
             }
 
+            const now = new Date(Date.now() + 3 * 60 * 60 * 1000)
+
+            const hasExpiredItems = cartItems.some((item) => {
+                const postTime = new Date(item.post_time) // Преобразуем строку в объект Date
+                return postTime < now // Проверяем, раньше ли post_time, чем текущее время + 3 часа
+            })
+
+            if (hasExpiredItems) {
+                await db.query('ROLLBACK')
+                return res
+                    .status(400)
+                    .json({ error: 'The order time has expired' })
+            }
+
             // Вычисление общей суммы заказа
             const total_price = cartItems.reduce(
                 (sum, item) => sum + Number(item.price),

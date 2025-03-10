@@ -49,12 +49,7 @@ import Whell2 from './Whell2'
 import FAQ from './FAQ'
 
 const Home = () => {
-    const { initDataRaw } = useLaunchParams()
-    const { fetchAuth, loading, error } = useUserStore()
-
-    useEffect(() => {
-        fetchAuth(initDataRaw)
-    }, [initDataRaw, fetchAuth])
+    const { loading, error } = useUserStore()
 
     if (loading) {
         return <Loading />

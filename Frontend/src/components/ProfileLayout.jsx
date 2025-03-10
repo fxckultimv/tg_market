@@ -13,17 +13,12 @@ const ProfileLayout = () => {
     const { initDataRaw } = useLaunchParams()
     const { user, fetchMe, fetchBalance, balance, error, loading } =
         useUserStore()
-    const { isAdmin, checkAdmin } = useAdminStore()
+    const { isAdmin } = useAdminStore()
 
     useEffect(() => {
         fetchMe(initDataRaw)
         fetchBalance(initDataRaw)
     }, [initDataRaw, fetchMe])
-
-    // Проверка прав администратора при загрузке
-    useEffect(() => {
-        checkAdmin(initDataRaw)
-    }, [checkAdmin, initDataRaw])
 
     return (
         <>
@@ -92,7 +87,7 @@ const ProfileLayout = () => {
                         </ProfileCustomLink>
                         <a
                             href="https://t.me/Stepanusik"
-                            className="p-3 rounded-lg hover:text-gray text-text border-[1px] border-gray w-full"
+                            className="p-3 rounded-lg hover:text-gray text-text border-[1px] border-gray w-full max-sm:p-2"
                         >
                             Поддержка
                         </a>

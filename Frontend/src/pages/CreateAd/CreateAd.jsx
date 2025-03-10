@@ -209,7 +209,7 @@ const CreateAd = () => {
                 <div className="flex flex-col gap-6 min w-full">
                     {verifiedChannels.length > 0 ? (
                         <>
-                            <div className="mb-6 bg-card-white p-6 rounded-xl">
+                            <div className="bg-card-white p-6 rounded-xl">
                                 <div className="flex flex-col">
                                     <div className="flex justify-between items-center">
                                         <p className="text-base">
@@ -234,56 +234,51 @@ const CreateAd = () => {
                                         ref={sliderRef}
                                         className="flex overflow-x-scroll py-3 snap-x -scroll-m-3 gap-3"
                                     >
-                                        {verifiedChannels.map((channel) => (
-                                            <div
-                                                key={channel.channel_id}
-                                                onClick={() =>
-                                                    handleSelectChannel(
-                                                        channel.channel_id
-                                                    )
-                                                }
-                                                className={` rounded-3xl flex flex-col gap-3 items-center p-4 cursor-pointer w-[150px] h-[200px] select-none scroll-mr-3 ${
-                                                    selectedChannel ===
-                                                    channel.channel_id
-                                                        ? 'bg-blue text-white'
-                                                        : 'bg-background'
-                                                } ${channel.has_product ? 'opacity-50 pointer-events-none' : ''}`} //Скрытие каналов для котрых есть продукты
-                                            >
-                                                <div className="relative">
-                                                    {' '}
-                                                    <img
-                                                        src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
-                                                        alt=""
-                                                        className="rounded-full h-[82px]"
-                                                    />
-                                                    {selectedChannel ===
-                                                        channel.channel_id && (
+                                        {verifiedChannels
+                                            .sort(
+                                                (a, b) =>
+                                                    a.has_product -
+                                                    b.has_product
+                                            ) // Сортируем: false (0) идёт перед true (1)
+                                            .map((channel) => (
+                                                <div
+                                                    key={channel.channel_id}
+                                                    onClick={() =>
+                                                        handleSelectChannel(
+                                                            channel.channel_id
+                                                        )
+                                                    }
+                                                    className={`rounded-3xl flex flex-col gap-3 items-center p-4 cursor-pointer w-[150px] h-[200px] select-none scroll-mr-3 
+                ${selectedChannel === channel.channel_id ? 'bg-blue text-white' : 'bg-background'} 
+                ${channel.has_product ? 'opacity-50 pointer-events-none' : ''}`} // Скрытие каналов с продуктами
+                                                >
+                                                    <div className="relative">
                                                         <img
-                                                            src={Check}
+                                                            src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
                                                             alt=""
-                                                            className="absolute right-0 top-0 bg-blue rounded-full"
+                                                            className="rounded-full h-[82px]"
                                                         />
-                                                    )}
-                                                </div>
+                                                        {selectedChannel ===
+                                                            channel.channel_id && (
+                                                            <img
+                                                                src={Check}
+                                                                alt=""
+                                                                className="absolute right-0 top-0 bg-blue rounded-full"
+                                                            />
+                                                        )}
+                                                    </div>
 
-                                                <p className="mt-2">
-                                                    {channel.channel_name}
-                                                </p>
-                                                {/* <div className="flex gap-2 items-center mt-1">
-                                                    <p>4.8</p>
-                                                    <img
-                                                        src={Star}
-                                                        alt="Star Icon"
-                                                    />
-                                                </div> */}
-                                            </div>
-                                        ))}
+                                                    <p className="mt-2">
+                                                        {channel.channel_title}
+                                                    </p>
+                                                </div>
+                                            ))}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Выбор категории */}
-                            <div className="mb-6 bg-card-white rounded-xl p-6">
+                            <div className="bg-card-white rounded-xl p-6">
                                 <label
                                     htmlFor="categories-select"
                                     className="block mb-2"

@@ -6,6 +6,7 @@ import { log10 } from 'chart.js/helpers'
 
 const ProductCart = ({ order }) => {
     const statusTranslations = {
+        wait: 'Ожидает рекламы',
         waiting: 'Ожидание',
         paid: 'В процессе',
         completed: 'Выполненные',

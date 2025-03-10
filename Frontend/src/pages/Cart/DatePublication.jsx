@@ -11,8 +11,8 @@ const DatePublication = ({ item }) => {
 
     // Преобразуем дату из строки в объект Date
     const publicationDate = new Date(item.post_time)
-    // Получаем текущую дату
-    const currentDate = new Date()
+    // Получаем текущую дату + 3 часа
+    const currentDate = new Date(Date.now() + 3 * 60 * 60 * 1000)
     // Сравниваем даты: если публикация уже прошла, то true
     const isPastDate = publicationDate < currentDate
 

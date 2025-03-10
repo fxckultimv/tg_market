@@ -673,7 +673,7 @@ async def my_channels(message: types.Message):
     try:
         async with db_pool.acquire() as connection:
             channels = await connection.fetch(
-                """SELECT channel_id, channel_name, channel_url, channel_tg_id
+                """SELECT channel_id, channel_title, channel_url, channel_tg_id
                    FROM verifiedchannels 
                    WHERE user_id = $1 ORDER BY created_at DESC""", user_id
             )
@@ -683,7 +683,7 @@ async def my_channels(message: types.Message):
 
                 for channel in channels:
                     channel_tg_id = channel['channel_tg_id']
-                    channel_name = channel['channel_name']
+                    channel_name = channel['channel_title']
 
                     button = InlineKeyboardButton(
                         text=channel_name,
@@ -815,7 +815,7 @@ async def forward_message(message: types.Message, state: FSMContext):
                 )
 
                 order_info = await connection.fetch(
-                    """SELECT oi.order_id, oi.post_time, oi.message_id, p.product_id, p.user_id, vc.channel_name, vc.channel_url, 
+                    """SELECT oi.order_id, oi.post_time, oi.message_id, p.product_id, p.user_id, vc.channel_title, vc.channel_url, 
                               (oi.quantity * oi.price) AS total_price
                        FROM orderitems oi
                        JOIN products p ON oi.product_id = p.product_id
@@ -824,7 +824,7 @@ async def forward_message(message: types.Message, state: FSMContext):
                 )
 
             if order_info:
-                channel_name = order_info[0]['channel_name']
+                channel_name = order_info[0]['channel_title']
                 channel_url = order_info[0]['channel_url']
                 post_times = [record['post_time'] for record in order_info]  
                 post_times_str = ", ".join([record['post_time'].strftime("%d-%m-%Y %H:%M") for record in order_info])
@@ -924,7 +924,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
             order_info = await connection.fetchrow(
-                """SELECT oi.order_id, vc.channel_name, vc.channel_url, o.user_id
+                """SELECT oi.order_id, vc.channel_title, vc.channel_url, o.user_id
                    FROM orderitems oi
                    JOIN products p ON oi.product_id = p.product_id
                    JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
@@ -933,7 +933,7 @@ async def accept_ad(callback_query: CallbackQuery):
             )
 
         if order_info:
-            channel_name = order_info['channel_name']
+            channel_name = order_info['channel_title']
             channel_url = order_info['channel_url']
             buyer_user_id = order_info['user_id']
 
@@ -1113,7 +1113,7 @@ async def send_survey():
 
         results_now = await connection.fetch(
             """SELECT oi.order_id, oi.post_time, oi.product_id, p.user_id AS seller_id, 
-                      o.user_id AS buyer_id, vc.channel_name, vc.channel_url
+                      o.user_id AS buyer_id, vc.channel_title, vc.channel_url
                FROM orderitems oi
                JOIN orders o ON oi.order_id = o.order_id
                JOIN products p ON oi.product_id = p.product_id
@@ -1125,7 +1125,7 @@ async def send_survey():
         for record in results_now:
             seller_message = (
                 f"📊 <b>Вы опубликовали рекламное объявление?</b>\n\n"
-                f"📢 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_name']}</a>\n"
+                f"📢 <b>Канал:</b> <a href='{record['channel_url']}'>{record['channel_title']}</a>\n"
                 f"🕒 <b>Время публикации:</b> {record['post_time']}\n\n"
                 f"Выполнили ли вы свои условия?"
             )

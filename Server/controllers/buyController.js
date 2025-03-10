@@ -74,7 +74,7 @@ class buyController {
             // Получение информации о заказе с валидацией
             const orderInfo = await db.query(
                 `
-                SELECT DISTINCT o.total_price, p.user_id
+                SELECT DISTINCT o.total_price, p.user_id, oi.post_time
                 FROM orders AS o
                 JOIN orderitems oi ON oi.order_id = o.order_id
                 JOIN products p ON p.product_id = oi.product_id
@@ -88,6 +88,21 @@ class buyController {
                     error: 'Order not found or not in pending_payment status',
                 })
             }
+
+            const now = new Date()
+
+            const hasExpiredItems = orderInfo.rows.some((item) => {
+                const postTime = new Date(item.post_time)
+                return postTime < now
+            })
+
+            if (hasExpiredItems) {
+                return res
+                    .status(400)
+                    .json({ error: 'The order time has expired' })
+            }
+
+            console.log(orderInfo.rows)
 
             const orderRow = orderInfo.rows[0]
             const sellerId = await getUserIdByTelegramId(orderRow.user_id)
@@ -147,7 +162,7 @@ class buyController {
             if (result.rowCount > 0) {
                 try {
                     const buy_info = await db.query(
-                        `SELECT p.user_id, oi.post_time, vc.channel_name, vc.channel_url, oi.order_id, oi.message_id, pf.format_name
+                        `SELECT p.user_id, oi.post_time, vc.channel_name, vc.channel_title, vc.channel_url, oi.order_id, oi.message_id, pf.format_name
                         FROM orderitems AS oi
                         JOIN products p ON oi.product_id = p.product_id 
                         JOIN verifiedchannels vc ON p.channel_id = vc.channel_id

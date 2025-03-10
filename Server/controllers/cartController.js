@@ -83,25 +83,26 @@ class CartController {
         const initData = res.locals.initData
         const user_id = initData.user.id
         const { product_id, quantity, date, post_time, format } = req.body
-        console.log(
-            'product_id:',
-            product_id,
-            'quantity',
-            quantity,
-            'date',
-            date,
-            'post_time',
-            post_time,
-            'format',
-            format
-        )
 
-        if (quantity == null) {
-            res.status(400).json({ error: `Quantity = ${quantity}` })
-        }
+        const isUnique = (arr) => new Set(arr).size === arr.length
 
-        if (!Array.isArray(date) || date.length === 0) {
-            return res.status(400).json({ error: 'Invalid date format' })
+        if (
+            quantity == null ||
+            !product_id ||
+            !format ||
+            typeof format !== 'string' ||
+            format.trim().length === 0 || // Проверяем, что format — строка
+            !post_time ||
+            typeof post_time !== 'string' ||
+            post_time.trim().length === 0 || // Проверяем, что post_time — строка
+            !date ||
+            !Array.isArray(date) ||
+            !isUnique(date) ||
+            date.length === 0 // Проверяем дату
+        ) {
+            return res
+                .status(400)
+                .json({ error: 'Некорректные входные данные' })
         }
 
         try {
@@ -187,19 +188,16 @@ class CartController {
     async deleteDateInCartItem(req, res) {
         const initData = res.locals.initData
         const user_id = initData.user.id
-
-        const { date, cart_item_id } = req.body
-        console.log(date, cart_item_id)
+        const { cart_item_id } = req.body
 
         try {
             const result = await db.query(
                 `DELETE FROM cartitems
                 USING cart
-                WHERE DATE(cartitems.post_time) = $1
-                AND cartitems.cart_item_id = $2
-                AND cart.user_id = $3;
+                WHERE cartitems.cart_item_id = $1
+                AND cart.user_id = $2;
                 `,
-                [date, cart_item_id, user_id]
+                [cart_item_id, user_id]
             )
             if (result.rowCount > 0) {
                 res.status(200).json({ message: 'Successfully deleted' })
