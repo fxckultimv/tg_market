@@ -4,7 +4,6 @@ import { useMatch } from 'react-router-dom'
 
 const AdminCastomLink = ({ to, children, ...props }) => {
     const match = useMatch(to)
-    console.log(match)
 
     return (
         <Link

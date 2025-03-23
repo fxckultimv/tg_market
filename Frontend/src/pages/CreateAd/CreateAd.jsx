@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useUserStore } from '../../store'
-import { useLaunchParams, useMainButton } from '@tma.js/sdk-react'
-import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import { mainButton } from '@telegram-apps/sdk-react'
+import { tonToNanoTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
 import { Link } from 'react-router-dom'
 import Loading from '../../Loading'
@@ -15,8 +15,6 @@ import { useRef } from 'react'
 import { useToast } from '../../components/ToastProvider'
 
 const CreateAd = () => {
-    const { initDataRaw } = useLaunchParams()
-    const mainButton = useMainButton()
     const { addToast } = useToast()
     const {
         categories,
@@ -59,10 +57,10 @@ const CreateAd = () => {
     }
 
     useEffect(() => {
-        fetchVerifiedChannels(initDataRaw)
-        fetchCategories(initDataRaw)
-        fetchFormats(initDataRaw)
-    }, [initDataRaw, fetchVerifiedChannels, fetchCategories, fetchFormats])
+        fetchVerifiedChannels()
+        fetchCategories()
+        fetchFormats()
+    }, [fetchVerifiedChannels, fetchCategories, fetchFormats])
 
     const isUnique = (arr) => new Set(arr).size === arr.length
 
@@ -89,7 +87,7 @@ const CreateAd = () => {
 
             const handleMainButtonClick = async () => {
                 try {
-                    await addProduct(initDataRaw, {
+                    await addProduct({
                         channel_id: selectedChannel,
                         category_id: selectedCategories,
                         description: description,
@@ -107,8 +105,7 @@ const CreateAd = () => {
                     setPublicationTimes([])
                     setPrice('')
                     setDescription('')
-                    mainButton.hide()
-                    fetchVerifiedChannels(initDataRaw)
+                    fetchVerifiedChannels()
                 } catch (error) {
                     console.error(
                         'Ошибка при создании рекламного предложения:',
@@ -121,11 +118,21 @@ const CreateAd = () => {
                 }
             }
 
-            mainButton.on('click', handleMainButtonClick)
+            let unsubscribe
 
-            // Cleanup при размонтировании
+            if (mainButton.onClick.isAvailable()) {
+                unsubscribe = mainButton.onClick(handleMainButtonClick)
+            }
+
+            // Очистка при размонтировании
             return () => {
-                mainButton.off('click', handleMainButtonClick)
+                if (mainButton.setParams.isAvailable()) {
+                    mainButton.setParams({ isVisible: false })
+                }
+
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe()
+                }
             }
         }
     }, [
@@ -138,7 +145,6 @@ const CreateAd = () => {
         price,
         description,
         timeError,
-        initDataRaw,
         addProduct,
     ])
 

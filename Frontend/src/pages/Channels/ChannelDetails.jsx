@@ -1,9 +1,4 @@
-import {
-    useBackButton,
-    useHapticFeedback,
-    useLaunchParams,
-    useMainButton,
-} from '@tma.js/sdk-react'
+import { mainButton, useSignal, hapticFeedback } from '@telegram-apps/sdk-react'
 import React, { useEffect, useState } from 'react'
 import { useProductStore } from '../../store'
 import { useParams, useSearchParams } from 'react-router-dom'
@@ -18,13 +13,10 @@ import InfoBox from '../../components/InfoBox'
 import Ton from '../../assets/ton_symbol.svg'
 import star from '../../assets/star.svg'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import BackButton from '../../components/BackButton'
 
 const ChannelDetails = () => {
-    const backButton = useBackButton()
-    const mainButton = useMainButton()
     const navigate = useNavigate()
-    const { initDataRaw } = useLaunchParams()
-    const hapticFeedback = useHapticFeedback()
     const [searchParams, setSearchParams] = useSearchParams()
     const {
         productDetails,
@@ -45,11 +37,11 @@ const ChannelDetails = () => {
     }) // Состояние для хранения выбранного времени
 
     useEffect(() => {
-        fetchProductDetails(initDataRaw, id) // Загружаем данные при первом рендере
-        fetchBusyDay(initDataRaw, id)
+        fetchProductDetails(id) // Загружаем данные при первом рендере
+        fetchBusyDay(id)
         // window.addEventListener('scroll', handleScroll)
         // return () => window.removeEventListener('scroll', handleScroll)
-    }, [fetchProductDetails, fetchBusyDay, initDataRaw, id])
+    }, [fetchProductDetails, fetchBusyDay, id])
 
     const formatList = productDetails?.format_ids || []
 
@@ -90,22 +82,22 @@ const ChannelDetails = () => {
         }
     }, [post_time, selectedDates])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-                mainButton.hide()
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //             mainButton.hide()
+    //         }
+    //     }
+    // }, [backButton])
 
     useEffect(() => {
         if (!productDetails) return
@@ -115,15 +107,6 @@ const ChannelDetails = () => {
             selectedDates.length && post_time && format
         )
 
-        // Установка параметров кнопки
-        mainButton.setParams({
-            text: `Купить за ${nanoTonToTon(productDetails.price * selectedDates.length)} Ton.`,
-            backgroundColor: '#22C55E',
-            textColor: '#ffffff',
-            isVisible: isFormFilled,
-            isEnabled: isFormFilled,
-        })
-
         // Обработчик клика
         const handleMainButtonClick = async () => {
             try {
@@ -132,7 +115,7 @@ const ChannelDetails = () => {
                     return
                 }
 
-                await addToCart(initDataRaw, {
+                await addToCart({
                     product_id: productDetails.product_id,
                     quantity: selectedDates.length,
                     date: selectedDates,
@@ -151,22 +134,32 @@ const ChannelDetails = () => {
                 console.error('Ошибка при добавлении в корзину:', error)
             }
         }
+        // Установка параметров кнопки
+        mainButton.setParams({
+            text: `Купить за ${nanoTonToTon(productDetails.price * selectedDates.length)} Ton.`,
+            backgroundColor: '#22C55E',
+            textColor: '#ffffff',
+            isVisible: isFormFilled,
+            isEnabled: isFormFilled,
+        })
 
-        // Привязываем обработчик
-        mainButton.on('click', handleMainButtonClick)
+        let unsubscribe
 
-        // Очистка обработчика при размонтировании
-        return () => {
-            mainButton.off('click', handleMainButtonClick)
+        if (mainButton.onClick.isAvailable()) {
+            unsubscribe = mainButton.onClick(handleMainButtonClick)
         }
-    }, [
-        initDataRaw,
-        mainButton,
-        selectedDates,
-        post_time,
-        format,
-        productDetails,
-    ])
+
+        // Очистка при размонтировании
+        return () => {
+            if (mainButton.setParams.isAvailable()) {
+                mainButton.setParams({ isVisible: false })
+            }
+
+            if (typeof unsubscribe === 'function') {
+                unsubscribe()
+            }
+        }
+    }, [selectedDates, post_time, format, productDetails])
 
     const getBusyDays = () => {
         return busyDay.map((item) => new Date(item)) // Преобразуем каждую строку даты в объект Date
@@ -296,6 +289,7 @@ const ChannelDetails = () => {
 
     return (
         <div className="flex flex-col gap-5 p-8 max-sm:gap-2">
+            <BackButton></BackButton>
             <div className="bg-card-white flex flex-col justify-between rounded-xl">
                 <div className="flex gap-6 py-2 px-6 w-full">
                     <div className="flex-shrink-0">

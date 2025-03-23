@@ -1,10 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import { nanoTonToTon } from '../../utils/tonConversion'
 import InfoBox from '../../components/InfoBox'
-import arrowDown from '../../assets/chevron-down-gray.svg'
 import star from '../../assets/star.svg'
-import Arrow from '../../assets/Arrow.svg'
 import Ton from '../../assets/ton_symbol.svg'
 
 const UserProduct = ({ product }) => {
@@ -144,12 +142,6 @@ const UserProduct = ({ product }) => {
                         </p>
                     </div>
                     {/* <h2 className="text-3xl">{product.price} ₽</h2> */}
-                </div>
-                <div className="bg-blue rounded-2xl flex items-center">
-                    <div className="px-4 py-3 text-xl text-white flex items-center gap-2">
-                        <img src={Arrow} alt="" />
-                        <p className="text-base font-normal">Начать сейчас</p>
-                    </div>
                 </div>
             </div>
         </Link>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useAdminStore } from '../../store'
-import { useLaunchParams } from '@tma.js/sdk-react'
 
 const AdminCategories = () => {
     const {
@@ -12,7 +11,6 @@ const AdminCategories = () => {
         loading,
         error,
     } = useAdminStore()
-    const { initDataRaw } = useLaunchParams()
     const [isAdding, setIsAdding] = useState(false)
     const [newCategoryName, setNewCategoryName] = useState('')
     const [categoryToDelete, setCategoryToDelete] = useState(null)
@@ -20,26 +18,26 @@ const AdminCategories = () => {
     const [editedCategoryName, setEditedCategoryName] = useState('')
 
     useEffect(() => {
-        fetchCategories(initDataRaw)
-    }, [fetchCategories, initDataRaw])
+        fetchCategories()
+    }, [fetchCategories])
 
     const handleAddCategory = () => {
         if (newCategoryName.trim()) {
-            addCategory(initDataRaw, newCategoryName)
+            addCategory(newCategoryName)
             setNewCategoryName('')
             setIsAdding(false)
         }
     }
 
     const handleDeleteCategory = (categoryId) => {
-        deleteCategory(initDataRaw, categoryId)
+        deleteCategory(categoryId)
         setCategoryToDelete(null) // сбрасываем состояние после удаления
     }
 
     const handleEditCategory = (categoryId, newName) => {
-        patchCategory(initDataRaw, categoryId, newName)
+        patchCategory(categoryId, newName)
         setCategoryToEdit(null) // сбрасываем состояние после редактирования
-        fetchCategories(initDataRaw) // обновляем список категорий после изменения
+        fetchCategories() // обновляем список категорий после изменения
     }
 
     if (loading) {

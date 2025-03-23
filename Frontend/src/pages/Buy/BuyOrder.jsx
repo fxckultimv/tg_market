@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useUserStore } from '../../store'
 import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
@@ -8,6 +7,7 @@ import Loading from '../../Loading'
 import Error from '../../Error'
 import { useToast } from '../../components/ToastProvider'
 import duckMoney from '../../assets/duckMoney.webp'
+import BackButton from '../../components/BackButton'
 
 const BuyOrder = () => {
     const { id } = useParams() // Получаем ID заказа из URL
@@ -20,42 +20,40 @@ const BuyOrder = () => {
         loading,
         error,
     } = useUserStore() // Получаем функции из состояния
-    const { initDataRaw } = useLaunchParams() // Получаем параметры запуска
     const [isOrderProcessing, setIsOrderProcessing] = useState(false)
     const { addToast } = useToast()
-    const backButton = useBackButton()
 
     // При загрузке компонента проверяем статус заказа
     useEffect(() => {
-        checkingStatus(initDataRaw, id)
-        fetchBalance(initDataRaw)
-    }, [initDataRaw])
+        checkingStatus(id)
+        fetchBalance()
+    }, [])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
 
     const handleBuyProduct = async () => {
         setIsOrderProcessing(true)
         try {
-            const result = await buyProduct(initDataRaw, id)
+            const result = await buyProduct(id)
             if (!result) {
                 throw new Error('Покупка не удалась, сервер вернул null')
             }
             // После успешной покупки обновляем статус заказа
-            await checkingStatus(initDataRaw, id)
+            await checkingStatus(id)
             addToast('Успешно куплено!')
         } catch (err) {
             console.error('Ошибка при покупке:', err)
@@ -88,6 +86,7 @@ const BuyOrder = () => {
 
     return (
         <div className="text-text container mx-auto p-4 flex-row min-h-screen">
+            <BackButton />
             {/* <h1 className="text-2xl font-bold mb-4">Заказ с ID: {id}</h1> */}
             <div className="flex justify-between">
                 <div className="">

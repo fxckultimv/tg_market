@@ -1,39 +1,36 @@
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import React, { useEffect } from 'react'
 import { useAdminStore } from '../../../store'
 import { useParams } from 'react-router-dom'
 import { useState } from 'react'
 
 const OrderDetails = () => {
-    const backButton = useBackButton()
-    const { initDataRaw } = useLaunchParams()
     const { id } = useParams()
     const { orderDetails, fetchOrdersDetails, loading, error } = useAdminStore()
     const [hasFetched, setHasFetched] = useState(false)
 
     useEffect(() => {
         if (!hasFetched) {
-            fetchOrdersDetails(initDataRaw, id).then(() => {
+            fetchOrdersDetails(id).then(() => {
                 setHasFetched(true)
             })
         }
-    }, [initDataRaw, fetchOrdersDetails, hasFetched, id])
+    }, [fetchOrdersDetails, hasFetched, id])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
 
     if (loading) {
         return (

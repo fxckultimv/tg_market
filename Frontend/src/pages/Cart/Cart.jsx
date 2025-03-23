@@ -1,4 +1,3 @@
-import { useLaunchParams } from '@tma.js/sdk-react'
 import React, { useEffect } from 'react'
 import { useUserStore } from '../../store'
 import { Link } from 'react-router-dom'
@@ -7,12 +6,11 @@ import Bag from '../../assets/bag.svg'
 import CartItem from './CartItem'
 
 const Cart = () => {
-    const { initDataRaw } = useLaunchParams()
     const { cart, fetchCart, loading, error } = useUserStore()
 
     useEffect(() => {
-        fetchCart(initDataRaw)
-    }, [initDataRaw, fetchCart])
+        fetchCart()
+    }, [fetchCart])
 
     if (loading) {
         return <Loading />

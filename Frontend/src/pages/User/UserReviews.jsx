@@ -1,16 +1,14 @@
-import { useLaunchParams } from '@tma.js/sdk-react'
 import React, { useEffect } from 'react'
 import { useProductStore } from '../../store'
 import { useParams } from 'react-router-dom'
 
 const UserReviews = () => {
-    const { initDataRaw } = useLaunchParams()
     const { id } = useParams()
     const { reviews, fetchReviews, error, loading } = useProductStore()
 
     useEffect(() => {
-        fetchReviews(initDataRaw, id)
-    }, [fetchReviews, initDataRaw, id])
+        fetchReviews(id)
+    }, [fetchReviews, id])
 
     if (loading) {
         return (

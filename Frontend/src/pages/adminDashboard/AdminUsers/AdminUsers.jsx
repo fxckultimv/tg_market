@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useAdminStore } from '../../../store'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import UserSearch from './UserSearch' // Импортируем новый компонент
 import UserList from './UserList' // Импортируем новый компонент
 import { Link } from 'react-router-dom'
@@ -8,8 +7,6 @@ import { Link } from 'react-router-dom'
 const AdminUsers = () => {
     const { users, user, fetchUsers, fetchUserForId, loading, error } =
         useAdminStore()
-    const { initDataRaw } = useLaunchParams()
-
     const [currentPage, setCurrentPage] = useState(1)
     const [totalUsers, setTotalUsers] = useState(0)
     const usersPerPage = 10
@@ -18,12 +15,12 @@ const AdminUsers = () => {
     // Используем useEffect, чтобы делать запрос при изменении currentPage
     useEffect(() => {
         const skip = (currentPage - 1) * usersPerPage
-        fetchUsers(initDataRaw, skip, usersPerPage).then((data) => {
+        fetchUsers(skip, usersPerPage).then((data) => {
             if (data) {
                 setTotalUsers(data.total) // Устанавливаем общее количество пользователей
             }
         })
-    }, [fetchUsers, initDataRaw, currentPage])
+    }, [fetchUsers, currentPage])
 
     const totalPages = Math.ceil(totalUsers / usersPerPage)
 
@@ -41,16 +38,16 @@ const AdminUsers = () => {
 
     const handleSearch = useCallback(
         async (userId) => {
-            await fetchUserForId(initDataRaw, userId)
+            await fetchUserForId(userId)
             setSearchedUser(user) // сохраняем результат поиска
         },
-        [fetchUserForId, initDataRaw, user]
+        [fetchUserForId, user]
     )
 
     const fetchAllUsers = useCallback(() => {
         setSearchedUser(null)
-        fetchUsers(initDataRaw)
-    }, [fetchUsers, initDataRaw])
+        fetchUsers()
+    }, [fetchUsers])
 
     if (loading) {
         return (

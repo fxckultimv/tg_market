@@ -1,4 +1,3 @@
-import { useLaunchParams } from '@tma.js/sdk-react'
 import React from 'react'
 import { useAdminStore } from '../../../store'
 import { useParams } from 'react-router-dom'
@@ -7,7 +6,6 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
 const UserOrders = () => {
-    const { initDataRaw } = useLaunchParams()
     const { orders, fetchOrdersForUser, loading, error } = useAdminStore()
     const { id } = useParams()
     const [hasFetched, setHasFetched] = useState(false)
@@ -16,11 +14,11 @@ const UserOrders = () => {
 
     useEffect(() => {
         if (!hasFetched) {
-            fetchOrdersForUser(initDataRaw, id).then(() => {
+            fetchOrdersForUser(id).then(() => {
                 setHasFetched(true)
             })
         }
-    }, [initDataRaw, fetchOrdersForUser, orders])
+    }, [fetchOrdersForUser, orders])
 
     if (loading) {
         return (
@@ -43,7 +41,7 @@ const UserOrders = () => {
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление заказами
             </h2>
-            <ul className="w-full max-w-4xl bg-medium-gray rounded-lg p-2 shadow-md">
+            <ul className="w-full max-w-4xl bg-card-white rounded-lg p-2 shadow-md">
                 {orders.map((order) => (
                     <Link
                         key={order.user_id}
@@ -51,7 +49,7 @@ const UserOrders = () => {
                     >
                         <li
                             key={order.order_id}
-                            className="mb-4 p-4 rounded-lg bg-dark-gray  shadow transition duration-300 hover:shadow-lg"
+                            className="mb-4 p-4 rounded-lg bg-background  shadow transition duration-300 hover:shadow-lg"
                         >
                             <div className="text-xl font-bold">
                                 Заказ #{order.order_id}

@@ -51,7 +51,7 @@ const Layout = () => {
 
     return (
         <div className="bg-background">
-            <header className="bg-background flex space-x-0 min-w-full justify-between p-4 items-center">
+            <header className="bg-background flex space-x-0 min-w-full justify-between p-4 items-center pt-10">
                 {/* Логотип */}
                 <Link to="/" className="flex gap-1">
                     <img src={Carrot} alt="Logo" className="w-[27px]" />

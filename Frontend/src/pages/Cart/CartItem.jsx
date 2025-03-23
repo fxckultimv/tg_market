@@ -3,7 +3,7 @@ import DatePublication from './DatePublication'
 import { useState } from 'react'
 import Delete from '../../assets/delete.svg'
 import { useEffect } from 'react'
-import { useLaunchParams, useMainButton } from '@tma.js/sdk-react'
+import { mainButton } from '@telegram-apps/sdk-react'
 import { useProductStore, useUserStore } from '../../store'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../../components/ToastProvider'
@@ -12,9 +12,7 @@ import Ton from '../../assets/ton_symbol.svg'
 import star from '../../assets/star.svg'
 
 const CartItem = ({ cart }) => {
-    const { initDataRaw } = useLaunchParams()
     const navigate = useNavigate()
-    const mainButton = useMainButton()
     const { fetchCart, createOrder, deleteCartItem, loading, error } =
         useUserStore()
     const { formatNames } = useProductStore()
@@ -49,37 +47,38 @@ const CartItem = ({ cart }) => {
                         const cartItemIds = selectedItems.map(
                             (item) => item.cart_item_id
                         )
-                        await createOrder(initDataRaw, cartItemIds)
+                        await createOrder(cartItemIds)
 
                         setSelectedProductId(null)
 
-                        await fetchCart(initDataRaw)
+                        await fetchCart()
                         addToast('Товар заказан!')
-                        mainButton.hide()
                         // navigate('/basket')
                     } catch (error) {
                         addToast('Ошибка при создании заказа!', 'error')
                         console.error('Ошибка при создании заказа:', error)
-                        mainButton.hide()
                     }
                 }
 
-                mainButton.on('click', handleMainButtonClick)
+                let unsubscribe
 
+                if (mainButton.onClick.isAvailable()) {
+                    unsubscribe = mainButton.onClick(handleMainButtonClick)
+                }
+
+                // Очистка при размонтировании
                 return () => {
-                    mainButton.off('click', handleMainButtonClick)
+                    if (mainButton.setParams.isAvailable()) {
+                        mainButton.setParams({ isVisible: false })
+                    }
+
+                    if (typeof unsubscribe === 'function') {
+                        unsubscribe()
+                    }
                 }
             }
         }
-    }, [
-        mainButton,
-        selectedProductId,
-        totalPrice,
-        createOrder,
-        initDataRaw,
-        fetchCart,
-        navigate,
-    ])
+    }, [selectedProductId, totalPrice, createOrder, fetchCart, navigate])
 
     const handleButtonClick = async () => {
         try {
@@ -94,20 +93,18 @@ const CartItem = ({ cart }) => {
             // Извлекаем id товаров в корзине
             const cartItemIds = selectedItems.map((item) => item.cart_item_id)
             // Создаем заказ
-            await createOrder(initDataRaw, cartItemIds)
+            await createOrder(cartItemIds)
             // Сбрасываем выбранный товар после создания заказа
             setSelectedProductId(null)
             // Обновляем корзину
-            await fetchCart(initDataRaw)
+            await fetchCart()
             addToast('Товар заказан!')
-            mainButton.hide()
 
             // Перенаправляем пользователя на страницу корзины
             // navigate('/basket')
         } catch (err) {
             addToast('Ошибка при создании заказа!', 'error')
             console.log('Ошибка при создании заказа:', error)
-            mainButton.hide()
         }
     }
 
@@ -142,8 +139,8 @@ const CartItem = ({ cart }) => {
 
     const handleDeleteItem = (productId) => {
         try {
-            deleteCartItem(initDataRaw, productId.slice(0, -2))
-            fetchCart(initDataRaw)
+            deleteCartItem(productId.slice(0, -2))
+            fetchCart()
             addToast('Товар удалён!')
         } catch (err) {
             console.error('Ошибка при удалении:', err)

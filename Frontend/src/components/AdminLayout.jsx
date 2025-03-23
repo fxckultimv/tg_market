@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import Home from '../assets/admin/home.svg'
 import Users from '../assets/admin/users.svg'
 import Products from '../assets/admin/products.svg'
@@ -9,7 +9,6 @@ import Money from '../assets/admin/money.svg'
 import Menu from '../assets/admin/menu.svg'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import ProfileCustomLink from './ProfileCustomLink'
 import AdminCastomLink from './AdminCastomLink'
 
 const AdminLayout = () => {

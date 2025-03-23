@@ -2,7 +2,6 @@ import React from 'react'
 import { useAdminStore, useUserStore } from '../store'
 import { Outlet } from 'react-router-dom'
 import { useEffect } from 'react'
-import { useInitDataRaw, useLaunchParams } from '@tma.js/sdk-react'
 import ProfileCustomLink from '../components/ProfileCustomLink'
 import ProfileLogo from '../assets/profile-logo.svg'
 import StarFull from '../assets/star-full.svg'
@@ -10,15 +9,14 @@ import Balance from './Balance'
 import Ton from './Ton'
 
 const ProfileLayout = () => {
-    const { initDataRaw } = useLaunchParams()
     const { user, fetchMe, fetchBalance, balance, error, loading } =
         useUserStore()
     const { isAdmin } = useAdminStore()
 
     useEffect(() => {
-        fetchMe(initDataRaw)
-        fetchBalance(initDataRaw)
-    }, [initDataRaw, fetchMe])
+        fetchMe()
+        fetchBalance()
+    }, [fetchMe])
 
     return (
         <>

@@ -1,19 +1,10 @@
-import { useLaunchParams } from '@tma.js/sdk-react'
 import React from 'react'
 import { useProductStore } from '../../store'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Link } from 'react-router-dom'
-import InfoBox from '../../components/InfoBox'
-import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
-import arrowDown from '../../assets/chevron-down-gray.svg'
-import star from '../../assets/star.svg'
-import Arrow from '../../assets/Arrow.svg'
-import Ton from '../../assets/ton_symbol.svg'
 import UserProduct from './UserProduct'
 
 const UserProducts = () => {
-    const { initDataRaw } = useLaunchParams()
     const { id } = useParams()
     const {
         userProducts,
@@ -27,8 +18,8 @@ const UserProducts = () => {
     } = useProductStore()
 
     useEffect(() => {
-        fetchUserProducts(initDataRaw, id)
-    }, [fetchUserProducts, initDataRaw, page])
+        fetchUserProducts(id)
+    }, [page])
 
     if (loading) {
         return (

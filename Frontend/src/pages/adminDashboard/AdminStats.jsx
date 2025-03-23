@@ -1,22 +1,20 @@
 import React, { useEffect } from 'react'
 import { useAdminStore } from '../../store'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import { Link } from 'react-router-dom'
 import Users from '../../assets/admin/users.svg'
 import Cart from '../../assets/admin/cart.svg'
 import Orders from '../../assets/admin/orders.svg'
-import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import { nanoTonToTon } from '../../utils/tonConversion'
 import OrdersInMounthChart from './OrdersInMounthChart'
 
 const AdminStats = () => {
-    const { initDataRaw } = useLaunchParams()
     const { stats, fetchStats, loading, error } = useAdminStore()
 
     useEffect(() => {
         if (!stats || Object.keys(stats).length === 0) {
-            fetchStats(initDataRaw)
+            fetchStats()
         }
-    }, [initDataRaw, fetchStats, stats])
+    }, [fetchStats, stats])
 
     if (loading) {
         return (

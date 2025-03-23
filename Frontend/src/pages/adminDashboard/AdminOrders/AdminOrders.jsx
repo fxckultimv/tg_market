@@ -1,15 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useAdminStore } from '../../../store'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import OrderSearch from './OrderSearch'
 import OrderList from './OrderList'
 
 const AdminOrders = () => {
     const { order, orders, fetchOrders, fetchOrdersForId, loading, error } =
         useAdminStore()
-    const { initDataRaw } = useLaunchParams()
-
-    console.log(order)
 
     const [currentPage, setCurrentPage] = useState(1)
     const [totalOrders, setTotalOrders] = useState(0)
@@ -19,12 +15,12 @@ const AdminOrders = () => {
     // Используем useEffect, чтобы делать запрос при изменении currentPage
     useEffect(() => {
         const skip = (currentPage - 1) * ordersPerPage
-        fetchOrders(initDataRaw, skip, ordersPerPage).then((data) => {
+        fetchOrders(skip, ordersPerPage).then((data) => {
             if (data) {
                 setTotalOrders(data.total) // Устанавливаем общее количество заказов
             }
         })
-    }, [fetchOrders, initDataRaw, currentPage])
+    }, [fetchOrders, currentPage])
 
     const totalPages = Math.ceil(totalOrders / ordersPerPage)
 
@@ -42,16 +38,16 @@ const AdminOrders = () => {
 
     const handleSearch = useCallback(
         async (orderId) => {
-            await fetchOrdersForId(initDataRaw, orderId)
+            await fetchOrdersForId(orderId)
             setSearchedOrder(order) // сохраняем результат поиска
         },
-        [fetchOrdersForId, initDataRaw, order]
+        [fetchOrdersForId, order]
     )
 
     const fetchAllOrders = useCallback(() => {
         setSearchedOrder(null)
-        fetchOrders(initDataRaw)
-    }, [fetchOrders, initDataRaw])
+        fetchOrders()
+    }, [fetchOrders])
 
     if (loading) {
         return (

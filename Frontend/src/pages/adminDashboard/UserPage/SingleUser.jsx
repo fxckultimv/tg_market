@@ -1,37 +1,35 @@
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useAdminStore } from '../../../store'
 import UserProducts from './UserProducts'
 import UserOrders from './UserOrders'
 import UserCart from './UserCart'
+import BackButton from '../../../components/BackButton'
 
 const SingleUser = () => {
-    const { initDataRaw } = useLaunchParams()
-    const backButton = useBackButton()
     const { user, fetchUserForId, loading, error } = useAdminStore()
     const { id } = useParams()
     const [activeSection, setActiveSection] = useState('products')
 
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
+
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
+
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
+
     useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
-
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
-
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
-
-    useEffect(() => {
-        fetchUserForId(initDataRaw, id)
-    }, [fetchUserForId, initDataRaw, id])
+        fetchUserForId(id)
+    }, [fetchUserForId, id])
 
     const renderActiveSection = () => {
         switch (activeSection) {
@@ -48,11 +46,12 @@ const SingleUser = () => {
 
     return (
         <div>
+            <BackButton />
             {user && (
-                <ul className="w-full max-w-4xl bg-medium-gray rounded-lg p-2 shadow-md">
+                <ul className="w-full max-w-4xl bg-card-white rounded-lg p-2 shadow-md">
                     <li
                         key={user.user_id}
-                        className="mb-4 p-4 rounded-lg bg-dark-gray bg-white shadow transition duration-300 hover:shadow-lg"
+                        className="mb-4 p-4 rounded-lg bg-dark-gray bg-card-white shadow transition duration-300 hover:shadow-lg"
                     >
                         <div className="text-xl font-bold">{user.username}</div>
                         <div className="">

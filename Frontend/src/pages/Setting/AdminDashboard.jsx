@@ -1,19 +1,17 @@
 import React, { useEffect } from 'react'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import { useNavigate } from 'react-router-dom'
 import { useAdminStore } from '../../store'
 import AdminStats from '../adminDashboard/AdminStats'
 
 const Admin = () => {
-    const { initDataRaw } = useLaunchParams()
     const { isAdmin, loading, error, checkAdmin } = useAdminStore()
     const navigate = useNavigate()
 
     useEffect(() => {
         if (!isAdmin) {
-            checkAdmin(initDataRaw)
+            checkAdmin()
         }
-    }, [initDataRaw, checkAdmin, isAdmin])
+    }, [checkAdmin, isAdmin])
 
     if (loading) {
         return <div>Загрузка...</div>

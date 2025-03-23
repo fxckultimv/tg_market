@@ -8,16 +8,15 @@ import {
 } from '@tonconnect/ui-react'
 import { useUserStore } from '../store'
 import { useEffect } from 'react'
-import { nanoTonToTon, tonToNanoTon } from '../utils/tonConversion'
+import { tonToNanoTon } from '../utils/tonConversion'
 import { useState } from 'react'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import { useToast } from '../components/ToastProvider'
 
 const Ton = () => {
-    const { topUpBalance, handleWithdrawal, fetchBalance } = useUserStore()
-    const { initDataRaw } = useLaunchParams()
+    const { initData, topUpBalance, handleWithdrawal, fetchBalance } =
+        useUserStore()
     const { addToast } = useToast()
-    const languageCode = initDataRaw?.result?.user?.languageCode || 'en'
+    const languageCode = initData.raw?.result?.user?.languageCode || 'en'
     const userFriendlyAddress = useTonAddress()
     const rawAddress = useTonAddress(false)
     const wallet = useTonWallet()
@@ -61,13 +60,12 @@ const Ton = () => {
                 await tonConnectUI.sendTransaction(myTransaction)
             console.log(transactionResponse)
             await topUpBalance(
-                initDataRaw,
                 tonToNanoTon(amount),
                 userFriendlyAddress,
                 transactionResponse.boc
             )
 
-            fetchBalance(initDataRaw)
+            fetchBalance()
             addToast('Баланс пополнен')
             setAmount('')
         } catch (error) {
@@ -99,7 +97,6 @@ const Ton = () => {
 
         try {
             handleWithdrawal(
-                initDataRaw,
                 tonToNanoTon(amountWithdrawal),
                 userFriendlyAddress
             )

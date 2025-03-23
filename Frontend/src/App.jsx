@@ -1,111 +1,120 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import {
-    retrieveLaunchParams,
-    useInitData,
-    useInitDataRaw,
-    useLaunchParams,
-    useSettingsButton,
-    useThemeParamsRaw,
-    useViewport,
-} from '@tma.js/sdk-react'
-import usePreventCollapse from './usePreventCollapse'
-import { Routes } from 'react-router-dom'
-import { Route } from 'react-router-dom'
+    initData,
+    settingsButton,
+    viewport,
+    swipeBehavior,
+} from '@telegram-apps/sdk-react'
+import { useNavigate, Routes, Route, useLocation } from 'react-router-dom'
 import Layout from './components/Layout'
 import ProfileLayout from './components/ProfileLayout'
 import Home from './pages/Home/Home'
 import Channels from './pages/Channels/Channels'
 import ChannelDetails from './pages/Channels/ChannelDetails'
+import User from './pages/User/User'
 import Settings from './pages/Setting/Settings'
 import CreateAd from './pages/CreateAd/CreateAd'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { useNavigate } from 'react-router-dom'
 import Cart from './pages/Cart/Cart'
+import BuyOrder from './pages/Buy/BuyOrder'
+import HowCreate from './pages/CreateAd/HowCreate'
 import History from './pages/History/History'
 import SingleHistory from './pages/History/SingleHistory'
-import AdminDashboard from './pages/Setting/AdminDashboard'
-import AdminLayout from './components/AdminLayout'
-import AdminUsers from './pages/adminDashboard/AdminUsers/AdminUsers'
-import AdminProducts from './pages/adminDashboard/AdminProducts/AdminProducts'
-import AdminOrders from './pages/adminDashboard/AdminOrders/AdminOrders'
-import { useAdminStore, useUserStore } from './store'
-import AdminCategories from './pages/adminDashboard/AdminCategories'
-import SingleUser from './pages/adminDashboard/UserPage/SingleUser'
-import OrderDetails from './pages/adminDashboard/OrderDetails/OrderDetails'
-import ProductDetails from './pages/adminDashboard/ProductDetails/ProductDetails'
-import Buy from './pages/Buy/Buy'
-import BuyOrder from './pages/Buy/BuyOrder'
 import MyChannels from './pages/MyChannels/MyChannels'
-import User from './pages/User/User'
-import Profile from './pages/Profile/Profile'
 import Products from './pages/Products/Products/Products'
 import ChannelStats from './pages/Products/ChannelStats/ChannelStats'
+import AdminLayout from './components/AdminLayout'
+import AdminDashboard from './pages/Setting/AdminDashboard'
+import AdminUsers from './pages/adminDashboard/AdminUsers/AdminUsers'
+import SingleUser from './pages/adminDashboard/UserPage/SingleUser'
+import AdminProducts from './pages/adminDashboard/AdminProducts/AdminProducts'
+import ProductDetails from './pages/adminDashboard/ProductDetails/ProductDetails'
+import AdminOrders from './pages/adminDashboard/AdminOrders/AdminOrders'
+import OrderDetails from './pages/adminDashboard/OrderDetails/OrderDetails'
+import AdminCategories from './pages/adminDashboard/AdminCategories'
+import AdminTransactions from './pages/adminDashboard/AdminTransactions/AdminTransactions'
+
+import { useAdminStore, useUserStore } from './store'
 import { AnimatePresence } from 'framer-motion'
 import AnimatedPage from './components/AnimatedPage'
-import { useLocation } from 'react-router-dom'
-import SessionExpiredModal from './SessionExpiredModal'
+import SessionExpiredModal from './components/SessionExpiredModal'
 import Rulers from './pages/Rules/Rules'
-import AdminTransactions from './pages/adminDashboard/AdminTransactions/AdminTransactions'
-import HowCreate from './pages/CreateAd/HowCreate'
-// import { useStore } from '../store'
 
 const App = () => {
-    const { initDataRaw } = useLaunchParams()
     const navigate = useNavigate()
-    const settingsButton = useSettingsButton()
     const { fetchAuth, theme, setTheme } = useUserStore()
-    const initData = useInitDataRaw()
     const setInitData = useUserStore((state) => state.setInitData)
     useEffect(() => {
         if (initData) {
-            setInitData(initData)
+            setInitData(initData.raw())
         }
-    }, [])
+    }, [initData])
 
     const location = useLocation()
     const { isAdmin, checkAdmin } = useAdminStore()
 
     const { sessionExpired } = useUserStore()
 
-    //кастомный хук для того чтобы убать закрытие приложения при скроле
-    usePreventCollapse()
+    // //кастомный хук для того чтобы убать закрытие приложения при скроле
+    // usePreventCollapse()
 
-    //Открытие приложения на всё высоту при запуске
-    const viewport = useViewport()
+    // useEffect(() => {
+    //     const applyFullscreen = async () => {
+    //         if (typeof viewport !== 'undefined') {
+    //             // Проверяем доступность viewport
+    //             if (isFullscreen) {
+    //                 if (viewport.requestFullscreen.isAvailable()) {
+    //                     await viewport.exitFullscreen()
+    //                 }
+    //             } else {
+    //                 if (viewport.exitFullscreen.isAvailable()) {
+    //                     await viewport.requestFullscreen()
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     applyFullscreen()
+    // }, [isFullscreen])
 
     useEffect(() => {
-        fetchAuth(initDataRaw)
-    }, [initDataRaw, fetchAuth])
+        fetchAuth()
+        checkAdmin()
+    }, [fetchAuth, checkAdmin])
 
     // Проверка прав администратора при загрузке
-    useEffect(() => {
-        checkAdmin(initDataRaw)
-    }, [checkAdmin, initDataRaw])
+    // useEffect(() => {
+    //     checkAdmin()
+    // }, [checkAdmin])
 
-    useEffect(() => {
-        if (viewport) {
-            viewport.expand()
-        }
-    }, [viewport])
+    // useEffect(() => {
+    //     if (viewport) {
+    //         viewport.requestFullscreen()
+    //     }
+    // }, [viewport])
 
     //Кнопка настрек
 
     useEffect(() => {
-        if (settingsButton) {
+        swipeBehavior.disableVertical()
+        if (settingsButton.mount.isAvailable()) {
+            settingsButton.mount()
+        }
+        if (settingsButton.show.isAvailable()) {
             settingsButton.show()
+        }
 
-            const handleSettingsClick = () => {
-                navigate('/settings')
-            }
+        let offClick
+        if (settingsButton.onClick.isAvailable()) {
+            offClick = settingsButton.onClick(() => navigate('/settings'))
+        }
 
-            settingsButton.on('click', handleSettingsClick)
-
-            return () => {
-                settingsButton.hide()
-                settingsButton.off('click', handleSettingsClick)
+        return () => {
+            if (offClick) offClick()
+            if (!settingsButton.mount.isAvailable()) {
+                settingsButton.unmount()
             }
         }
-    }, [settingsButton, navigate])
+    }, [])
 
     useEffect(() => {
         // Получаем тему из localStorage при загрузке компонента
@@ -183,6 +192,7 @@ const App = () => {
                                 </AnimatedPage>
                             }
                         />
+
                         <Route
                             path="how-create"
                             element={
@@ -210,14 +220,6 @@ const App = () => {
                             }
                         />
 
-                        <Route
-                            path="buy"
-                            element={
-                                <AnimatedPage>
-                                    <Buy />
-                                </AnimatedPage>
-                            }
-                        />
                         <Route
                             path="buy/:id"
                             element={
@@ -282,6 +284,7 @@ const App = () => {
                                 </AnimatedPage>
                             }
                         />
+
                         <Route
                             path="rules"
                             element={
@@ -316,7 +319,7 @@ const App = () => {
                                             <SingleUser />
                                         </AnimatedPage>
                                     }
-                                />
+                                />{' '}
                                 <Route
                                     path="products"
                                     element={
@@ -332,7 +335,7 @@ const App = () => {
                                             <ProductDetails />
                                         </AnimatedPage>
                                     }
-                                />
+                                />{' '}
                                 <Route
                                     path="orders"
                                     element={
@@ -340,7 +343,7 @@ const App = () => {
                                             <AdminOrders />
                                         </AnimatedPage>
                                     }
-                                />
+                                />{' '}
                                 <Route
                                     path="orders/:id"
                                     element={

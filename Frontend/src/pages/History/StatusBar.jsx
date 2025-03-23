@@ -7,12 +7,9 @@ import paid from '../../assets/paid.svg'
 import { useUserStore } from '../../store'
 import Loading from '../../Loading'
 import Error from '../../Error'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import { useToast } from '../../components/ToastProvider'
-import { div } from 'framer-motion/client'
 
 const StatusBar = ({ status, order_id, created_at, post_times }) => {
-    const { initDataRaw } = useLaunchParams()
     const { confirmationOrder, fetchSingleHistory, error, loading } =
         useUserStore()
     const { addToast } = useToast()
@@ -28,8 +25,8 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
     const handlerConfirmationOrder = async () => {
         if (window.confirm('Подтвердить выполнение?')) {
             try {
-                await confirmationOrder(initDataRaw, order_id)
-                fetchSingleHistory(initDataRaw, order_id)
+                await confirmationOrder(order_id)
+                fetchSingleHistory(order_id)
                 addToast('Заказ подтверждён!')
             } catch (err) {
                 console.error('Ошибка:', err)

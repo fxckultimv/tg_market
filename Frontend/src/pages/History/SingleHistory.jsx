@@ -1,40 +1,38 @@
 import React from 'react'
 import { useUserStore } from '../../store'
 import { useEffect } from 'react'
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useParams } from 'react-router-dom'
 import StatusBar from './StatusBar'
 import Loading from '../../Loading'
 import Error from '../../Error'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import BackButton from '../../components/BackButton'
 
 const SingleHistory = () => {
-    const { initDataRaw } = useLaunchParams()
-    const backButton = useBackButton()
     const { order_id } = useParams()
     const { singleHistory, fetchSingleHistory, loading, error } = useUserStore()
 
     useEffect(() => {
         if (order_id) {
-            fetchSingleHistory(initDataRaw, order_id)
+            fetchSingleHistory(order_id)
         }
-    }, [initDataRaw, order_id, fetchSingleHistory])
+    }, [order_id, fetchSingleHistory])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
 
     if (loading) {
         return <Loading />
@@ -46,6 +44,7 @@ const SingleHistory = () => {
 
     return (
         <>
+            <BackButton />
             <div className="flex justify-between my-6">
                 <p className="text-xl mb-2">{singleHistory.channel_title}</p>
                 <div className="aspect-square">

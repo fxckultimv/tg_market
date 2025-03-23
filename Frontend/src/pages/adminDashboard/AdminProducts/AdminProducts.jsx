@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useAdminStore } from '../../../store'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import ProductsSearch from './ProductsSearch'
 import ProductsList from './ProductsList'
 
@@ -13,7 +12,6 @@ const AdminProducts = () => {
         loading,
         error,
     } = useAdminStore()
-    const { initDataRaw } = useLaunchParams()
 
     const [currentPage, setCurrentPage] = useState(1)
     const [totalProducts, setTotalProducts] = useState(0)
@@ -23,12 +21,12 @@ const AdminProducts = () => {
     // Используем useEffect, чтобы делать запрос при изменении currentPage
     useEffect(() => {
         const skip = (currentPage - 1) * productsPerPage
-        fetchProducts(initDataRaw, skip, productsPerPage).then((data) => {
+        fetchProducts(skip, productsPerPage).then((data) => {
             if (data) {
                 setTotalProducts(data.total) // Устанавливаем общее количество продуктов
             }
         })
-    }, [fetchProducts, initDataRaw, currentPage])
+    }, [fetchProducts, currentPage])
 
     const totalPages = Math.ceil(totalProducts / productsPerPage)
 
@@ -46,16 +44,16 @@ const AdminProducts = () => {
 
     const handleSearch = useCallback(
         async (productId) => {
-            await fetchProductsForId(initDataRaw, productId)
+            await fetchProductsForId(productId)
             setSearchedProduct(product) // сохраняем результат поиска
         },
-        [fetchProductsForId, initDataRaw, product]
+        [fetchProductsForId, product]
     )
 
     const fetchAllProducts = useCallback(() => {
         setSearchedProduct(null)
-        fetchProducts(initDataRaw)
-    }, [fetchProducts, initDataRaw])
+        fetchProducts()
+    }, [fetchProducts])
 
     if (loading) {
         return (

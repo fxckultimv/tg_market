@@ -1,35 +1,32 @@
 import React from 'react'
-import { useProductStore, useUserStore } from '../../store'
+import { useUserStore } from '../../store'
 import { useEffect } from 'react'
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
-import { Link } from 'react-router-dom'
 import Channel from './Channel'
+import BackButton from '../../components/BackButton'
 
 const MyChannels = () => {
-    const { initDataRaw } = useLaunchParams()
-    const backButton = useBackButton()
     const { verifiedChannels, fetchVerifiedChannels, loading, error } =
         useUserStore()
 
     useEffect(() => {
-        fetchVerifiedChannels(initDataRaw)
-    }, [initDataRaw, fetchVerifiedChannels])
+        fetchVerifiedChannels()
+    }, [fetchVerifiedChannels])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
 
     if (loading) {
         return (
@@ -57,6 +54,7 @@ const MyChannels = () => {
     }
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <BackButton />
             {verifiedChannels.map((channel) => (
                 <Channel channel={channel} />
             ))}

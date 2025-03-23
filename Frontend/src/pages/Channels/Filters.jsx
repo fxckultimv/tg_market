@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useProductStore } from '../../store'
-import { useLaunchParams } from '@tma.js/sdk-react'
 import Document from '../../assets/document.svg'
 import settings from '../../assets/settings.svg'
 import Sort from '../../assets/sort.svg'
 import { motion } from 'framer-motion'
-import { div } from 'framer-motion/client'
 
 export const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value)
@@ -38,8 +36,6 @@ const Filters = () => {
         fetchCategories,
     } = useProductStore()
 
-    const { initDataRaw } = useLaunchParams()
-
     const [isExpanded, setIsExpanded] = useState(false)
     const [sort, setSort] = useState(false)
 
@@ -47,21 +43,15 @@ const Filters = () => {
     const debouncedSearchQuery = useDebounce(searchQuery, 500) // 500 мс задержки
     const debouncedFilters = useDebounce(filters, 500)
 
-    // Fetch categories from the server when initDataRaw changes
+    // Fetch categories from the server
     useEffect(() => {
-        fetchCategories(initDataRaw)
-    }, [initDataRaw, fetchCategories])
+        fetchCategories()
+    }, [fetchCategories])
 
     // Fetch products when search query, filters, or current page change
     useEffect(() => {
-        fetchProducts(initDataRaw)
-    }, [
-        debouncedSearchQuery,
-        debouncedFilters,
-        page,
-        fetchProducts,
-        initDataRaw,
-    ])
+        fetchProducts()
+    }, [debouncedSearchQuery, debouncedFilters, page, fetchProducts])
 
     const handleSearch = (e) => {
         setSearchQuery(e.target.value)

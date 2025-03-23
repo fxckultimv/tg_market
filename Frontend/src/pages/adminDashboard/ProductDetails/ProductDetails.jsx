@@ -1,42 +1,39 @@
 import React, { useEffect } from 'react'
 import { useAdminStore } from '../../../store'
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 
 const ProductDetails = () => {
-    const { initDataRaw } = useLaunchParams()
     const { id } = useParams()
     const { product, fetchProductsForId, deleteProduct, loading, error } =
         useAdminStore()
-    const backButton = useBackButton()
     const navigate = useNavigate()
 
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
+
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
+
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
+
     useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
-
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
-
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
-
-    useEffect(() => {
-        fetchProductsForId(initDataRaw, id)
-    }, [fetchProductsForId, initDataRaw, id])
+        fetchProductsForId(id)
+    }, [fetchProductsForId, id])
 
     const handleDelete = async () => {
         const confirmDelete = window.confirm(
             'Вы уверены, что хотите удалить этот продукт?'
         )
         if (confirmDelete) {
-            await deleteProduct(initDataRaw, product.product_id)
+            await deleteProduct(product.product_id)
             navigate('/admin/products') // Перенаправление после удаления
         }
     }

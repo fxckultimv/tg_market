@@ -1,12 +1,11 @@
 import React from 'react'
 import Delete from '../../assets/delete.svg'
-import { useLaunchParams } from '@tma.js/sdk-react'
+import { initData } from '@telegram-apps/sdk-react'
 import { useUserStore } from '../../store'
 import { useToast } from '../../components/ToastProvider'
 
 const DatePublication = ({ item }) => {
     const { fetchCart, deleteDateInCartItem, loading, error } = useUserStore()
-    const { initDataRaw } = useLaunchParams()
     const { addToast } = useToast()
 
     // Преобразуем дату из строки в объект Date
@@ -19,11 +18,11 @@ const DatePublication = ({ item }) => {
     const deleteDateButton = async (publicationDate) => {
         try {
             await deleteDateInCartItem(
-                initDataRaw,
+                initData.raw(),
                 publicationDate,
                 item.cart_item_id
             )
-            await fetchCart(initDataRaw)
+            await fetchCart(initData.raw())
             addToast('Дата удалена!')
         } catch (err) {
             console.log('Ошибка при создании заказа:', error)

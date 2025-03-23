@@ -2,39 +2,37 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import UserProducts from './UserProducts'
 import UserReviews from './UserReviews'
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { useEffect } from 'react'
 import { useUserStore } from '../../store'
 import { useState } from 'react'
 import Error from '../../Error'
 import Loading from '../../Loading'
+import BackButton from '../../components/BackButton'
 
 const User = () => {
     const { id } = useParams()
-    const { initDataRaw } = useLaunchParams()
-    const backButton = useBackButton()
     const { user, fetchUser, error, loading } = useUserStore()
     const [activeTab, setActiveTab] = useState('products')
 
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
+
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
+
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
+
     useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
-
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
-
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
-
-    useEffect(() => {
-        fetchUser(initDataRaw, id)
-    }, [initDataRaw])
+        fetchUser(id)
+    }, [])
 
     if (loading) {
         return <Loading />
@@ -46,6 +44,7 @@ const User = () => {
 
     return (
         <div className="min-h-screen bg-dark-gray min-w-screen">
+            <BackButton />
             <div className="m-8">
                 <div className="mb-2">
                     <img

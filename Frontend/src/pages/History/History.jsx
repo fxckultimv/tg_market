@@ -1,4 +1,3 @@
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import React from 'react'
 import { useEffect } from 'react'
 import { useUserStore } from '../../store'
@@ -8,10 +7,9 @@ import Error from '../../Error'
 import ProductCart from './ProductCart'
 import { useSearchParams } from 'react-router-dom'
 import { useState } from 'react'
+import BackButton from '../../components/BackButton'
 
 const History = () => {
-    const { initDataRaw } = useLaunchParams()
-    const backButton = useBackButton()
     const { history, fetchHistory, appendHistory, loading, error } =
         useUserStore()
     const [searchParams, setSearchParams] = useSearchParams()
@@ -33,13 +31,13 @@ const History = () => {
 
     // Функция для первой загрузки данных
     const loadInitialHistory = () => {
-        fetchHistory(initDataRaw, searchParams.get('status'), limit, offset)
+        fetchHistory(searchParams.get('status'), limit, offset)
     }
 
     // Функция для подгрузки дополнительных данных
     const loadMoreHistory = () => {
         const newOffset = offset + limit
-        appendHistory(initDataRaw, searchParams.get('status'), limit, newOffset)
+        appendHistory(searchParams.get('status'), limit, newOffset)
         setOffset(newOffset)
         setCount(count + 1)
         console.log(count)
@@ -49,25 +47,25 @@ const History = () => {
         if (searchParams.get('status')) {
             loadInitialHistory()
         } else {
-            fetchHistory(initDataRaw, null)
+            fetchHistory(null)
         }
-    }, [initDataRaw, fetchHistory, searchParams])
+    }, [fetchHistory, searchParams])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
 
     if (loading) {
         return <Loading />
@@ -85,10 +83,9 @@ const History = () => {
         )
     }
 
-    console.log(searchParams.get('status'))
-
     return (
         <div className="basis-2/3">
+            <BackButton />
             <div className="flex items-center justify-start gap-2 flex-wrap">
                 <button
                     className={`rounded-md p-2 hover:text-gray border-gray border-[1px] max-sm:px-1 ${searchParams.get('status') === 'waiting' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}

@@ -1,4 +1,3 @@
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import React, { useEffect, useState } from 'react'
 import Loading from '../../../Loading'
 import Error from '../../../Error'
@@ -15,13 +14,10 @@ import CPMChart from './CPMChart'
 import SubscribersChart from './SubscribersChart'
 import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 import Ton from '../../../assets/ton_symbol.svg'
-import { div } from 'framer-motion/client'
 import check from '../../../assets/check.svg'
 import { useToast } from '../../../components/ToastProvider'
 
 const ChannelStats = () => {
-    const { initDataRaw } = useLaunchParams()
-    const backButton = useBackButton()
     const { id } = useParams()
     const { addToast } = useToast()
 
@@ -76,26 +72,26 @@ const ChannelStats = () => {
     }, [productDetails, pauseChange])
 
     useEffect(() => {
-        fetchProductDetails(initDataRaw, id)
-        fetchCategories(initDataRaw)
-        fetchOrderStats(initDataRaw, id)
-    }, [initDataRaw, pauseChange])
+        fetchProductDetails(id)
+        fetchCategories()
+        fetchOrderStats(id)
+    }, [pauseChange])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
 
     const handleButtonClick = (formatId) => {
         if (selectedFormats.includes(formatId)) {
@@ -145,10 +141,7 @@ const ChannelStats = () => {
             }
 
             try {
-                const result = await updateProductDetails(
-                    initDataRaw,
-                    updatedDetails
-                )
+                const result = await updateProductDetails(updatedDetails)
                 if (result) {
                     console.log('Изменения успешно сохранены!')
                     addToast('Изменения сохранены!')
@@ -193,7 +186,7 @@ const ChannelStats = () => {
             try {
                 const newStatus =
                     productDetails.status === 'work' ? 'pause' : 'work'
-                const result = await pauseProduct(initDataRaw, id, newStatus)
+                const result = await pauseProduct(id, newStatus)
                 if (result) {
                     // Если успешно, обновляем локальное состояние
                     setPauseChange(newStatus)

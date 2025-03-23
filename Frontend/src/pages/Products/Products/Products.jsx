@@ -1,36 +1,34 @@
 import React from 'react'
 import { useProductStore } from '../../../store'
 import { useEffect } from 'react'
-import { useBackButton, useLaunchParams } from '@tma.js/sdk-react'
 import { Link } from 'react-router-dom'
 import ProductCard from './ProductCard'
 import Loading from '../../../Loading'
 import Error from '../../../Error'
+import BackButton from '../../../components/BackButton'
 
 const Products = () => {
-    const { initDataRaw } = useLaunchParams()
-    const backButton = useBackButton()
     const { myProducts, fetchMyProducts, loading, error } = useProductStore()
 
     useEffect(() => {
-        fetchMyProducts(initDataRaw)
-    }, [initDataRaw, fetchMyProducts])
+        fetchMyProducts()
+    }, [fetchMyProducts])
 
-    useEffect(() => {
-        const handleBackClick = () => {
-            window.history.back()
-        }
+    // useEffect(() => {
+    //     const handleBackClick = () => {
+    //         window.history.back()
+    //     }
 
-        if (backButton) {
-            backButton.show()
-            backButton.on('click', handleBackClick)
+    //     if (backButton) {
+    //         backButton.show()
+    //         backButton.on('click', handleBackClick)
 
-            return () => {
-                backButton.hide()
-                backButton.off('click', handleBackClick)
-            }
-        }
-    }, [backButton])
+    //         return () => {
+    //             backButton.hide()
+    //             backButton.off('click', handleBackClick)
+    //         }
+    //     }
+    // }, [backButton])
 
     if (loading) {
         return <Loading />
@@ -56,6 +54,7 @@ const Products = () => {
 
     return (
         <div className="basis-2/3">
+            <BackButton />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {myProducts.map((product) => (
                     <Link to={product.product_id} key={product.product_id}>

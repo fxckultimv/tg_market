@@ -1,8 +1,6 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
+import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
-import { log10 } from 'chart.js/helpers'
 
 const ProductCart = ({ order }) => {
     const statusTranslations = {
