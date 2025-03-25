@@ -90,7 +90,7 @@ const Layout = () => {
                 <AnimatePresence>
                     {menuOpen && (
                         <motion.div
-                            className="bg-background absolute top-0 right-0 bottom-0 left-0 h-full z-50 flex flex-col p-4 overflow-hidden pt-10"
+                            className="bg-background absolute top-0 right-0 bottom-0 left-0 h-full z-50 flex flex-col p-4 overflow-hidden pt-20"
                             initial={{ x: '100%', opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             exit={{ x: '100%' }}
