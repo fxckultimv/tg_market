@@ -3,6 +3,7 @@ import { useAdminStore } from '../../../store'
 import UserSearch from './UserSearch' // Импортируем новый компонент
 import UserList from './UserList' // Импортируем новый компонент
 import { Link } from 'react-router-dom'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const AdminUsers = () => {
     const { users, user, fetchUsers, fetchUserForId, loading, error } =
@@ -15,7 +16,7 @@ const AdminUsers = () => {
     // Используем useEffect, чтобы делать запрос при изменении currentPage
     useEffect(() => {
         const skip = (currentPage - 1) * usersPerPage
-        fetchUsers(skip, usersPerPage).then((data) => {
+        fetchUsers(initDataRaw(), skip, usersPerPage).then((data) => {
             if (data) {
                 setTotalUsers(data.total) // Устанавливаем общее количество пользователей
             }
@@ -38,7 +39,7 @@ const AdminUsers = () => {
 
     const handleSearch = useCallback(
         async (userId) => {
-            await fetchUserForId(userId)
+            await fetchUserForId(initDataRaw(), userId)
             setSearchedUser(user) // сохраняем результат поиска
         },
         [fetchUserForId, user]
@@ -46,7 +47,7 @@ const AdminUsers = () => {
 
     const fetchAllUsers = useCallback(() => {
         setSearchedUser(null)
-        fetchUsers()
+        fetchUsers(initDataRaw())
     }, [fetchUsers])
 
     if (loading) {

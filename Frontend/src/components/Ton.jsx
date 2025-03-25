@@ -11,6 +11,7 @@ import { useEffect } from 'react'
 import { tonToNanoTon } from '../utils/tonConversion'
 import { useState } from 'react'
 import { useToast } from '../components/ToastProvider'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const Ton = () => {
     const { initData, topUpBalance, handleWithdrawal, fetchBalance } =
@@ -60,12 +61,13 @@ const Ton = () => {
                 await tonConnectUI.sendTransaction(myTransaction)
             console.log(transactionResponse)
             await topUpBalance(
+                initDataRaw(),
                 tonToNanoTon(amount),
                 userFriendlyAddress,
                 transactionResponse.boc
             )
 
-            fetchBalance()
+            fetchBalance(initDataRaw())
             addToast('Баланс пополнен')
             setAmount('')
         } catch (error) {
@@ -97,6 +99,7 @@ const Ton = () => {
 
         try {
             handleWithdrawal(
+                initDataRaw(),
                 tonToNanoTon(amountWithdrawal),
                 userFriendlyAddress
             )

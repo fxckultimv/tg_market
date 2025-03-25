@@ -15,6 +15,7 @@ export const handleServerResponse = async (response, set) => {
         throw new Error(`Ошибка сервера: ${response.status}`)
     }
 
+    setSessionExpired(false)
     return await response.json()
 }
 
@@ -31,15 +32,14 @@ export const useAdminStore = create((set) => ({
     categories: [],
     carts: [],
 
-    checkAdmin: async () => {
+    checkAdmin: async (initDataRaw) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/check_admin', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             const data = await handleServerResponse(response, set)
@@ -59,15 +59,14 @@ export const useAdminStore = create((set) => ({
             // navigate('/')
         }
     },
-    fetchStats: async () => {
+    fetchStats: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/admin_stats', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -85,9 +84,8 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchUsers: async () => {
+    fetchUsers: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 'http://localhost:5000/admin_stats/users',
@@ -95,7 +93,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -114,9 +112,8 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchUsers: async (skip = 0, limit = 10) => {
+    fetchUsers: async (initDataRaw, skip = 0, limit = 10) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/admin_stats/users?skip=${skip}&limit=${limit}`,
@@ -124,7 +121,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -144,9 +141,8 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchUserForId: async (user_id) => {
+    fetchUserForId: async (initDataRaw, user_id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/admin_stats/users/${user_id}`,
@@ -154,7 +150,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -170,15 +166,14 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchAllProducts: async () => {
+    fetchAllProducts: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/products', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -198,9 +193,8 @@ export const useAdminStore = create((set) => ({
             return null
         }
     },
-    fetchProducts: async (skip = 0, limit = 10) => {
+    fetchProducts: async (initDataRaw, skip = 0, limit = 10) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/products?skip=${skip}&limit=${limit}`,
@@ -208,7 +202,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -229,9 +223,8 @@ export const useAdminStore = create((set) => ({
             return null
         }
     },
-    fetchProductsForId: async (product_id) => {
+    fetchProductsForId: async (initDataRaw, product_id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/products/${product_id}`,
@@ -239,7 +232,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -255,9 +248,8 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchProductsForUser: async (user_id) => {
+    fetchProductsForUser: async (initDataRaw, user_id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/admin_stats/users/${user_id}/products`,
@@ -265,7 +257,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -286,9 +278,8 @@ export const useAdminStore = create((set) => ({
             return null
         }
     },
-    deleteProduct: async (productID) => {
+    deleteProduct: async (initDataRaw, productID) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/products/admin/${productID}`,
@@ -296,7 +287,7 @@ export const useAdminStore = create((set) => ({
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -342,9 +333,8 @@ export const useAdminStore = create((set) => ({
     //         console.error('Error:', error)
     //     }
     // },
-    fetchOrders: async (skip = 0, limit = 10) => {
+    fetchOrders: async (initDataRaw, skip = 0, limit = 10) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/admin_stats/orders?skip=${skip}&limit=${limit}`,
@@ -352,7 +342,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -373,9 +363,8 @@ export const useAdminStore = create((set) => ({
             return null
         }
     },
-    fetchOrdersForUser: async (user_id) => {
+    fetchOrdersForUser: async (initDataRaw, user_id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/admin_stats/orders/user/${user_id}`,
@@ -383,7 +372,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -402,8 +391,7 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchOrdersForId: async (order_id) => {
-        const { initData } = useUserStore.getState()
+    fetchOrdersForId: async (initDataRaw, order_id) => {
         set({ loading: true })
         try {
             const response = await fetch(
@@ -412,7 +400,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -431,9 +419,8 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchOrdersDetails: async (order_id) => {
+    fetchOrdersDetails: async (initDataRaw, order_id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/admin_stats/orders/details/${order_id}`,
@@ -441,7 +428,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -460,9 +447,8 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchCategories: async () => {
+    fetchCategories: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 'http://localhost:5000/admin_stats/categories',
@@ -470,7 +456,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -489,9 +475,8 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    addCategory: async (categoryName) => {
+    addCategory: async (initDataRaw, categoryName) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 'http://localhost:5000/admin_stats/categories',
@@ -499,7 +484,7 @@ export const useAdminStore = create((set) => ({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify({ category_name: categoryName }),
                 }
@@ -519,9 +504,8 @@ export const useAdminStore = create((set) => ({
             set({ error: 'Ошибка при добавлении категории', loading: false })
         }
     },
-    deleteCategory: async (categoryID) => {
+    deleteCategory: async (initDataRaw, categoryID) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
 
         try {
             const response = await fetch(
@@ -530,7 +514,7 @@ export const useAdminStore = create((set) => ({
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify({ category_id: categoryID }),
                 }
@@ -552,9 +536,8 @@ export const useAdminStore = create((set) => ({
             set({ error: 'Ошибка при удалении категории', loading: false })
         }
     },
-    patchCategory: async (categoryID, category_name) => {
+    patchCategory: async (initDataRaw, categoryID, category_name) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
 
         try {
             const response = await fetch(
@@ -563,7 +546,7 @@ export const useAdminStore = create((set) => ({
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify({
                         category_id: categoryID,
@@ -588,9 +571,8 @@ export const useAdminStore = create((set) => ({
             set({ error: 'Ошибка при удалении категории', loading: false })
         }
     },
-    fetchCartForUser: async (user_id) => {
+    fetchCartForUser: async (initDataRaw, user_id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
 
         try {
             const response = await fetch(
@@ -599,7 +581,7 @@ export const useAdminStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -639,15 +621,15 @@ export const useUserStore = create((set) => ({
     reviews: [],
     balance: 0,
     orderInfo: [],
-    fetchAuth: async () => {
+    fetchAuth: async (initDataRaw) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch('http://localhost:5000/auth', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
 
@@ -662,15 +644,14 @@ export const useUserStore = create((set) => ({
             // navigate('/')
         }
     },
-    fetchCart: async () => {
+    fetchCart: async (initDataRaw) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/cart', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -686,9 +667,8 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    fetchBalance: async () => {
+    fetchBalance: async (initDataRaw) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 'http://localhost:5000/balance/balance?id=801541001',
@@ -696,7 +676,7 @@ export const useUserStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -716,15 +696,14 @@ export const useUserStore = create((set) => ({
             // navigate('/')
         }
     },
-    fetchCategories: async () => {
+    fetchCategories: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/categories', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -742,15 +721,14 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchFormats: async () => {
+    fetchFormats: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/formats', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -768,15 +746,14 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchVerifiedChannels: async () => {
+    fetchVerifiedChannels: async (initDataRaw) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/channels', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -798,9 +775,8 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    fetchHistory: async (status, limit, offset) => {
+    fetchHistory: async (initDataRaw, status, limit, offset) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         const url = status
             ? `http://localhost:5000/history?status=${status}&limit=${limit}&offset=${offset}`
             : `http://localhost:5000/history?limit=${limit}&offset=${offset}`
@@ -810,7 +786,7 @@ export const useUserStore = create((set) => ({
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -832,9 +808,8 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    appendHistory: async (status, limit, offset) => {
+    appendHistory: async (initDataRaw, status, limit, offset) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
 
         try {
             const query = status
@@ -845,7 +820,7 @@ export const useUserStore = create((set) => ({
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
 
@@ -865,9 +840,8 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    fetchSingleHistory: async (order_id) => {
+    fetchSingleHistory: async (initDataRaw, order_id) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/history/${order_id}`,
@@ -875,7 +849,7 @@ export const useUserStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -895,23 +869,17 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    addProduct: async ({
-        channel_id,
-        category_id,
-        description,
-        price,
-        post_time,
-        format,
-    }) => {
+    addProduct: async (
+        initDataRaw,
+        { channel_id, category_id, description, price, post_time, format }
+    ) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
-
         try {
             const response = await fetch('http://localhost:5000/products/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
                 body: JSON.stringify({
                     channel_id,
@@ -943,14 +911,13 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    createOrder: async (cart_item_ids) => {
-        const { initData } = useUserStore.getState()
+    createOrder: async (initDataRaw, cart_item_ids) => {
         try {
             const response = await fetch('http://localhost:5000/orders/buy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
                 body: JSON.stringify({ cart_item_id: cart_item_ids }),
             })
@@ -966,14 +933,13 @@ export const useUserStore = create((set) => ({
             throw error
         }
     },
-    deleteCartItem: async (cart_item_ids) => {
-        const { initData } = useUserStore.getState()
+    deleteCartItem: async (initDataRaw, cart_item_ids) => {
         try {
             const response = await fetch('http://localhost:5000/cart', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
                 body: JSON.stringify({ cart_item_id: cart_item_ids }),
             })
@@ -989,8 +955,11 @@ export const useUserStore = create((set) => ({
             throw error
         }
     },
-    deleteDateInCartItem: async (publicationDate, cart_item_id) => {
-        const { initData } = useUserStore.getState()
+    deleteDateInCartItem: async (
+        initDataRaw,
+        publicationDate,
+        cart_item_id
+    ) => {
         try {
             const response = await fetch(
                 'http://localhost:5000/cart/date-publication',
@@ -998,7 +967,7 @@ export const useUserStore = create((set) => ({
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify({
                         date: publicationDate,
@@ -1018,15 +987,14 @@ export const useUserStore = create((set) => ({
             throw error
         }
     },
-    buyProduct: async (order_id) => {
+    buyProduct: async (initDataRaw, order_id) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch('http://localhost:5000/buy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
                 body: JSON.stringify({ order_id }),
             })
@@ -1051,9 +1019,8 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    checkingStatus: async (order_id) => {
+    checkingStatus: async (initDataRaw, order_id) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
 
         // Проверка корректности order_id перед запросом
         if (!order_id || isNaN(order_id)) {
@@ -1068,7 +1035,7 @@ export const useUserStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1088,15 +1055,14 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    fetchUser: async (id) => {
+    fetchUser: async (initDataRaw, id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(`http://localhost:5000/users/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
 
@@ -1110,15 +1076,15 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchMe: async () => {
+    fetchMe: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(`http://localhost:5000/users/me`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
 
@@ -1132,9 +1098,9 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchReviews: async (id) => {
+    fetchReviews: async (initDataRaw, id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(
                 `http://localhost:5000/users/reviews/${id}`,
@@ -1142,7 +1108,7 @@ export const useUserStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1157,9 +1123,8 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    confirmationOrder: async (id) => {
+    confirmationOrder: async (initDataRaw, id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
         try {
             const response = await fetch(
                 `http://localhost:5000/products/confirmation/${id}`,
@@ -1167,7 +1132,7 @@ export const useUserStore = create((set) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1182,9 +1147,8 @@ export const useUserStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    topUpBalance: async (amount, address, boc) => {
+    topUpBalance: async (initDataRaw, amount, address, boc) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
 
         try {
             const response = await fetch(
@@ -1193,7 +1157,7 @@ export const useUserStore = create((set) => ({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify({
                         tonAmount: amount,
@@ -1216,9 +1180,9 @@ export const useUserStore = create((set) => ({
             return null
         }
     },
-    handleWithdrawal: async (amount, address) => {
+    handleWithdrawal: async (initDataRaw, amount, address) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(
                 'http://localhost:5000/balance/withdraw',
@@ -1226,7 +1190,7 @@ export const useUserStore = create((set) => ({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify({
                         amount: amount.toString(),
@@ -1284,10 +1248,9 @@ export const useProductStore = create((set, get) => ({
     setSearchQuery: (query) => set({ searchQuery: query }),
     setFilters: (filters) =>
         set((state) => ({ filters: { ...state.filters, ...filters } })),
-    fetchProducts: async () => {
+    fetchProducts: async (initDataRaw) => {
         set({ isLoading: true, error: null })
         const { searchQuery, filters, page } = get()
-        const { initData } = useUserStore.getState()
 
         const limit = 10
         const skip = (page - 1) * limit
@@ -1314,7 +1277,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1332,9 +1295,9 @@ export const useProductStore = create((set, get) => ({
             set({ products: [], isLoading: false })
         }
     },
-    fetchProductDetails: async (productId) => {
+    fetchProductDetails: async (initDataRaw, productId) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(
                 `http://localhost:5000/products/details/${productId}`,
@@ -1342,7 +1305,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1358,9 +1321,9 @@ export const useProductStore = create((set, get) => ({
             set({ error: error.message, loading: false })
         }
     },
-    updateProductDetails: async (updatedDetails) => {
+    updateProductDetails: async (initDataRaw, updatedDetails) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(
                 'http://localhost:5000/products/edit',
@@ -1368,7 +1331,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify(updatedDetails),
                 }
@@ -1387,10 +1350,9 @@ export const useProductStore = create((set, get) => ({
             return null
         }
     },
-    fetchUserProducts: async (user_uuid) => {
+    fetchUserProducts: async (initDataRaw, user_uuid) => {
         set({ isLoading: true })
         const { searchQuery, filters, page } = get()
-        const { initData } = useUserStore.getState()
 
         const limit = 10
         const skip = (page - 1) * limit
@@ -1417,7 +1379,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1434,15 +1396,15 @@ export const useProductStore = create((set, get) => ({
             set({ userProducts: [], isLoading: false })
         }
     },
-    fetchMyProducts: async () => {
+    fetchMyProducts: async (initDataRaw) => {
         set({ isLoading: true, error: null })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(`http://localhost:5000/products/my`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
 
@@ -1459,9 +1421,9 @@ export const useProductStore = create((set, get) => ({
             return null
         }
     },
-    fetchBusyDay: async (productId) => {
+    fetchBusyDay: async (initDataRaw, productId) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(
                 `http://localhost:5000/products/busy_day/${productId}`,
@@ -1469,7 +1431,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1495,15 +1457,15 @@ export const useProductStore = create((set, get) => ({
             set({ error: error.message, loading: false })
         }
     },
-    fetchCategories: async () => {
+    fetchCategories: async (initDataRaw) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch('http://localhost:5000/categories', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
             })
             if (response.status === 204) {
@@ -1521,9 +1483,9 @@ export const useProductStore = create((set, get) => ({
             console.error('Error:', error)
         }
     },
-    fetchOrderStats: async (id) => {
+    fetchOrderStats: async (initDataRaw, id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(
                 `http://localhost:5000/product_stats/order?channel_id=${id}`,
@@ -1531,7 +1493,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1550,15 +1512,15 @@ export const useProductStore = create((set, get) => ({
             console.error('Error:', error)
         }
     },
-    addToCart: async (cartInfo) => {
+    addToCart: async (initDataRaw, cartInfo) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch('http://localhost:5000/cart/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
                 body: JSON.stringify(cartInfo),
             })
@@ -1577,14 +1539,13 @@ export const useProductStore = create((set, get) => ({
             console.error('Error:', error)
         }
     },
-    createOrder: async (cart_item_ids) => {
-        const { initData } = useUserStore.getState()
+    createOrder: async (initDataRaw, cart_item_ids) => {
         try {
             const response = await fetch('http://localhost:5000/buy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `tma ${initData}`,
+                    Authorization: `tma ${initDataRaw}`,
                 },
                 body: JSON.stringify({ cart_item_id: cart_item_ids }),
             })
@@ -1600,9 +1561,9 @@ export const useProductStore = create((set, get) => ({
             throw error
         }
     },
-    fetchReviews: async (id) => {
+    fetchReviews: async (initDataRaw, id) => {
         set({ loading: true })
-        const { initData } = useUserStore.getState()
+
         try {
             const response = await fetch(
                 `http://localhost:5000/users/reviews/${id}`,
@@ -1610,7 +1571,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )
@@ -1625,9 +1586,8 @@ export const useProductStore = create((set, get) => ({
             console.error('Error:', error)
         }
     },
-    pauseProduct: async (id, status) => {
+    pauseProduct: async (initDataRaw, id, status) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
 
         try {
             const response = await fetch(
@@ -1636,7 +1596,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                     body: JSON.stringify({ id, status }), // Объект, а не строка
                 }
@@ -1655,9 +1615,8 @@ export const useProductStore = create((set, get) => ({
             })
         }
     },
-    deleteProduct: async (id) => {
+    deleteProduct: async (initDataRaw, id) => {
         set({ loading: true, error: null })
-        const { initData } = useUserStore.getState()
 
         try {
             const response = await fetch(
@@ -1666,7 +1625,7 @@ export const useProductStore = create((set, get) => ({
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `tma ${initData}`,
+                        Authorization: `tma ${initDataRaw}`,
                     },
                 }
             )

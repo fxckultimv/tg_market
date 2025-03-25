@@ -7,6 +7,7 @@ import ProfileLogo from '../assets/profile-logo.svg'
 import StarFull from '../assets/star-full.svg'
 import Balance from './Balance'
 import Ton from './Ton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const ProfileLayout = () => {
     const { user, fetchMe, fetchBalance, balance, error, loading } =
@@ -14,8 +15,8 @@ const ProfileLayout = () => {
     const { isAdmin } = useAdminStore()
 
     useEffect(() => {
-        fetchMe()
-        fetchBalance()
+        fetchMe(initDataRaw())
+        fetchBalance(initDataRaw())
     }, [fetchMe])
 
     return (

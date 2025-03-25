@@ -13,6 +13,7 @@ import ArrowRight from '../../assets/arrow-right.svg'
 import Check from '../../assets/check-contained.svg'
 import { useRef } from 'react'
 import { useToast } from '../../components/ToastProvider'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const CreateAd = () => {
     const { addToast } = useToast()
@@ -57,9 +58,9 @@ const CreateAd = () => {
     }
 
     useEffect(() => {
-        fetchVerifiedChannels()
-        fetchCategories()
-        fetchFormats()
+        fetchVerifiedChannels(initDataRaw())
+        fetchCategories(initDataRaw())
+        fetchFormats(initDataRaw())
     }, [fetchVerifiedChannels, fetchCategories, fetchFormats])
 
     const isUnique = (arr) => new Set(arr).size === arr.length
@@ -87,7 +88,7 @@ const CreateAd = () => {
 
             const handleMainButtonClick = async () => {
                 try {
-                    await addProduct({
+                    await addProduct(initDataRaw(), {
                         channel_id: selectedChannel,
                         category_id: selectedCategories,
                         description: description,
@@ -105,7 +106,7 @@ const CreateAd = () => {
                     setPublicationTimes([])
                     setPrice('')
                     setDescription('')
-                    fetchVerifiedChannels()
+                    fetchVerifiedChannels(initDataRaw())
                 } catch (error) {
                     console.error(
                         'Ошибка при создании рекламного предложения:',
@@ -136,7 +137,6 @@ const CreateAd = () => {
             }
         }
     }, [
-        mainButton,
         selectedChannel,
         selectedCategories,
         selectedFormat,

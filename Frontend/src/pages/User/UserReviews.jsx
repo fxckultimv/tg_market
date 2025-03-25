@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 import { useProductStore } from '../../store'
 import { useParams } from 'react-router-dom'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const UserReviews = () => {
     const { id } = useParams()
     const { reviews, fetchReviews, error, loading } = useProductStore()
 
     useEffect(() => {
-        fetchReviews(id)
+        fetchReviews(initDataRaw(), id)
     }, [fetchReviews, id])
 
     if (loading) {

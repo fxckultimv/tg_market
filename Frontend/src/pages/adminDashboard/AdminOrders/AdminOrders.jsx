@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useAdminStore } from '../../../store'
 import OrderSearch from './OrderSearch'
 import OrderList from './OrderList'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const AdminOrders = () => {
     const { order, orders, fetchOrders, fetchOrdersForId, loading, error } =
@@ -15,7 +16,7 @@ const AdminOrders = () => {
     // Используем useEffect, чтобы делать запрос при изменении currentPage
     useEffect(() => {
         const skip = (currentPage - 1) * ordersPerPage
-        fetchOrders(skip, ordersPerPage).then((data) => {
+        fetchOrders(initDataRaw(), skip, ordersPerPage).then((data) => {
             if (data) {
                 setTotalOrders(data.total) // Устанавливаем общее количество заказов
             }
@@ -38,7 +39,7 @@ const AdminOrders = () => {
 
     const handleSearch = useCallback(
         async (orderId) => {
-            await fetchOrdersForId(orderId)
+            await fetchOrdersForId(initDataRaw(), orderId)
             setSearchedOrder(order) // сохраняем результат поиска
         },
         [fetchOrdersForId, order]
@@ -46,7 +47,7 @@ const AdminOrders = () => {
 
     const fetchAllOrders = useCallback(() => {
         setSearchedOrder(null)
-        fetchOrders()
+        fetchOrders(initDataRaw())
     }, [fetchOrders])
 
     if (loading) {

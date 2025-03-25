@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const UserOrders = () => {
     const { orders, fetchOrdersForUser, loading, error } = useAdminStore()
@@ -14,9 +15,12 @@ const UserOrders = () => {
 
     useEffect(() => {
         if (!hasFetched) {
-            fetchOrdersForUser(id).then(() => {
-                setHasFetched(true)
-            })
+            fetchOrdersForUser(
+                initDataRaw(),
+                id.then(() => {
+                    setHasFetched(true)
+                })
+            )
         }
     }, [fetchOrdersForUser, orders])
 

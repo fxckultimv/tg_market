@@ -7,6 +7,7 @@ import Loading from '../../Loading'
 import Error from '../../Error'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import BackButton from '../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const SingleHistory = () => {
     const { order_id } = useParams()
@@ -14,7 +15,7 @@ const SingleHistory = () => {
 
     useEffect(() => {
         if (order_id) {
-            fetchSingleHistory(order_id)
+            fetchSingleHistory(initDataRaw(), order_id)
         }
     }, [order_id, fetchSingleHistory])
 

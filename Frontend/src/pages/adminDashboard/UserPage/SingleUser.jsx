@@ -5,6 +5,7 @@ import UserProducts from './UserProducts'
 import UserOrders from './UserOrders'
 import UserCart from './UserCart'
 import BackButton from '../../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const SingleUser = () => {
     const { user, fetchUserForId, loading, error } = useAdminStore()
@@ -28,7 +29,7 @@ const SingleUser = () => {
     // }, [backButton])
 
     useEffect(() => {
-        fetchUserForId(id)
+        fetchUserForId(initDataRaw(), id)
     }, [fetchUserForId, id])
 
     const renderActiveSection = () => {

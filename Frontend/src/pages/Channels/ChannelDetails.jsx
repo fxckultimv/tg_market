@@ -14,6 +14,7 @@ import Ton from '../../assets/ton_symbol.svg'
 import star from '../../assets/star.svg'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import BackButton from '../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const ChannelDetails = () => {
     const navigate = useNavigate()
@@ -37,8 +38,8 @@ const ChannelDetails = () => {
     }) // Состояние для хранения выбранного времени
 
     useEffect(() => {
-        fetchProductDetails(id) // Загружаем данные при первом рендере
-        fetchBusyDay(id)
+        fetchProductDetails(initDataRaw(), id) // Загружаем данные при первом рендере
+        fetchBusyDay(initDataRaw(), id)
         // window.addEventListener('scroll', handleScroll)
         // return () => window.removeEventListener('scroll', handleScroll)
     }, [fetchProductDetails, fetchBusyDay, id])
@@ -115,7 +116,7 @@ const ChannelDetails = () => {
                     return
                 }
 
-                await addToCart({
+                await addToCart(initDataRaw(), {
                     product_id: productDetails.product_id,
                     quantity: selectedDates.length,
                     date: selectedDates,

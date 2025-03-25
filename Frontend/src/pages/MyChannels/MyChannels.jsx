@@ -3,13 +3,14 @@ import { useUserStore } from '../../store'
 import { useEffect } from 'react'
 import Channel from './Channel'
 import BackButton from '../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const MyChannels = () => {
     const { verifiedChannels, fetchVerifiedChannels, loading, error } =
         useUserStore()
 
     useEffect(() => {
-        fetchVerifiedChannels()
+        fetchVerifiedChannels(initDataRaw())
     }, [fetchVerifiedChannels])
 
     // useEffect(() => {

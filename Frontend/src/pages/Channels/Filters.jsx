@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { useProductStore } from '../../store'
+import { useProductStore, useUserStore } from '../../store'
 import Document from '../../assets/document.svg'
 import settings from '../../assets/settings.svg'
 import Sort from '../../assets/sort.svg'
 import { motion } from 'framer-motion'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 export const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value)
@@ -45,12 +46,12 @@ const Filters = () => {
 
     // Fetch categories from the server
     useEffect(() => {
-        fetchCategories()
+        fetchCategories(initDataRaw())
     }, [fetchCategories])
 
     // Fetch products when search query, filters, or current page change
     useEffect(() => {
-        fetchProducts()
+        fetchProducts(initDataRaw())
     }, [debouncedSearchQuery, debouncedFilters, page, fetchProducts])
 
     const handleSearch = (e) => {

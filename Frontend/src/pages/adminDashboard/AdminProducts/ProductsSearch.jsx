@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const ProductsSearch = ({ onSearch, fetchAllProducts }) => {
     const [searchProductId, setSearchProductId] = useState('')
@@ -7,7 +8,7 @@ const ProductsSearch = ({ onSearch, fetchAllProducts }) => {
         if (searchProductId.trim()) {
             onSearch(searchProductId)
         } else {
-            fetchAllProducts()
+            fetchAllProducts(initDataRaw())
         }
     }, [searchProductId, onSearch, fetchAllProducts])
 

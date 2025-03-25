@@ -6,13 +6,14 @@ import Cart from '../../assets/admin/cart.svg'
 import Orders from '../../assets/admin/orders.svg'
 import { nanoTonToTon } from '../../utils/tonConversion'
 import OrdersInMounthChart from './OrdersInMounthChart'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const AdminStats = () => {
     const { stats, fetchStats, loading, error } = useAdminStore()
 
     useEffect(() => {
         if (!stats || Object.keys(stats).length === 0) {
-            fetchStats()
+            fetchStats(initDataRaw())
         }
     }, [fetchStats, stats])
 

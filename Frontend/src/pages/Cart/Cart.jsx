@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom'
 import Loading from '../../Loading'
 import Bag from '../../assets/bag.svg'
 import CartItem from './CartItem'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const Cart = () => {
     const { cart, fetchCart, loading, error } = useUserStore()
 
     useEffect(() => {
-        fetchCart()
+        fetchCart(initDataRaw())
     }, [fetchCart])
 
     if (loading) {

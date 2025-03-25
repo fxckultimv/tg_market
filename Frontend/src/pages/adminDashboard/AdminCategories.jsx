@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAdminStore } from '../../store'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const AdminCategories = () => {
     const {
@@ -18,26 +19,26 @@ const AdminCategories = () => {
     const [editedCategoryName, setEditedCategoryName] = useState('')
 
     useEffect(() => {
-        fetchCategories()
+        fetchCategories(initDataRaw())
     }, [fetchCategories])
 
     const handleAddCategory = () => {
         if (newCategoryName.trim()) {
-            addCategory(newCategoryName)
+            addCategory(initDataRaw(), newCategoryName)
             setNewCategoryName('')
             setIsAdding(false)
         }
     }
 
     const handleDeleteCategory = (categoryId) => {
-        deleteCategory(categoryId)
+        deleteCategory(initDataRaw(), categoryId)
         setCategoryToDelete(null) // сбрасываем состояние после удаления
     }
 
     const handleEditCategory = (categoryId, newName) => {
-        patchCategory(categoryId, newName)
+        patchCategory(initDataRaw(), categoryId, newName)
         setCategoryToEdit(null) // сбрасываем состояние после редактирования
-        fetchCategories() // обновляем список категорий после изменения
+        fetchCategories(initDataRaw()) // обновляем список категорий после изменения
     }
 
     if (loading) {

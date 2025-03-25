@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import {
     initData,
+    initDataRaw,
     settingsButton,
     viewport,
     swipeBehavior,
@@ -42,18 +43,10 @@ import Rulers from './pages/Rules/Rules'
 
 const App = () => {
     const navigate = useNavigate()
-    const { fetchAuth, theme, setTheme } = useUserStore()
-    const setInitData = useUserStore((state) => state.setInitData)
-    useEffect(() => {
-        if (initData) {
-            setInitData(initData.raw())
-        }
-    }, [initData])
+    const { fetchAuth, theme, setTheme, sessionExpired } = useUserStore()
 
     const location = useLocation()
     const { isAdmin, checkAdmin } = useAdminStore()
-
-    const { sessionExpired } = useUserStore()
 
     // //кастомный хук для того чтобы убать закрытие приложения при скроле
     // usePreventCollapse()
@@ -77,8 +70,8 @@ const App = () => {
     // }, [isFullscreen])
 
     useEffect(() => {
-        fetchAuth()
-        checkAdmin()
+        fetchAuth(initDataRaw())
+        checkAdmin(initDataRaw())
     }, [fetchAuth, checkAdmin])
 
     // Проверка прав администратора при загрузке

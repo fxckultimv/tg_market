@@ -8,6 +8,7 @@ import { useState } from 'react'
 import Error from '../../Error'
 import Loading from '../../Loading'
 import BackButton from '../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const User = () => {
     const { id } = useParams()
@@ -31,7 +32,7 @@ const User = () => {
     // }, [backButton])
 
     useEffect(() => {
-        fetchUser(id)
+        fetchUser(initDataRaw(), id)
     }, [])
 
     if (loading) {

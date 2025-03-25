@@ -9,7 +9,7 @@ const Admin = () => {
 
     useEffect(() => {
         if (!isAdmin) {
-            checkAdmin()
+            checkAdmin(initDataRaw())
         }
     }, [checkAdmin, isAdmin])
 

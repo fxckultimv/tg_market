@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useAdminStore } from '../../../store'
 import { useParams } from 'react-router-dom'
 import { useState } from 'react'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const OrderDetails = () => {
     const { id } = useParams()
@@ -10,9 +11,12 @@ const OrderDetails = () => {
 
     useEffect(() => {
         if (!hasFetched) {
-            fetchOrdersDetails(id).then(() => {
-                setHasFetched(true)
-            })
+            fetchOrdersDetails(
+                initDataRaw(),
+                id.then(() => {
+                    setHasFetched(true)
+                })
+            )
         }
     }, [fetchOrdersDetails, hasFetched, id])
 

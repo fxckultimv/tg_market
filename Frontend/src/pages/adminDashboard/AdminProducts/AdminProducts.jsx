@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useAdminStore } from '../../../store'
 import ProductsSearch from './ProductsSearch'
 import ProductsList from './ProductsList'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const AdminProducts = () => {
     const {
@@ -21,7 +22,7 @@ const AdminProducts = () => {
     // Используем useEffect, чтобы делать запрос при изменении currentPage
     useEffect(() => {
         const skip = (currentPage - 1) * productsPerPage
-        fetchProducts(skip, productsPerPage).then((data) => {
+        fetchProducts(initDataRaw(), skip, productsPerPage).then((data) => {
             if (data) {
                 setTotalProducts(data.total) // Устанавливаем общее количество продуктов
             }
@@ -44,7 +45,7 @@ const AdminProducts = () => {
 
     const handleSearch = useCallback(
         async (productId) => {
-            await fetchProductsForId(productId)
+            await fetchProductsForId(initDataRaw(), productId)
             setSearchedProduct(product) // сохраняем результат поиска
         },
         [fetchProductsForId, product]
@@ -52,7 +53,7 @@ const AdminProducts = () => {
 
     const fetchAllProducts = useCallback(() => {
         setSearchedProduct(null)
-        fetchProducts()
+        fetchProducts(initDataRaw())
     }, [fetchProducts])
 
     if (loading) {

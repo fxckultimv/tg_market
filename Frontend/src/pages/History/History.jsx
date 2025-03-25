@@ -8,6 +8,7 @@ import ProductCart from './ProductCart'
 import { useSearchParams } from 'react-router-dom'
 import { useState } from 'react'
 import BackButton from '../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const History = () => {
     const { history, fetchHistory, appendHistory, loading, error } =
@@ -31,13 +32,18 @@ const History = () => {
 
     // Функция для первой загрузки данных
     const loadInitialHistory = () => {
-        fetchHistory(searchParams.get('status'), limit, offset)
+        fetchHistory(initDataRaw(), searchParams.get('status'), limit, offset)
     }
 
     // Функция для подгрузки дополнительных данных
     const loadMoreHistory = () => {
         const newOffset = offset + limit
-        appendHistory(searchParams.get('status'), limit, newOffset)
+        appendHistory(
+            initDataRaw(),
+            searchParams.get('status'),
+            limit,
+            newOffset
+        )
         setOffset(newOffset)
         setCount(count + 1)
         console.log(count)
@@ -47,7 +53,7 @@ const History = () => {
         if (searchParams.get('status')) {
             loadInitialHistory()
         } else {
-            fetchHistory(null)
+            fetchHistory(initDataRaw(), null)
         }
     }, [fetchHistory, searchParams])
 

@@ -8,6 +8,7 @@ import { useUserStore } from '../../store'
 import Loading from '../../Loading'
 import Error from '../../Error'
 import { useToast } from '../../components/ToastProvider'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const StatusBar = ({ status, order_id, created_at, post_times }) => {
     const { confirmationOrder, fetchSingleHistory, error, loading } =
@@ -25,8 +26,8 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
     const handlerConfirmationOrder = async () => {
         if (window.confirm('Подтвердить выполнение?')) {
             try {
-                await confirmationOrder(order_id)
-                fetchSingleHistory(order_id)
+                await confirmationOrder(initDataRaw(), order_id)
+                fetchSingleHistory(initDataRaw(), order_id)
                 addToast('Заказ подтверждён!')
             } catch (err) {
                 console.error('Ошибка:', err)

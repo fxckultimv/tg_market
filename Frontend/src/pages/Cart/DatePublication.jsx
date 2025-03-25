@@ -1,8 +1,8 @@
 import React from 'react'
 import Delete from '../../assets/delete.svg'
-import { initData } from '@telegram-apps/sdk-react'
 import { useUserStore } from '../../store'
 import { useToast } from '../../components/ToastProvider'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const DatePublication = ({ item }) => {
     const { fetchCart, deleteDateInCartItem, loading, error } = useUserStore()
@@ -18,11 +18,11 @@ const DatePublication = ({ item }) => {
     const deleteDateButton = async (publicationDate) => {
         try {
             await deleteDateInCartItem(
-                initData.raw(),
+                initDataRaw(),
                 publicationDate,
                 item.cart_item_id
             )
-            await fetchCart(initData.raw())
+            await fetchCart(initDataRaw())
             addToast('Дата удалена!')
         } catch (err) {
             console.log('Ошибка при создании заказа:', error)

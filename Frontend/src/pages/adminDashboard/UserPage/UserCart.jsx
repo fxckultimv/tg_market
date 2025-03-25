@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 import { useAdminStore } from '../../../store'
 import { useParams } from 'react-router-dom'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const UserCart = () => {
     const { carts, fetchCartForUser, loading, error } = useAdminStore()
     const { id } = useParams()
 
     useEffect(() => {
-        fetchCartForUser(id)
+        fetchCartForUser(initDataRaw(), id)
     }, [fetchCartForUser])
 
     if (loading) {

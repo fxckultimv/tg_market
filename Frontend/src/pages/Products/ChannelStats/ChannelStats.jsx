@@ -16,6 +16,7 @@ import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 import Ton from '../../../assets/ton_symbol.svg'
 import check from '../../../assets/check.svg'
 import { useToast } from '../../../components/ToastProvider'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const ChannelStats = () => {
     const { id } = useParams()
@@ -72,9 +73,9 @@ const ChannelStats = () => {
     }, [productDetails, pauseChange])
 
     useEffect(() => {
-        fetchProductDetails(id)
-        fetchCategories()
-        fetchOrderStats(id)
+        fetchProductDetails(initDataRaw(), id)
+        fetchCategories(initDataRaw())
+        fetchOrderStats(initDataRaw(), id)
     }, [pauseChange])
 
     // useEffect(() => {
@@ -141,7 +142,10 @@ const ChannelStats = () => {
             }
 
             try {
-                const result = await updateProductDetails(updatedDetails)
+                const result = await updateProductDetails(
+                    initDataRaw(),
+                    updatedDetails
+                )
                 if (result) {
                     console.log('Изменения успешно сохранены!')
                     addToast('Изменения сохранены!')
@@ -170,7 +174,7 @@ const ChannelStats = () => {
     const handleDelete = async () => {
         if (window.confirm('Вы уверены, что хотите удалить этот продукт?')) {
             try {
-                deleteProduct(id)
+                deleteProduct(initDataRaw(), id)
                 addToast('Товар удален!')
             } catch (err) {
                 console.log('Ошибка при удалении товара', err)
@@ -186,7 +190,7 @@ const ChannelStats = () => {
             try {
                 const newStatus =
                     productDetails.status === 'work' ? 'pause' : 'work'
-                const result = await pauseProduct(id, newStatus)
+                const result = await pauseProduct(initDataRaw(), id, newStatus)
                 if (result) {
                     // Если успешно, обновляем локальное состояние
                     setPauseChange(newStatus)

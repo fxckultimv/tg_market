@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useAdminStore } from '../../../store'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const ProductDetails = () => {
     const { id } = useParams()
@@ -25,7 +26,7 @@ const ProductDetails = () => {
     // }, [backButton])
 
     useEffect(() => {
-        fetchProductsForId(id)
+        fetchProductsForId(initDataRaw(), id)
     }, [fetchProductsForId, id])
 
     const handleDelete = async () => {
@@ -33,7 +34,7 @@ const ProductDetails = () => {
             'Вы уверены, что хотите удалить этот продукт?'
         )
         if (confirmDelete) {
-            await deleteProduct(product.product_id)
+            await deleteProduct(initDataRaw(), product.product_id)
             navigate('/admin/products') // Перенаправление после удаления
         }
     }

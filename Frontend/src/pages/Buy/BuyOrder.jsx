@@ -8,6 +8,7 @@ import Error from '../../Error'
 import { useToast } from '../../components/ToastProvider'
 import duckMoney from '../../assets/duckMoney.webp'
 import BackButton from '../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const BuyOrder = () => {
     const { id } = useParams() // Получаем ID заказа из URL
@@ -25,8 +26,8 @@ const BuyOrder = () => {
 
     // При загрузке компонента проверяем статус заказа
     useEffect(() => {
-        checkingStatus(id)
-        fetchBalance()
+        checkingStatus(initDataRaw(), id)
+        fetchBalance(initDataRaw())
     }, [])
 
     // useEffect(() => {
@@ -48,12 +49,12 @@ const BuyOrder = () => {
     const handleBuyProduct = async () => {
         setIsOrderProcessing(true)
         try {
-            const result = await buyProduct(id)
+            const result = await buyProduct(initDataRaw(), id)
             if (!result) {
                 throw new Error('Покупка не удалась, сервер вернул null')
             }
             // После успешной покупки обновляем статус заказа
-            await checkingStatus(id)
+            await checkingStatus(initDataRaw(), id)
             addToast('Успешно куплено!')
         } catch (err) {
             console.error('Ошибка при покупке:', err)

@@ -3,13 +3,14 @@ import { useAdminStore } from '../../../store'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const UserProducts = () => {
     const { products, fetchProductsForUser, loading, error } = useAdminStore()
     const { id } = useParams()
 
     useEffect(() => {
-        fetchProductsForUser(id)
+        fetchProductsForUser(initDataRaw(), id)
     }, [id])
 
     if (loading) {

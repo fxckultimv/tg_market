@@ -3,6 +3,7 @@ import { useProductStore } from '../../store'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import UserProduct from './UserProduct'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const UserProducts = () => {
     const { id } = useParams()
@@ -18,7 +19,7 @@ const UserProducts = () => {
     } = useProductStore()
 
     useEffect(() => {
-        fetchUserProducts(id)
+        fetchUserProducts(initDataRaw(), id)
     }, [page])
 
     if (loading) {

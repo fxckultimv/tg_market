@@ -6,12 +6,13 @@ import ProductCard from './ProductCard'
 import Loading from '../../../Loading'
 import Error from '../../../Error'
 import BackButton from '../../../components/BackButton'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const Products = () => {
     const { myProducts, fetchMyProducts, loading, error } = useProductStore()
 
     useEffect(() => {
-        fetchMyProducts()
+        fetchMyProducts(initDataRaw())
     }, [fetchMyProducts])
 
     // useEffect(() => {

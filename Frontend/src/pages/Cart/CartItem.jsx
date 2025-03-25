@@ -10,6 +10,7 @@ import { useToast } from '../../components/ToastProvider'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
 import star from '../../assets/star.svg'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const CartItem = ({ cart }) => {
     const navigate = useNavigate()
@@ -47,11 +48,11 @@ const CartItem = ({ cart }) => {
                         const cartItemIds = selectedItems.map(
                             (item) => item.cart_item_id
                         )
-                        await createOrder(cartItemIds)
+                        await createOrder(initDataRaw(), cartItemIds)
 
                         setSelectedProductId(null)
 
-                        await fetchCart()
+                        await fetchCart(initDataRaw())
                         addToast('Товар заказан!')
                         // navigate('/basket')
                     } catch (error) {
@@ -93,11 +94,11 @@ const CartItem = ({ cart }) => {
             // Извлекаем id товаров в корзине
             const cartItemIds = selectedItems.map((item) => item.cart_item_id)
             // Создаем заказ
-            await createOrder(cartItemIds)
+            await createOrder(initDataRaw(), cartItemIds)
             // Сбрасываем выбранный товар после создания заказа
             setSelectedProductId(null)
             // Обновляем корзину
-            await fetchCart()
+            await fetchCart(initDataRaw())
             addToast('Товар заказан!')
 
             // Перенаправляем пользователя на страницу корзины
@@ -139,8 +140,8 @@ const CartItem = ({ cart }) => {
 
     const handleDeleteItem = (productId) => {
         try {
-            deleteCartItem(productId.slice(0, -2))
-            fetchCart()
+            deleteCartItem(initDataRaw(), productId.slice(0, -2))
+            fetchCart(initDataRaw())
             addToast('Товар удалён!')
         } catch (err) {
             console.error('Ошибка при удалении:', err)
