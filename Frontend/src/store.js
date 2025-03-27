@@ -1209,7 +1209,7 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ error: error.message, loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
 }))

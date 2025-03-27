@@ -80,18 +80,17 @@ const App = () => {
     // }, [checkAdmin])
 
     // useEffect(() => {
-    //     const applyFullscreen = async () => {
-    //         // Проверяем доступность метода и что компонент ещё "жив"
-    //         if (viewport?.isAvailable?.('requestFullscreen')) {
-    //             try {
+    //     const enableFullscreen = async () => {
+    //         try {
+    //             if (viewport.requestFullscreen.isAvailable()) {
     //                 await viewport.requestFullscreen()
-    //             } catch (err) {
-    //                 console.warn('Не удалось включить fullscreen:', err)
     //             }
+    //         } catch (err) {
+    //             console.warn('Ошибка при включении fullscreen:', err)
     //         }
     //     }
 
-    //     applyFullscreen()
+    //     enableFullscreen()
     // }, [])
 
     //Кнопка настрек

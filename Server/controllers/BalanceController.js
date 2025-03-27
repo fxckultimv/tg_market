@@ -64,7 +64,7 @@ class BalanceController {
             await transaction.save()
 
             logger.info(
-                `Баланс пополнен для пользователя ${userId}: +${amount} TON`
+                `Баланс пополнен для пользователя ${userId}: +${amount} nanoTON`
             )
             res.json({
                 message: 'Баланс успешно пополнен',
@@ -196,7 +196,7 @@ class BalanceController {
             ])
 
             logger.info(
-                `Покупка завершена. ID покупателя: ${buyerId}, ID продавца: ${sellerId}, Сумма: ${amount} TON, Комиссия: ${fee} TON`
+                `Покупка завершена. ID покупателя: ${buyerId}, ID продавца: ${sellerId}, Сумма: ${amount} nanoTON, Комиссия: ${fee} nanoTON`
             )
             res.json({
                 message: 'Покупка успешно завершена',
@@ -213,6 +213,30 @@ class BalanceController {
             const { amount, toAddress } = req.body
             const userId = req.user._id
 
+            // Валидация amount
+            if (
+                !amount ||
+                isNaN(amount) ||
+                !Number.isInteger(Number(amount)) ||
+                Number(amount) <= 0
+            ) {
+                return res
+                    .status(400)
+                    .json({ error: 'Некорректная сумма вывода' })
+            }
+
+            // Валидация адреса
+            if (
+                !toAddress ||
+                typeof toAddress !== 'string' ||
+                toAddress.length < 48
+            ) {
+                return res
+                    .status(400)
+                    .json({ error: 'Некорректный адрес получателя' })
+            }
+
+            const amountStr = amount.toString() // Всегда строка
             const userBalance = await UserBalance.findOne({ userId })
             if (!userBalance) {
                 return res
@@ -223,7 +247,7 @@ class BalanceController {
             const transaction = new Transaction({
                 userId,
                 type: 'withdrawal',
-                amount: amount,
+                amount: amountStr,
                 fee: 0.1,
                 status: 'pending',
                 details: { toAddress },
@@ -238,11 +262,13 @@ class BalanceController {
                 const sent = await sendTon(
                     MARKET_WALLET_ADDRESS,
                     toAddress,
-                    amount.toString()
+                    amountStr
                 )
                 if (!sent.success) {
                     await userBalance.addBalance(amount)
                     throw new Error(`Не удалось отправить TON: ${sent.error}`)
+                    error.statusCode = 500
+                    throw error
                 }
 
                 transaction.status = 'completed'
@@ -250,7 +276,7 @@ class BalanceController {
                 await transaction.save()
 
                 logger.info(
-                    `Вывод средств завершен. ID пользователя: ${userId}, Сумма: ${amount} TON`
+                    `Вывод средств завершен. ID пользователя: ${userId}, Сумма: ${amount} nanoTON`
                 )
                 res.json({
                     message: 'Вывод средств успешно завершен',

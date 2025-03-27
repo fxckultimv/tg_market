@@ -98,11 +98,12 @@ const Ton = () => {
         // }
 
         try {
-            handleWithdrawal(
+            await handleWithdrawal(
                 initDataRaw(),
                 tonToNanoTon(amountWithdrawal),
                 userFriendlyAddress
             )
+            fetchBalance(initDataRaw())
             addToast('Деньги выведены')
             setAmountWithdrawal('')
         } catch (error) {

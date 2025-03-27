@@ -40,7 +40,9 @@ userBalanceSchema.methods.deductBalance = async function (amount) {
     this.balance -= amount
     try {
         await this.save()
-        logger.info(`Balance deducted for user ${this.userId}: -${amount} TON`)
+        logger.info(
+            `Balance deducted for user ${this.userId}: -${amount} nanoTON`
+        )
         return true
     } catch (error) {
         logger.error(
@@ -51,10 +53,15 @@ userBalanceSchema.methods.deductBalance = async function (amount) {
 }
 
 userBalanceSchema.methods.addBalance = async function (amount) {
-    this.balance += amount
+    const numericAmount = Number(amount)
+    if (isNaN(numericAmount)) {
+        logger.error(`Некорректное число в addBalance: ${amount}`)
+        return false
+    }
+    this.balance += numericAmount
     try {
         await this.save()
-        logger.info(`Balance added for user ${this.userId}: +${amount} TON`)
+        logger.info(`Balance added for user ${this.userId}: +${amount} nanoTON`)
         return true
     } catch (error) {
         logger.error(

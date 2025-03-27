@@ -8,6 +8,7 @@ import StarFull from '../assets/star-full.svg'
 import Balance from './Balance'
 import Ton from './Ton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import ReferralButton from './ReferralButton'
 
 const ProfileLayout = () => {
     const { user, fetchMe, fetchBalance, balance, error, loading } =

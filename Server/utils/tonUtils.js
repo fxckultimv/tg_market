@@ -208,12 +208,23 @@ async function estimateGasFees(wallet, toAddress, amount) {
         const transfer = wallet.methods.transfer({
             secretKey: MARKET_PRIVATE_KEY,
             toAddress: toAddress,
-            amount: TonWeb.utils.toNano(amount),
+            amount: TonWeb.utils.toNano(amount.toString()),
             seqno: await wallet.methods.seqno().call(),
             sendMode: 3,
         })
+
         const estimatedFees = await transfer.estimateFee()
-        return TonWeb.utils.fromNano(estimatedFees.total_account_fees)
+        const fees = estimatedFees.source_fees
+
+        if (!fees) {
+            throw new Error('Нет данных о комиссии в ответе')
+        }
+
+        const totalFee = new TonWeb.utils.BN(
+            fees.in_fwd_fee + fees.storage_fee + fees.gas_fee + fees.fwd_fee
+        )
+
+        return totalFee // BN объект
     } catch (error) {
         logger.error(`Ошибка при оценке комиссии за газ: ${error.message}`)
         throw error
@@ -230,7 +241,6 @@ async function sendTon(fromAddress, toAddress, amount) {
         })
 
         const walletAddress = await wallet.getAddress()
-        console.log('Wallet Address:', walletAddress.toString(true, true, true))
         if (walletAddress.toString(true, true, true) !== fromAddress) {
             throw new Error('Invalid fromAddress')
         }
@@ -238,11 +248,10 @@ async function sendTon(fromAddress, toAddress, amount) {
         const seqno = await wallet.methods.seqno().call()
         logger.info(`Получен seqno: ${seqno}`)
 
-        const gasFees = await estimateGasFees(wallet, toAddress, amount)
-        const amountNano = TonWeb.utils.toNano(amount.toString())
-        const totalAmount = new TonWeb.utils.BN(amountNano).sub(
-            new TonWeb.utils.BN(TonWeb.utils.toNano(gasFees))
-        )
+        const gasFeesBN = await estimateGasFees(wallet, toAddress, amount)
+        const amountNano = amount.toString()
+        const totalAmount = new TonWeb.utils.BN(amountNano).sub(gasFeesBN)
+        console.log('totalAmount (nanoTON):', totalAmount.toString())
 
         const transfer = wallet.methods.transfer({
             secretKey: MARKET_PRIVATE_KEY,
@@ -253,9 +262,12 @@ async function sendTon(fromAddress, toAddress, amount) {
         })
 
         const result = await transfer.send()
+        if (!result || result['@type'] !== 'ok') {
+            throw new Error('Ошибка отправки транзакции: ответ не "ok"')
+        }
         return {
             success: true,
-            transactionHash: result.transaction_id.hash,
+            transactionHash: null,
         }
     } catch (error) {
         logger.error(`Ошибка при отправке TON: ${error.message}`)
