@@ -40,6 +40,7 @@ import { AnimatePresence } from 'framer-motion'
 import AnimatedPage from './components/AnimatedPage'
 import SessionExpiredModal from './components/SessionExpiredModal'
 import Rulers from './pages/Rules/Rules'
+import Referral from './pages/Referral/Referral'
 
 const App = () => {
     const navigate = useNavigate()
@@ -272,6 +273,15 @@ const App = () => {
                                 element={
                                     <AnimatedPage>
                                         <ChannelStats />
+                                    </AnimatedPage>
+                                }
+                            />
+
+                            <Route
+                                path="referral"
+                                element={
+                                    <AnimatedPage>
+                                        <Referral />
                                     </AnimatedPage>
                                 }
                             />

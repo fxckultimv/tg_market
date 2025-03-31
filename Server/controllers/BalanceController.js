@@ -266,7 +266,9 @@ class BalanceController {
                 )
                 if (!sent.success) {
                     await userBalance.addBalance(amount)
-                    throw new Error(`Не удалось отправить TON: ${sent.error}`)
+                    const error = new Error(
+                        `Не удалось отправить TON: ${sent.error}`
+                    )
                     error.statusCode = 500
                     throw error
                 }

@@ -22,6 +22,7 @@ const checkAdminRouter = require('./routes/checkAdmin')
 const adminStatsRouter = require('./routes/adminStats')
 const ChannelsRouter = require('./routes/channels')
 const buyRouter = require('./routes/buy')
+const referralRouter = require('./routes/referral')
 
 const app = express()
 
@@ -56,6 +57,7 @@ app.use('/check_admin', authMiddleware, checkAdminRouter)
 app.use('/admin_stats', authMiddleware, adminStatsRouter)
 app.use('/channels', authMiddleware, ChannelsRouter)
 app.use('/buy', authMiddleware, buyRouter)
+app.use('/referral', authMiddleware, referralRouter)
 
 // обработка ошибок в мидлварях
 app.use((err, req, res, next) => {

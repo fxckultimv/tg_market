@@ -653,7 +653,7 @@ class productController {
         try {
             // Первичная проверка в базе данных
             const checkResult = await db.query(
-                `SELECT o.order_id, o.total_price, o.status,o.user_id AS buyerId, p.user_id, p.title,
+                `SELECT o.order_id, o.total_price, o.status, o.user_id AS buyerId, p.user_id, p.title,
                     ARRAY_AGG(DISTINCT oi.post_time) as post_times
                 FROM orders AS o
                 JOIN orderitems oi ON o.order_id = oi.order_id
@@ -689,10 +689,101 @@ class productController {
                         const sellerId = await getUserIdByTelegramId(
                             order.user_id
                         )
+                        const refCheck = await db.query(
+                            `SELECT referrer_id 
+                               FROM referrals
+                              WHERE referred_id = $1
+                              LIMIT 1`,
+                            [user_id]
+                        )
+                        console.log('buyerID: ', buyerId)
+
+                        const platformCommission = Math.round(amount * 0.07) // комиссия платформы
+                        let referrerShare = 0
+
+                        // Если нашли реферера
+                        if (refCheck.rows.length > 0) {
+                            const referrerId = refCheck.rows[0].referrer_id
+
+                            const referrerTgId = await getUserIdByTelegramId(
+                                refCheck.rows[0].referrer_id
+                            )
+                            console.log('referrerId: ', referrerTgId)
+
+                            const referrerTurnoverResult = await db.query(
+                                `SELECT COALESCE(SUM(partner_commission), 0) AS total_sum
+                                 FROM referral_commissions
+                                 WHERE referrer_id = $1`,
+                                [referrerId]
+                            )
+
+                            const referrerTurnover =
+                                parseFloat(
+                                    referrerTurnoverResult.rows[0].total_sum
+                                ) || 0
+
+                            console.log(referrerTurnoverResult.rows[0])
+
+                            console.log(referrerTurnover)
+
+                            // Вычисляем процент партнёрского вознаграждения в зависимости от оборота
+                            let partnerPercent = 0.5 // по умолчанию 10%
+
+                            if (referrerTurnover >= 100_000_000_000) {
+                                partnerPercent = 0.2
+                            } else if (referrerTurnover >= 25_000_000_000) {
+                                partnerPercent = 0.25
+                            } else if (referrerTurnover >= 10_000_000_000) {
+                                partnerPercent = 0.3
+                            } else if (referrerTurnover >= 5_000_000_000) {
+                                partnerPercent = 0.35
+                            } else if (referrerTurnover >= 1_000_000_000) {
+                                partnerPercent = 0.4
+                            }
+
+                            // Теперь считаем вознаграждение
+                            const referrerShare = Math.round(
+                                platformCommission * partnerPercent
+                            )
+
+                            // Начисляем рефереру
+                            const referrerUpdate =
+                                await UserBalance.findOneAndUpdate(
+                                    { userId: referrerTgId },
+                                    { $inc: { balance: referrerShare } },
+                                    { new: true, runValidators: true }
+                                )
+
+                            // Логгируем транзакцию для реферера (если хотите)
+                            if (referrerUpdate) {
+                                await Transaction.create({
+                                    userId: referrerTgId,
+                                    type: 'purchase',
+                                    amount: referrerShare,
+                                    fee: 0,
+                                    status: 'completed',
+                                    details: { order_id, buyerId },
+                                })
+                            }
+                            await db.query(
+                                `INSERT INTO referral_commissions 
+                                 (order_id, user_id, referrer_id, platform_commission, partner_commission)
+                                 VALUES ($1, $2, $3, $4, $5)`,
+                                [
+                                    order_id,
+                                    user_id,
+                                    referrerId,
+                                    platformCommission,
+                                    referrerShare,
+                                ]
+                            )
+                        }
+
+                        const sellerAmount = amount - platformCommission
 
                         const sellerUpdate = await UserBalance.findOneAndUpdate(
                             { userId: sellerId },
-                            { $inc: { balance: amount } },
+                            { $inc: { balance: sellerAmount } },
                             { new: true, runValidators: true }
                         )
 

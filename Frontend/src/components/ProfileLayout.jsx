@@ -85,6 +85,9 @@ const ProfileLayout = () => {
                         <ProfileCustomLink to="/profile/my_channels">
                             Мои каналы
                         </ProfileCustomLink>
+                        <ProfileCustomLink to="/profile/referral">
+                            Реферальная программа
+                        </ProfileCustomLink>
                         <a
                             href="https://t.me/Stepanusik"
                             className="p-3 rounded-lg hover:text-gray text-text border-[1px] border-gray w-full max-sm:p-2"
@@ -98,7 +101,9 @@ const ProfileLayout = () => {
                         )}{' '}
                     </div>
                 </div>
-                <Outlet />
+                <div className="flex-1">
+                    <Outlet />
+                </div>
             </div>
         </>
     )

@@ -621,6 +621,7 @@ export const useUserStore = create((set) => ({
     reviews: [],
     balance: 0,
     orderInfo: [],
+    referral: [],
     fetchAuth: async (initDataRaw) => {
         set({ loading: true, error: null })
 
@@ -1205,6 +1206,31 @@ export const useUserStore = create((set) => ({
 
             const data = await handleServerResponse(response, set)
             set({ loading: false })
+            return data // Вернем добавленный продукт
+        } catch (error) {
+            set({ error: error.message, loading: false })
+            console.error('Error:', error)
+            throw error
+        }
+    },
+    handleReferral: async (initDataRaw) => {
+        set({ loading: true, error: null })
+
+        try {
+            const response = await fetch('http://localhost:5000/referral', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `tma ${initDataRaw}`,
+                },
+            })
+            // Проверяем, был ли запрос успешным
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const data = await handleServerResponse(response, set)
+            set({ referral: data, loading: false })
             return data // Вернем добавленный продукт
         } catch (error) {
             set({ error: error.message, loading: false })

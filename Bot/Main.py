@@ -23,6 +23,7 @@ from telethon import TelegramClient
 import asyncio
 from fastapi import FastAPI
 from uvicorn import Config, Server
+from uuid import uuid4
 
 app = FastAPI()
 
@@ -96,6 +97,60 @@ async def get_video_id(message: types.Message):
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     user_id = message.from_user.id
+    username = message.from_user.username
+    args = message.get_args()
+
+    referrer_uuid = None
+    
+    if args.startswith("ref_"):
+        referrer_str = args.replace("ref_", "")
+    referrer_uuid = referrer_str  # просто строка (UUID)
+
+    print(referrer_uuid)
+
+    async with db_pool.acquire() as connection:
+        # Пытаемся вставить нового пользователя
+        user = await connection.fetchrow(
+            """
+            INSERT INTO users (user_id, username, user_uuid)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (user_id) DO NOTHING
+            RETURNING *
+            """,
+            user_id, username, str(uuid4())
+        )
+
+
+        # Если пользователь только что зарегистрировался и есть реферер — добавляем в referrals
+        # if user and referrer_id and referrer_id != user_id:
+        # if  referrer_id :
+        if not user:
+            user = await connection.fetchrow(
+                "SELECT * FROM users WHERE user_id = $1",
+                user_id
+            )
+
+        # Теперь точно есть user['user_uuid']
+        print("User UUID:", user['user_uuid'])
+
+        # Проверка на реферера
+        if referrer_uuid:
+            if str(referrer_uuid) == str(user['user_uuid']):
+                await message.answer("❗ Нельзя использовать свою собственную реферальную ссылку.")
+                return
+
+
+            await connection.execute(
+                """
+                INSERT INTO referrals (referrer_id, referred_id)
+                VALUES (
+                    (SELECT user_id FROM users WHERE user_uuid = $1),
+                    $2
+                )
+                ON CONFLICT DO NOTHING;
+                """,
+                referrer_uuid, user_id
+            )
 
     inline_keyboard = InlineKeyboardMarkup().add(
         InlineKeyboardButton("Биржа", web_app=types.WebAppInfo(url="https://marusinohome.ru"))  # Замени ссылку
@@ -202,7 +257,8 @@ async def user_profile(message: types.Message):
     try:
         async with db_pool.acquire() as connection:
             user = await connection.fetchrow(
-                "SELECT * FROM users WHERE user_id = $1", user_id
+            'SELECT u.*, COUNT(r.referred_id) AS referral_count FROM users AS u LEFT JOIN referrals r ON u.user_id = r.referrer_id WHERE u.user_id = $1 GROUP BY u.user_id',
+                 user_id
             )
 
         if user:
@@ -213,11 +269,15 @@ async def user_profile(message: types.Message):
                 f"💰 <b>Баланс:</b> 10 TON\n"
                 f"📅 <b>Дата регистрации:</b> {user['created_at'].strftime('%d.%m.%Y')}\n"
                 f"🛠 <b>Статус:</b> {user['rating']}\n"
+                f"   <b>Рефералов:</b> {user['referral_count']}\n"
             )
+
+            ref_link = f"https://t.me/Meta_Stock_Market_bot?start=ref_{user['user_uuid']}"
 
             # Создаём inline-кнопку "Сменить фото"
             keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
-                [types.InlineKeyboardButton(text="🖼 Сменить фото", callback_data="change_photo")]
+                [types.InlineKeyboardButton(text="🖼 Сменить фото", callback_data="change_photo")],
+                [types.InlineKeyboardButton(text="🔗 Скопировать реферальную ссылку", switch_inline_query=ref_link)]
             ])
 
             await message.answer(response, reply_markup=keyboard, parse_mode="HTML")
