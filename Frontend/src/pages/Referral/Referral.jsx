@@ -6,9 +6,24 @@ import { useEffect } from 'react'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import Loading from '../../Loading'
 import Error from '../../Error'
+import { useState } from 'react'
 
 const Referral = () => {
-    const { referral, handleReferral, error, loading } = useUserStore()
+    const { user, referral, handleReferral, error, loading } = useUserStore()
+    const [copied, setCopied] = useState(false)
+
+    const handleCopy = () => {
+        const link = `https://t.me/Meta_Stock_Market_bot?start=ref_${user.user_uuid}`
+        navigator.clipboard
+            .writeText(link)
+            .then(() => {
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+            })
+            .catch(() => {
+                alert('Не удалось скопировать ссылку')
+            })
+    }
 
     useEffect(() => {
         handleReferral(initDataRaw())
@@ -23,7 +38,19 @@ const Referral = () => {
     }
 
     if (!referral || !referral.payments || referral.payments.length === 0) {
-        return <div>Нет выплат</div>
+        return (
+            <div className="flex flex-col items-center justify-center gap-4">
+                <p className="text-2xl ">
+                    У вас нету выплат по реферальной системе
+                </p>
+                <button
+                    onClick={handleCopy}
+                    className="p-2 bg-blue rounded-xl text-black"
+                >
+                    Ваша ссылка
+                </button>
+            </div>
+        )
     }
 
     return (

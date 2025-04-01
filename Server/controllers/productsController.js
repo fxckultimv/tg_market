@@ -703,12 +703,12 @@ class productController {
 
                         // Если нашли реферера
                         if (refCheck.rows.length > 0) {
-                            const referrerId = refCheck.rows[0].referrer_id
+                            const referrerTgId = refCheck.rows[0].referrer_id
 
-                            const referrerTgId = await getUserIdByTelegramId(
+                            const referrerId = await getUserIdByTelegramId(
                                 refCheck.rows[0].referrer_id
                             )
-                            console.log('referrerId: ', referrerTgId)
+                            console.log('referrerId: ', referrerId)
 
                             const referrerTurnoverResult = await db.query(
                                 `SELECT COALESCE(SUM(partner_commission), 0) AS total_sum
@@ -721,10 +721,6 @@ class productController {
                                 parseFloat(
                                     referrerTurnoverResult.rows[0].total_sum
                                 ) || 0
-
-                            console.log(referrerTurnoverResult.rows[0])
-
-                            console.log(referrerTurnover)
 
                             // Вычисляем процент партнёрского вознаграждения в зависимости от оборота
                             let partnerPercent = 0.5 // по умолчанию 10%
@@ -749,7 +745,7 @@ class productController {
                             // Начисляем рефереру
                             const referrerUpdate =
                                 await UserBalance.findOneAndUpdate(
-                                    { userId: referrerTgId },
+                                    { userId: referrerId },
                                     { $inc: { balance: referrerShare } },
                                     { new: true, runValidators: true }
                                 )
@@ -757,7 +753,7 @@ class productController {
                             // Логгируем транзакцию для реферера (если хотите)
                             if (referrerUpdate) {
                                 await Transaction.create({
-                                    userId: referrerTgId,
+                                    userId: referrerId,
                                     type: 'purchase',
                                     amount: referrerShare,
                                     fee: 0,
