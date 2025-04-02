@@ -18,4 +18,7 @@ router.post('/buy_all_cart', ordersController.buyAllItems)
 // Покупка конкретного товара из корзины
 router.post('/buy', ordersController.buyItem)
 
+// Добавление отзыва
+router.post('/review', ordersController.addReview)
+
 module.exports = router

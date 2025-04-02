@@ -8,6 +8,7 @@ import Error from '../../Error'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import Feedback from './Feedback'
 
 const SingleHistory = () => {
     const { order_id } = useParams()
@@ -18,22 +19,6 @@ const SingleHistory = () => {
             fetchSingleHistory(initDataRaw(), order_id)
         }
     }, [order_id, fetchSingleHistory])
-
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //         }
-    //     }
-    // }, [backButton])
 
     if (loading) {
         return <Loading />
@@ -106,6 +91,8 @@ const SingleHistory = () => {
                         </div>
                     ))}
             </div>
+            {singleHistory.status === 'completed' &&
+                !singleHistory.review_id && <Feedback order_id={order_id} />}
         </>
     )
 }

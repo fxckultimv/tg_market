@@ -1238,6 +1238,41 @@ export const useUserStore = create((set) => ({
             throw error
         }
     },
+    addReview: async (initDataRaw, order_id, rating, comment) => {
+        set({ loading: true, error: null })
+        try {
+            const response = await fetch(
+                'http://localhost:5000/orders/review',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({ order_id, rating, comment }),
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`)
+            }
+
+            const data = await handleServerResponse(response, set)
+            set({ loading: false, error: null })
+            return data
+        } catch (error) {
+            set((state) => {
+                console.log('Setting state:', {
+                    error: error.message,
+                    loading: false,
+                })
+                return { error: error.message, loading: false }
+            })
+
+            console.error('Error:', error)
+            return null
+        }
+    },
 }))
 
 export const useProductStore = create((set, get) => ({

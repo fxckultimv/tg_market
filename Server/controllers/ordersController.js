@@ -275,6 +275,69 @@ class ordersController {
             res.status(500).json({ error: 'Database error' })
         }
     }
+
+    async addReview(req, res) {
+        const initData = res.locals.initData
+        const user_id = initData.user.id
+        const { order_id, rating, comment } = req.body
+
+        if (!order_id) {
+            return res.status(400).json('Order id not found')
+        }
+
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).json('Некорректный рейтинг')
+        }
+
+        try {
+            const existingReview = await db.query(
+                `SELECT * FROM reviews WHERE user_id = $1 AND order_id = $2`,
+                [user_id, order_id]
+            )
+
+            if (existingReview.rows.length > 0) {
+                return res.status(400).json('Review уже существует')
+            }
+
+            // Получаем seller_id по order_id
+            const sellerResult = await db.query(
+                `SELECT p.user_id AS seller_id, o.status 
+                 FROM orderitems oi 
+                 JOIN products p ON oi.product_id = p.product_id 
+                 JOIN orders o ON o.order_id = oi.order_id
+                 WHERE oi.order_id = $1 AND o.user_id = $2
+                 LIMIT 1`,
+                [order_id, user_id]
+            )
+
+            if (sellerResult.rows.length === 0) {
+                return res
+                    .status(404)
+                    .json('Продавец не найден для этого заказа')
+            }
+
+            const { seller_id, status } = sellerResult.rows[0]
+
+            if (status !== 'completed') {
+                return res
+                    .status(400)
+                    .json(
+                        'Вы можете оставить отзыв только после выполнения заказа'
+                    )
+            }
+
+            const addReview = await db.query(
+                `INSERT INTO reviews (seller_id, user_id, rating, comment, order_id) 
+                 VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+                [seller_id, user_id, rating, comment, order_id]
+            )
+
+            res.json(addReview.rows[0])
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
 }
 
 module.exports = new ordersController()
