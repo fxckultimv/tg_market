@@ -452,9 +452,20 @@ const CreateAd = () => {
                                             className="bg-info-box w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
                                             placeholder="Введите цену"
                                             value={price}
-                                            onChange={(e) =>
-                                                setPrice(e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value
+
+                                                // Разрешаем только числа с максимум двумя знаками после точки/запятой
+                                                const formatted =
+                                                    value
+                                                        .replace(',', '.')
+                                                        .match(
+                                                            /^\d*\.?\d{0,2}/
+                                                        )?.[0] || ''
+
+                                                setPrice(formatted)
+                                            }}
+                                            min="0"
                                             style={{
                                                 appearance: 'textfield',
                                             }}

@@ -23,7 +23,7 @@ mainButton.mount()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <TonConnectUIProvider
-        manifestUrl="https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json"
+        manifestUrl="https://marusinohome.ru/tonconnect-manifest.json"
         uiPreferences={{ theme: 'SYSTEM' }}
     >
         <StrictMode acceptCustomStyles debug>

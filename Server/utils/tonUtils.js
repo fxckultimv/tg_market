@@ -259,6 +259,7 @@ async function sendTon(fromAddress, toAddress, amount) {
             amount: totalAmount,
             seqno: seqno,
             sendMode: 3,
+            payload: 'Биржа Carrot🥕',
         })
 
         const result = await transfer.send()

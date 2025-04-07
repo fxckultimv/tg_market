@@ -120,6 +120,21 @@ class CartController {
                     .status(404)
                     .json({ error: 'Post_time is not valide' })
             }
+            // Проверяем, что пользователь не пытается заказать свой же продукт
+            const productOwnerResult = await db.query(
+                `SELECT user_id FROM products WHERE product_id = $1`,
+                [product_id]
+            )
+
+            if (
+                productOwnerResult.rows.length === 0 ||
+                productOwnerResult.rows[0].user_id == user_id
+            ) {
+                return res.status(403).json({
+                    error: 'Вы не можете заказать свой собственный продукт',
+                })
+            }
+
             // Ищем корзину пользователя
             let result = await db.query(
                 `SELECT cart_id FROM cart WHERE user_id = $1 LIMIT 1`,

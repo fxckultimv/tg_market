@@ -103,54 +103,54 @@ async def send_welcome(message: types.Message):
     referrer_uuid = None
     
     if args.startswith("ref_"):
-        referrer_str = args.replace("ref_", "")
-    referrer_uuid = referrer_str  # просто строка (UUID)
-
-    print(referrer_uuid)
+        referrer_uuid = args.replace("ref_", "")
 
     async with db_pool.acquire() as connection:
-        # Пытаемся вставить нового пользователя
+        # Проверка: существует ли уже пользователь
         user = await connection.fetchrow(
-            """
-            INSERT INTO users (user_id, username, user_uuid)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (user_id) DO NOTHING
-            RETURNING *
-            """,
-            user_id, username, str(uuid4())
+            "SELECT * FROM users WHERE user_id = $1",
+            user_id
         )
 
-
-        # Если пользователь только что зарегистрировался и есть реферер — добавляем в referrals
-        # if user and referrer_id and referrer_id != user_id:
-        # if  referrer_id :
+        # Если пользователь не существует — регистрируем
         if not user:
+            new_uuid = str(uuid4())
             user = await connection.fetchrow(
-                "SELECT * FROM users WHERE user_id = $1",
-                user_id
-            )
-
-        # Теперь точно есть user['user_uuid']
-        print("User UUID:", user['user_uuid'])
-
-        # Проверка на реферера
-        if referrer_uuid:
-            if str(referrer_uuid) == str(user['user_uuid']):
-                await message.answer("❗ Нельзя использовать свою собственную реферальную ссылку.")
-                return
-
-
-            await connection.execute(
                 """
-                INSERT INTO referrals (referrer_id, referred_id)
-                VALUES (
-                    (SELECT user_id FROM users WHERE user_uuid = $1),
-                    $2
-                )
-                ON CONFLICT DO NOTHING;
+                INSERT INTO users (user_id, username, user_uuid)
+                VALUES ($1, $2, $3)
+                RETURNING *
                 """,
-                referrer_uuid, user_id
+                user_id, username, new_uuid
             )
+
+            print(f"🆕 Новый пользователь: {user['user_uuid']}")
+
+            # Если был передан реферал — регистрируем его
+            if referrer_uuid:
+                # Защита от самореферала
+                if referrer_uuid == user['user_uuid']:
+                    await message.answer("❗ Нельзя использовать свою собственную реферальную ссылку.")
+                    return
+
+                # Пробуем найти реферера по UUID
+                referrer = await connection.fetchrow(
+                    "SELECT user_id FROM users WHERE user_uuid = $1",
+                    referrer_uuid
+                )
+
+                if referrer:
+                    await connection.execute(
+                        """
+                        INSERT INTO referrals (referrer_id, referred_id)
+                        VALUES ($1, $2)
+                        ON CONFLICT DO NOTHING
+                        """,
+                        referrer['user_id'], user_id
+                    )
+                    print(f"👥 Реферал: {referrer['user_id']} → {user_id}")
+                else:
+                    print("❌ Реферер с таким UUID не найден.")
 
     inline_keyboard = InlineKeyboardMarkup().add(
         InlineKeyboardButton("Биржа", web_app=types.WebAppInfo(url="https://marusinohome.ru"))  # Замени ссылку

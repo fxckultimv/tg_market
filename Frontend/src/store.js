@@ -683,7 +683,17 @@ export const useUserStore = create((set) => ({
             )
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -694,7 +704,7 @@ export const useUserStore = create((set) => ({
                 error: 'Ошибка при авторизации',
                 loading: false,
             })
-            // navigate('/')
+            throw error
         }
     },
     fetchCategories: async (initDataRaw) => {
@@ -713,13 +723,24 @@ export const useUserStore = create((set) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ categories: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     fetchFormats: async (initDataRaw) => {
@@ -738,13 +759,24 @@ export const useUserStore = create((set) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ formats: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     fetchVerifiedChannels: async (initDataRaw) => {
@@ -764,7 +796,17 @@ export const useUserStore = create((set) => ({
             }
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -773,7 +815,7 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     fetchHistory: async (initDataRaw, status, limit, offset) => {
@@ -797,7 +839,17 @@ export const useUserStore = create((set) => ({
             }
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -806,7 +858,7 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     appendHistory: async (initDataRaw, status, limit, offset) => {
@@ -826,7 +878,17 @@ export const useUserStore = create((set) => ({
             })
 
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -838,7 +900,7 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     fetchSingleHistory: async (initDataRaw, order_id) => {
@@ -860,14 +922,24 @@ export const useUserStore = create((set) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ singleHistory: data, loading: false, error: null })
         } catch (error) {
             set({ error: error.message, loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     addProduct: async (
@@ -900,7 +972,17 @@ export const useUserStore = create((set) => ({
 
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -909,7 +991,7 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ error: error.message, loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     createOrder: async (initDataRaw, cart_item_ids) => {
@@ -924,7 +1006,17 @@ export const useUserStore = create((set) => ({
             })
 
             if (!response.ok) {
-                throw new Error('Ошибка при создании заказа')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -946,7 +1038,17 @@ export const useUserStore = create((set) => ({
             })
 
             if (!response.ok) {
-                throw new Error('Ошибка при удалении товара')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -978,7 +1080,17 @@ export const useUserStore = create((set) => ({
             )
 
             if (!response.ok) {
-                throw new Error('Ошибка при удалении даты товара')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1001,7 +1113,17 @@ export const useUserStore = create((set) => ({
             })
 
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1017,7 +1139,7 @@ export const useUserStore = create((set) => ({
             })
 
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     checkingStatus: async (initDataRaw, order_id) => {
@@ -1043,7 +1165,17 @@ export const useUserStore = create((set) => ({
 
             // Проверка успешности запроса
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1053,7 +1185,7 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ error: error.message, loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     fetchUser: async (initDataRaw, id) => {
@@ -1068,13 +1200,24 @@ export const useUserStore = create((set) => ({
             })
 
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     fetchMe: async (initDataRaw) => {
@@ -1090,13 +1233,24 @@ export const useUserStore = create((set) => ({
             })
 
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     fetchReviews: async (initDataRaw, id) => {
@@ -1115,13 +1269,24 @@ export const useUserStore = create((set) => ({
             )
 
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ reviews: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     confirmationOrder: async (initDataRaw, id) => {
@@ -1139,13 +1304,24 @@ export const useUserStore = create((set) => ({
             )
 
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     topUpBalance: async (initDataRaw, amount, address, boc) => {
@@ -1169,7 +1345,17 @@ export const useUserStore = create((set) => ({
             )
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1178,7 +1364,7 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ error: error.message, loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     handleWithdrawal: async (initDataRaw, amount, address) => {
@@ -1201,7 +1387,17 @@ export const useUserStore = create((set) => ({
             )
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1226,7 +1422,17 @@ export const useUserStore = create((set) => ({
             })
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1254,23 +1460,26 @@ export const useUserStore = create((set) => ({
             )
 
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
             set({ loading: false, error: null })
             return data
         } catch (error) {
-            set((state) => {
-                console.log('Setting state:', {
-                    error: error.message,
-                    loading: false,
-                })
-                return { error: error.message, loading: false }
-            })
-
+            set({ error: error.message, loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
 }))
@@ -1291,7 +1500,7 @@ export const useProductStore = create((set, get) => ({
     totalProducts: 1,
     filters: {
         category: '',
-        priceRange: [0, 10000],
+        priceRange: [0, 1000000000000000000],
         sort: 'desc',
     },
     formatNames: {
@@ -1342,6 +1551,19 @@ export const useProductStore = create((set, get) => ({
                     },
                 }
             )
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
 
             const data = await handleServerResponse(response, set)
 
@@ -1354,6 +1576,7 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Error fetching products:', error)
             set({ products: [], isLoading: false })
+            throw error
         }
     },
     fetchProductDetails: async (initDataRaw, productId) => {
@@ -1372,7 +1595,17 @@ export const useProductStore = create((set, get) => ({
             )
 
             if (!response.ok) {
-                throw new Error('Failed to fetch product details')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1380,6 +1613,7 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Error fetching product details:', error)
             set({ error: error.message, loading: false })
+            throw error
         }
     },
     updateProductDetails: async (initDataRaw, updatedDetails) => {
@@ -1399,7 +1633,17 @@ export const useProductStore = create((set, get) => ({
             )
             // Проверяем, был ли запрос успешным
             if (!response.ok) {
-                throw new Error(`Ошибка сервера: ${response.status}`)
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1408,7 +1652,7 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             set({ error: error.message, loading: false })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     fetchUserProducts: async (initDataRaw, user_uuid) => {
@@ -1445,6 +1689,20 @@ export const useProductStore = create((set, get) => ({
                 }
             )
 
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+
             const data = await handleServerResponse(response, set)
 
             set({
@@ -1455,6 +1713,7 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Error fetching products:', error)
             set({ userProducts: [], isLoading: false })
+            throw error
         }
     },
     fetchMyProducts: async (initDataRaw) => {
@@ -1468,6 +1727,19 @@ export const useProductStore = create((set, get) => ({
                     Authorization: `tma ${initDataRaw}`,
                 },
             })
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
 
             const data = await handleServerResponse(response, set)
 
@@ -1479,7 +1751,7 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Error fetching products:', error)
             set({ myProducts: [], isLoading: false })
-            return null
+            throw error
         }
     },
     fetchBusyDay: async (initDataRaw, productId) => {
@@ -1503,7 +1775,17 @@ export const useProductStore = create((set, get) => ({
             }
 
             if (!response.ok) {
-                throw new Error('Failed to fetch product details')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1516,6 +1798,7 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Error fetching product details:', error)
             set({ error: error.message, loading: false })
+            throw error
         }
     },
     fetchCategories: async (initDataRaw) => {
@@ -1535,13 +1818,24 @@ export const useProductStore = create((set, get) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ categories: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     fetchOrderStats: async (initDataRaw, id) => {
@@ -1564,13 +1858,24 @@ export const useProductStore = create((set, get) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ order_stats: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     addToCart: async (initDataRaw, cartInfo) => {
@@ -1591,13 +1896,24 @@ export const useProductStore = create((set, get) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = 'Ошибка при добавлении в корзину'
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ответа:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ loading: false })
         } catch (error) {
-            set({ loading: false, error: true })
+            set({ loading: false, error: error })
             console.error('Error:', error)
+            throw error
         }
     },
     createOrder: async (initDataRaw, cart_item_ids) => {
@@ -1612,7 +1928,17 @@ export const useProductStore = create((set, get) => ({
             })
 
             if (!response.ok) {
-                throw new Error('Ошибка при создании заказа')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
 
             const data = await handleServerResponse(response, set)
@@ -1638,13 +1964,24 @@ export const useProductStore = create((set, get) => ({
             )
 
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ reviews: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
+            throw error
         }
     },
     pauseProduct: async (initDataRaw, id, status) => {
@@ -1663,7 +2000,17 @@ export const useProductStore = create((set, get) => ({
                 }
             )
             if (!response.ok) {
-                throw new Error('Ошибка при изменении статуса продукта')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ loading: false })
@@ -1674,6 +2021,7 @@ export const useProductStore = create((set, get) => ({
                 error: 'Ошибка при изменении статуса продукта',
                 loading: false,
             })
+            throw error
         }
     },
     deleteProduct: async (initDataRaw, id) => {
@@ -1691,7 +2039,17 @@ export const useProductStore = create((set, get) => ({
                 }
             )
             if (!response.ok) {
-                throw new Error('Ошибка при удалении продукта')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set((state) => ({
@@ -1703,6 +2061,7 @@ export const useProductStore = create((set, get) => ({
         } catch (error) {
             console.error('Ошибка при удалении продукта:', error)
             set({ error: 'Ошибка при удалении продукта', loading: false })
+            throw error
         }
     },
 }))

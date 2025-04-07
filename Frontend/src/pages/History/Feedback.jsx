@@ -5,7 +5,7 @@ import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const Feedback = ({ order_id }) => {
     const { addToast } = useToast()
-    const { addReview } = useUserStore()
+    const { addReview, fetchSingleHistory } = useUserStore()
     const [rating, setRating] = useState(0)
     const [comment, setComment] = useState('')
     const [submitted, setSubmitted] = useState(false)
@@ -17,6 +17,7 @@ const Feedback = ({ order_id }) => {
 
         setSubmitted(false)
         addToast('Спасибо за отзыв')
+        fetchSingleHistory(initDataRaw(), order_id)
     }
 
     const handleClose = () => {
@@ -79,6 +80,7 @@ const Feedback = ({ order_id }) => {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     rows={2}
+                    maxLength={256}
                 ></textarea>
 
                 {/* Кнопка отправки */}

@@ -289,6 +289,12 @@ class ordersController {
             return res.status(400).json('Некорректный рейтинг')
         }
 
+        if (comment && comment.length > 256) {
+            return res
+                .status(400)
+                .json('Комментарий должен быть не длиннее 256 символов')
+        }
+
         try {
             const existingReview = await db.query(
                 `SELECT * FROM reviews WHERE user_id = $1 AND order_id = $2`,

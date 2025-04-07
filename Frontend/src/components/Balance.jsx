@@ -6,7 +6,7 @@ const Balance = ({ balance }) => {
     return (
         <div className="flex">
             <p className=" border-2 border-green rounded-xl p-2 text-base">
-                Баланс: {nanoTonToTon(balance)} Ton
+                Баланс: {nanoTonToTon(balance).toFixed(2)} Ton
             </p>
         </div>
     )

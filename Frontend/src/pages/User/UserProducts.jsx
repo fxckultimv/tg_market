@@ -20,7 +20,7 @@ const UserProducts = () => {
 
     useEffect(() => {
         fetchUserProducts(initDataRaw(), id)
-    }, [page])
+    }, [])
 
     if (loading) {
         return (

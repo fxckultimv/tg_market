@@ -23,6 +23,8 @@ const Ton = () => {
     const wallet = useTonWallet()
     const [amount, setAmount] = useState('')
     const [amountWithdrawal, setAmountWithdrawal] = useState('')
+    const [useConnectedWallet, setUseConnectedWallet] = useState(true)
+    const [customAddress, setCustomAddress] = useState('')
 
     const [tonConnectUI, setOptions] = useTonConnectUI()
     useEffect(() => {
@@ -87,25 +89,30 @@ const Ton = () => {
             return
         }
 
+        const addressToUse = useConnectedWallet
+            ? userFriendlyAddress
+            : customAddress.trim()
+
+        if (!addressToUse) {
+            addToast('Введите адрес кошелька для вывода.', 'error')
+            return
+        }
+
         if (wallet.account.chain === CHAIN.MAINNET) {
             addToast('Подключите TestNet кошелёк.', 'error')
             return
         }
 
-        // if (wallet.account.chain === CHAIN.TESTNET) {
-        //     addToast('Подключите MainNet кошелёк.', 'error')
-        //     return
-        // }
-
         try {
             await handleWithdrawal(
                 initDataRaw(),
                 tonToNanoTon(amountWithdrawal),
-                userFriendlyAddress
+                addressToUse
             )
             fetchBalance(initDataRaw())
             addToast('Деньги выведены')
             setAmountWithdrawal('')
+            setCustomAddress('')
         } catch (error) {
             console.error('Ошибка при отправке транзакции:', error)
             addToast('Ошибка при выводе денег', 'error')
@@ -151,22 +158,45 @@ const Ton = () => {
                     Пополнить
                 </button>
             </div>
-            <div className="flex justify-between items-center m-2 gap-1">
-                {/* Кнопка для вывода ton */}
-                <input
-                    type="number"
-                    min={0.1}
-                    placeholder="Введите сумму"
-                    value={amountWithdrawal}
-                    onChange={(e) => setAmountWithdrawal(e.target.value)}
-                    className="border p-2 rounded-lg min-w-10 text-black w-2/3"
-                />
-                <button
-                    onClick={Withdrawal}
-                    className="bg-blue rounded-xl p-2 w-1/3"
-                >
-                    Вывести
-                </button>
+            {/* Вывод */}
+            <div className="m-2 flex flex-col gap-2">
+                <div className="flex gap-2 items-center">
+                    <input
+                        type="number"
+                        min={0.1}
+                        placeholder="Введите сумму"
+                        value={amountWithdrawal}
+                        onChange={(e) => setAmountWithdrawal(e.target.value)}
+                        className="border p-2 rounded-lg text-black w-2/3"
+                    />
+                    <button
+                        onClick={Withdrawal}
+                        className="bg-blue rounded-xl p-2 w-1/3"
+                    >
+                        Вывести
+                    </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={useConnectedWallet}
+                        onChange={() =>
+                            setUseConnectedWallet(!useConnectedWallet)
+                        }
+                    />
+                    <label>Вывести на привязанный кошелёк</label>
+                </div>
+
+                {!useConnectedWallet && (
+                    <input
+                        type="text"
+                        placeholder="Введите адрес кошелька"
+                        value={customAddress}
+                        onChange={(e) => setCustomAddress(e.target.value)}
+                        className="border p-2 rounded-lg text-black w-full"
+                    />
+                )}
             </div>
         </>
     )

@@ -1,17 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useProductStore } from '../../store'
 import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
-import { Link } from 'react-router-dom'
 import Loading from '../../Loading'
 import Error from '../../Error'
 import { useNavigate } from 'react-router-dom'
 import arrowDown from '../../assets/chevron-down-gray.svg'
 import star from '../../assets/star.svg'
 import InfoBox from '../../components/InfoBox'
-import { motion } from 'framer-motion'
-import { AnimatePresence } from 'framer-motion'
-import { useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const ChannelsList = () => {
     const { products, page, totalPages, plusPage, minusPage, loading, error } =

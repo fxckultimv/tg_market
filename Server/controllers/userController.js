@@ -44,7 +44,7 @@ class userController {
 
         try {
             const result = await db.query(
-                'SELECT r.review_id, r.rating, r.comment, r.created_at FROM reviews AS r JOIN users u ON u.user_id = r.user_id WHERE u.user_uuid = $1',
+                'SELECT r.review_id, r.rating, r.comment, r.created_at FROM reviews AS r JOIN users u ON u.user_id = r.seller_id WHERE u.user_uuid = $1',
                 [uuid]
             )
             if (result.rows.length > 0) {

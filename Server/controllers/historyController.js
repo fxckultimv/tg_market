@@ -49,17 +49,17 @@ class historyController {
         try {
             const result = await db.query(
                 `SELECT o.order_id,  o.total_price, o.status, o.created_at, 
-	oi.product_id, oi.price,ARRAY_AGG(DISTINCT oi.post_time) as post_times, oi.format, oi.quantity, vc.channel_tg_id,
-	vc.channel_url, vc.channel_title, r.review_id
-FROM orders AS o
-JOIN orderitems oi ON o.order_id = oi.order_id
-JOIN products p ON oi.product_id = p.product_id
-JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
-LEFT JOIN reviews r ON o.order_id = r.order_id
-WHERE o.order_id = $1 AND o.user_id = $2
-GROUP BY o.order_id, o.total_price, o.status, o.created_at, 
-	oi.product_id, oi.price, oi.format, oi.quantity, vc.channel_tg_id,
-	vc.channel_url, vc.channel_title, r.review_id
+	            oi.product_id, oi.price,ARRAY_AGG(DISTINCT oi.post_time) as post_times, oi.format, oi.quantity, vc.channel_tg_id,
+	            vc.channel_url, vc.channel_title, r.review_id
+                FROM orders AS o
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON oi.product_id = p.product_id
+                JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
+                LEFT JOIN reviews r ON o.order_id = r.order_id
+                WHERE o.order_id = $1 AND o.user_id = $2
+                GROUP BY o.order_id, o.total_price, o.status, o.created_at, 
+	            oi.product_id, oi.price, oi.format, oi.quantity, vc.channel_tg_id,
+	            vc.channel_url, vc.channel_title, r.review_id
                  `,
                 [id, user_id]
             )

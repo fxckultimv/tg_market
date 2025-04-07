@@ -12,12 +12,14 @@ import Loading from '../../Loading'
 import InfoBox from '../../components/InfoBox'
 import Ton from '../../assets/ton_symbol.svg'
 import star from '../../assets/star.svg'
+import { useToast } from '../../components/ToastProvider'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const ChannelDetails = () => {
     const navigate = useNavigate()
+    const { addToast } = useToast()
     const [searchParams, setSearchParams] = useSearchParams()
     const {
         productDetails,
@@ -83,23 +85,6 @@ const ChannelDetails = () => {
         }
     }, [post_time, selectedDates])
 
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //             mainButton.hide()
-    //         }
-    //     }
-    // }, [backButton])
-
     useEffect(() => {
         if (!productDetails) return
 
@@ -132,7 +117,11 @@ const ChannelDetails = () => {
                 // Перенаправление
                 navigate('/basket')
             } catch (error) {
+                const message =
+                    error?.message ||
+                    'Произошла ошибка при добавлении в корзину'
                 console.error('Ошибка при добавлении в корзину:', error)
+                addToast(message, 'error')
             }
         }
         // Установка параметров кнопки
@@ -251,26 +240,6 @@ const ChannelDetails = () => {
               ? 'bg-light-gray bg'
               : ''
     }
-
-    // const handleScroll = () => {
-    //     const windowHeight =
-    //         'innerHeight' in window
-    //             ? window.innerHeight
-    //             : document.documentElement.offsetHeight
-    //     const body = document.body
-    //     const html = document.documentElement
-    //     const docHeight = Math.max(
-    //         body.scrollHeight,
-    //         body.offsetHeight,
-    //         html.clientHeight,
-    //         html.scrollHeight,
-    //         html.offsetHeight
-    //     )
-    //     const windowBottom = windowHeight + window.pageYOffset
-    //     if (windowBottom >= docHeight) {
-    //         console.log('Reached the bottom!')
-    //     }
-    // }
 
     if (loading) {
         return <Loading />

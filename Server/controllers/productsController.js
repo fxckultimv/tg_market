@@ -318,7 +318,7 @@ class productController {
 
         try {
             const result = await db.query(
-                `SELECT p.*, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, u.username,
+                `SELECT p.product_id, p.category_id, p.title,  p.description, p.price, p.post_time, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, u.username,
                 COALESCE(ARRAY_AGG(DISTINCT ppf.format_id), ARRAY[]::INTEGER[]) AS format_ids, COALESCE(ARRAY_AGG(DISTINCT ppt.post_time), ARRAY[]::time with time zone[]) AS post_times
                 FROM products p
                 LEFT JOIN verifiedchannels v ON p.channel_id = v.channel_id
@@ -714,7 +714,7 @@ class productController {
                                 `SELECT COALESCE(SUM(partner_commission), 0) AS total_sum
                                  FROM referral_commissions
                                  WHERE referrer_id = $1`,
-                                [referrerId]
+                                [referrerTgId]
                             )
 
                             const referrerTurnover =
@@ -768,7 +768,7 @@ class productController {
                                 [
                                     order_id,
                                     user_id,
-                                    referrerId,
+                                    referrerTgId,
                                     platformCommission,
                                     referrerShare,
                                 ]

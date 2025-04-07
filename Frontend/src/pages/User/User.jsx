@@ -15,22 +15,6 @@ const User = () => {
     const { user, fetchUser, error, loading } = useUserStore()
     const [activeTab, setActiveTab] = useState('products')
 
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //         }
-    //     }
-    // }, [backButton])
-
     useEffect(() => {
         fetchUser(initDataRaw(), id)
     }, [])
@@ -81,15 +65,9 @@ const User = () => {
                         Отзывы
                     </button>
                 </div>
-
-                {/* Display content based on the active tab */}
-                <div className="mt-4">
-                    {activeTab === 'products' ? (
-                        <UserProducts />
-                    ) : (
-                        <UserReviews />
-                    )}
-                </div>
+            </div>
+            <div className="mt-4">
+                {activeTab === 'products' ? <UserProducts /> : <UserReviews />}
             </div>
         </div>
     )
