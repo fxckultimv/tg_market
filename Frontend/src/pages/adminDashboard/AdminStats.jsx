@@ -15,7 +15,7 @@ const AdminStats = () => {
         if (!stats || Object.keys(stats).length === 0) {
             fetchStats(initDataRaw())
         }
-    }, [fetchStats, stats])
+    }, [fetchStats])
 
     if (loading) {
         return (

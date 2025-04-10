@@ -3,8 +3,6 @@ const router = express.Router()
 const balanceController = require('../controllers/BalanceController')
 const authMiddleware = require('../middleware/authMiddleware')
 
-router.use(authMiddleware)
-
 router.get('/balance', balanceController.getBalance.bind(balanceController))
 
 router.post(

@@ -4,8 +4,6 @@ const db = require('../db')
 const authMiddleware = require('../middleware/authMiddleware')
 const productStatsController = require('../controllers/productStatsController')
 
-router.use(authMiddleware)
-
 //Получение продуктов
 router.get('/order', productStatsController.order)
 

@@ -2,8 +2,7 @@ const db = require('../db')
 
 class ReferralController {
     async referral(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         try {
             // 1) Определяем количество рефералов (достаточно только count, а не все поля)

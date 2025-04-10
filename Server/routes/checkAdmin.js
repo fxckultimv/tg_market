@@ -4,8 +4,6 @@ const db = require('../db')
 const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/AdminMiddleware')
 
-router.use(authMiddleware)
-
 // Проверка что пользователь админ для входа в админ панель
 router.get('/', adminMiddleware, async (req, res) => {
     try {

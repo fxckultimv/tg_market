@@ -4,8 +4,6 @@ const db = require('../db')
 const authMiddleware = require('../middleware/authMiddleware')
 const referralController = require('../controllers/referralController')
 
-router.use(authMiddleware)
-
 // router.get('/', buyController.infoForBuy)
 
 // Обработка нажатия на кнопку оплатить

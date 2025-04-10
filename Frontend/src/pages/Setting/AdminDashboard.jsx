@@ -1,17 +1,12 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAdminStore } from '../../store'
+import { useAdminStore, useUserStore } from '../../store'
 import AdminStats from '../adminDashboard/AdminStats'
 
 const Admin = () => {
-    const { isAdmin, loading, error, checkAdmin } = useAdminStore()
+    const { loading, error, checkAdmin } = useAdminStore()
+    const { isAdmin } = useUserStore()
     const navigate = useNavigate()
-
-    useEffect(() => {
-        if (!isAdmin) {
-            checkAdmin(initDataRaw())
-        }
-    }, [checkAdmin, isAdmin])
 
     if (loading) {
         return <div>Загрузка...</div>

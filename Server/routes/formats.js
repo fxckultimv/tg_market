@@ -5,8 +5,6 @@ const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/AdminMiddleware')
 const formatsController = require('../controllers/formatsController')
 
-router.use(authMiddleware)
-
 // Получение всех категорий
 router.get('/', formatsController.formats)
 

@@ -2,8 +2,7 @@ const db = require('../db')
 
 class ProductStats {
     async order(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const id = req.query.channel_id
 
         try {

@@ -5,6 +5,7 @@ const logger = require('./config/logging')
 const express = require('express')
 const cors = require('cors')
 const path = require('path')
+const cookieParser = require('cookie-parser')
 const { startScheduler } = require('./scheduler')
 
 const authMiddleware = require('./middleware/authMiddleware')
@@ -23,6 +24,7 @@ const adminStatsRouter = require('./routes/adminStats')
 const ChannelsRouter = require('./routes/channels')
 const buyRouter = require('./routes/buy')
 const referralRouter = require('./routes/referral')
+const jwtAuth = require('./middleware/jwtAuth')
 
 const app = express()
 
@@ -36,7 +38,13 @@ mongoose
     .catch((err) => logger.error('MongoDB connection error:', err))
 
 // мидлвари
-app.use(cors())
+app.use(
+    cors({
+        origin: 'https://tma.internal',
+        credentials: true, // разрешаем пересылать куки
+    })
+)
+app.use(cookieParser())
 app.use(express.json())
 
 // статика
@@ -44,20 +52,20 @@ app.use(express.static(path.join(__dirname, '../Bot/static')))
 
 // роуты
 app.use('/auth', authRoutes)
-app.use('/users', authMiddleware, userRoutes)
-app.use('/balance', authMiddleware, balanceRoutes)
-app.use('/categories', authMiddleware, categoriesRouter)
-app.use('/formats', authMiddleware, formatsRouter)
-app.use('/products', authMiddleware, productRoutes)
-app.use('/product_stats', authMiddleware, productStatsRouter)
-app.use('/cart', authMiddleware, cartRouter)
-app.use('/orders', authMiddleware, ordersRouter)
-app.use('/history', authMiddleware, historyRouter)
-app.use('/check_admin', authMiddleware, checkAdminRouter)
-app.use('/admin_stats', authMiddleware, adminStatsRouter)
-app.use('/channels', authMiddleware, ChannelsRouter)
-app.use('/buy', authMiddleware, buyRouter)
-app.use('/referral', authMiddleware, referralRouter)
+app.use('/users', jwtAuth, userRoutes)
+app.use('/balance', jwtAuth, balanceRoutes)
+app.use('/categories', jwtAuth, categoriesRouter)
+app.use('/formats', jwtAuth, formatsRouter)
+app.use('/products', jwtAuth, productRoutes)
+app.use('/product_stats', jwtAuth, productStatsRouter)
+app.use('/cart', jwtAuth, cartRouter)
+app.use('/orders', jwtAuth, ordersRouter)
+app.use('/history', jwtAuth, historyRouter)
+app.use('/check_admin', jwtAuth, checkAdminRouter)
+app.use('/admin_stats', jwtAuth, adminStatsRouter)
+app.use('/channels', jwtAuth, ChannelsRouter)
+app.use('/buy', jwtAuth, buyRouter)
+app.use('/referral', jwtAuth, referralRouter)
 
 // обработка ошибок в мидлварях
 app.use((err, req, res, next) => {

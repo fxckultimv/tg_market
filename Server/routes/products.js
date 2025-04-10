@@ -4,8 +4,9 @@ const db = require('../db')
 const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/AdminMiddleware')
 const productsController = require('../controllers/productsController')
+const jwtAuth = require('../middleware/jwtAuth')
 
-router.use(authMiddleware)
+router.use(jwtAuth)
 
 //Получение продуктов
 router.get('/', productsController.products)

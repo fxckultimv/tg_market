@@ -2,8 +2,7 @@ const db = require('../db')
 
 class historyController {
     async history(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const status = req.query.status
         const limit = parseInt(req.query.limit, 10) || 20 // Лимит по умолчанию 20
         const offset = parseInt(req.query.offset, 10) || 0 // Смещение по умолчанию 0
@@ -42,8 +41,7 @@ class historyController {
     }
 
     async orderHistory(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { id } = req.params
 
         try {

@@ -3,8 +3,6 @@ const router = express.Router()
 const authMiddleware = require('../middleware/authMiddleware')
 const cartController = require('../controllers/cartController')
 
-router.use(authMiddleware)
-
 // Получение всех продуктов
 router.get('/', cartController.cart)
 

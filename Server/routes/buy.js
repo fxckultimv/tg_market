@@ -5,8 +5,6 @@ const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/AdminMiddleware')
 const buyController = require('../controllers/buyController')
 
-router.use(authMiddleware)
-
 // router.get('/', buyController.infoForBuy)
 
 // Обработка нажатия на кнопку оплатить

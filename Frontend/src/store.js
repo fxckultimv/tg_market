@@ -48,7 +48,6 @@ export const useAdminStore = create((set) => ({
                 set({ isAdmin: true, loading: false })
             } else {
                 set({ isAdmin: false, loading: false })
-                // navigate('/')
             }
         } catch (error) {
             console.error('Ошибка при проверке прав администратора:', error)
@@ -56,7 +55,6 @@ export const useAdminStore = create((set) => ({
                 error: 'Ошибка при проверке прав администратора',
                 loading: false,
             })
-            // navigate('/')
         }
     },
     fetchStats: async (initDataRaw) => {
@@ -64,6 +62,7 @@ export const useAdminStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/admin_stats', {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -91,6 +90,7 @@ export const useAdminStore = create((set) => ({
                 'http://localhost:5000/admin_stats/users',
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -119,6 +119,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/users?skip=${skip}&limit=${limit}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -148,6 +149,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/users/${user_id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -171,6 +173,7 @@ export const useAdminStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/products', {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -200,6 +203,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/products?skip=${skip}&limit=${limit}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -230,6 +234,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/products/${product_id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -255,6 +260,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/users/${user_id}/products`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -285,6 +291,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/products/admin/${productID}`,
                 {
                     method: 'DELETE',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -340,6 +347,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/orders?skip=${skip}&limit=${limit}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -370,6 +378,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/orders/user/${user_id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -398,6 +407,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/orders/${order_id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -426,6 +436,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/orders/details/${order_id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -454,6 +465,7 @@ export const useAdminStore = create((set) => ({
                 'http://localhost:5000/admin_stats/categories',
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -482,6 +494,7 @@ export const useAdminStore = create((set) => ({
                 'http://localhost:5000/admin_stats/categories',
                 {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -512,6 +525,7 @@ export const useAdminStore = create((set) => ({
                 'http://localhost:5000/admin_stats/categories',
                 {
                     method: 'DELETE',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -544,6 +558,7 @@ export const useAdminStore = create((set) => ({
                 'http://localhost:5000/admin_stats/categories',
                 {
                     method: 'PATCH',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -579,6 +594,7 @@ export const useAdminStore = create((set) => ({
                 `http://localhost:5000/admin_stats/cart/${user_id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -605,10 +621,13 @@ export const useAdminStore = create((set) => ({
 }))
 
 export const useUserStore = create((set) => ({
+    authReady: false,
+    setAuthReady: (value) => set({ authReady: value }),
     sessionExpired: false, // Состояние для модального окна сессии
     setSessionExpired: (value) => set({ sessionExpired: value }), // Метод для обновления состояния сиссии
     initData: [],
     setInitData: (data) => set({ initData: data }),
+    isAdmin: false,
     theme: 'light', // начальное значение темы по умолчанию
     setTheme: (newTheme) => set({ theme: newTheme }), // метод для смены темы
     cart: [],
@@ -627,7 +646,8 @@ export const useUserStore = create((set) => ({
 
         try {
             const response = await fetch('http://localhost:5000/auth', {
-                method: 'GET',
+                method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -635,7 +655,11 @@ export const useUserStore = create((set) => ({
             })
 
             const data = await handleServerResponse(response, set)
-            set({ loading: false })
+            set({
+                loading: false,
+                authReady: true,
+                isAdmin: data.role === 'admin',
+            })
         } catch (error) {
             console.error('Ошибка при авторизации:', error)
             set({
@@ -650,10 +674,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/cart', {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
+                credentials: 'include',
             })
             if (response.status === 204) {
                 set({ cart: [], loading: false })
@@ -675,10 +696,7 @@ export const useUserStore = create((set) => ({
                 'http://localhost:5000/balance/balance?id=801541001',
                 {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `tma ${initDataRaw}`,
-                    },
+                    credentials: 'include',
                 }
             )
             // Проверяем, был ли запрос успешным
@@ -712,10 +730,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/categories', {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
+                credentials: 'include',
             })
             if (response.status === 204) {
                 // Если сервер вернул 204, устанавливаем пустой массив
@@ -748,10 +763,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/formats', {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
+                credentials: 'include',
             })
             if (response.status === 204) {
                 // Если сервер вернул 204, устанавливаем пустой массив
@@ -784,10 +796,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/channels', {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
+                credentials: 'include',
             })
             if (response.status === 204) {
                 // Если сервер вернул 204, устанавливаем пустой массив
@@ -827,10 +836,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
+                credentials: 'include',
             })
             if (response.status === 204) {
                 // Если сервер вернул 204, устанавливаем пустой массив
@@ -871,10 +877,7 @@ export const useUserStore = create((set) => ({
 
             const response = await fetch(query, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
+                credentials: 'include',
             })
 
             if (!response.ok) {
@@ -910,10 +913,7 @@ export const useUserStore = create((set) => ({
                 `http://localhost:5000/history/${order_id}`,
                 {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `tma ${initDataRaw}`,
-                    },
+                    credentials: 'include',
                 }
             )
             if (response.status === 204) {
@@ -950,10 +950,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/products/add', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
+                credentials: 'include',
                 body: JSON.stringify({
                     channel_id,
                     category_id,
@@ -998,6 +995,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/orders/buy', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1030,6 +1028,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/cart', {
                 method: 'DELETE',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1068,6 +1067,7 @@ export const useUserStore = create((set) => ({
                 'http://localhost:5000/cart/date-publication',
                 {
                     method: 'DELETE',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1105,6 +1105,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/buy', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1156,6 +1157,7 @@ export const useUserStore = create((set) => ({
                 `http://localhost:5000/orders/status/${order_id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1193,6 +1195,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch(`http://localhost:5000/users/${id}`, {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1226,6 +1229,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch(`http://localhost:5000/users/me`, {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1261,6 +1265,7 @@ export const useUserStore = create((set) => ({
                 `http://localhost:5000/users/reviews/${id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1296,6 +1301,7 @@ export const useUserStore = create((set) => ({
                 `http://localhost:5000/products/confirmation/${id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1332,6 +1338,7 @@ export const useUserStore = create((set) => ({
                 'http://localhost:5000/balance/top-up',
                 {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1375,6 +1382,7 @@ export const useUserStore = create((set) => ({
                 'http://localhost:5000/balance/withdraw',
                 {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1415,6 +1423,7 @@ export const useUserStore = create((set) => ({
         try {
             const response = await fetch('http://localhost:5000/referral', {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1451,6 +1460,7 @@ export const useUserStore = create((set) => ({
                 'http://localhost:5000/orders/review',
                 {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1545,6 +1555,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/products/search?${queryParams}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1587,6 +1598,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/products/details/${productId}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1624,6 +1636,7 @@ export const useProductStore = create((set, get) => ({
                 'http://localhost:5000/products/edit',
                 {
                     method: 'PATCH',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1682,6 +1695,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/products/user?${queryParams}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1722,6 +1736,7 @@ export const useProductStore = create((set, get) => ({
         try {
             const response = await fetch(`http://localhost:5000/products/my`, {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1762,6 +1777,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/products/busy_day/${productId}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1807,6 +1823,7 @@ export const useProductStore = create((set, get) => ({
         try {
             const response = await fetch('http://localhost:5000/categories', {
                 method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1846,6 +1863,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/product_stats/order?channel_id=${id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1884,6 +1902,7 @@ export const useProductStore = create((set, get) => ({
         try {
             const response = await fetch('http://localhost:5000/cart/add', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1920,6 +1939,7 @@ export const useProductStore = create((set, get) => ({
         try {
             const response = await fetch('http://localhost:5000/buy', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `tma ${initDataRaw}`,
@@ -1956,6 +1976,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/users/reviews/${id}`,
                 {
                     method: 'GET',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -1992,6 +2013,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/products/${id}`,
                 {
                     method: 'PATCH',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,
@@ -2032,6 +2054,7 @@ export const useProductStore = create((set, get) => ({
                 `http://localhost:5000/products/${id}`,
                 {
                     method: 'DELETE',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `tma ${initDataRaw}`,

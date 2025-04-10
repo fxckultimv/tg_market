@@ -44,13 +44,11 @@ import Referral from './pages/Referral/Referral'
 
 const App = () => {
     const navigate = useNavigate()
-    const { fetchAuth, theme, setTheme, sessionExpired } = useUserStore()
-
+    const { fetchAuth, authReady, isAdmin, theme, setTheme, sessionExpired } =
+        useUserStore()
     const location = useLocation()
-    const { isAdmin, checkAdmin } = useAdminStore()
 
-    // //кастомный хук для того чтобы убать закрытие приложения при скроле
-    // usePreventCollapse()
+    // const { isAdmin, checkAdmin } = useAdminStore()
 
     // useEffect(() => {
     //     const applyFullscreen = async () => {
@@ -72,13 +70,7 @@ const App = () => {
 
     useEffect(() => {
         fetchAuth(initDataRaw())
-        checkAdmin(initDataRaw())
-    }, [fetchAuth, checkAdmin])
-
-    // Проверка прав администратора при загрузке
-    // useEffect(() => {
-    //     checkAdmin()
-    // }, [checkAdmin])
+    }, [])
 
     // useEffect(() => {
     //     const enableFullscreen = async () => {
@@ -127,33 +119,22 @@ const App = () => {
         document.body.classList.add(savedTheme)
     }, [setTheme])
 
-    // // Получение темы пользователя
-    // const theme = useThemeParamsRaw()
-
-    // useEffect(() => {
-    //     if (theme?.result?.state?.state) {
-    //         const { buttonColor, buttonTextColor, bgColor, accentTextColor } =
-    //             theme.result.state.state
-    //         // Обновляем CSS переменные
-    //         document.documentElement.style.setProperty('--bg-color', bgColor)
-    //         document.documentElement.style.setProperty(
-    //             '--button-color',
-    //             buttonColor
-    //         )
-    //         document.documentElement.style.setProperty(
-    //             '--button-text-color',
-    //             buttonTextColor
-    //         )
-    //         document.documentElement.style.setProperty(
-    //             '--accent-color',
-    //             accentTextColor
-    //         )
-    //     }
-    // }, [theme])
-
     // if (loading) {
     //     return <div>Загрузка...</div>
     // }
+
+    if (!authReady) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-background">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-blue border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-lg text-text font-medium">
+                        Загрузка приложения...
+                    </p>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="text-text">

@@ -2,8 +2,7 @@ const db = require('../db')
 
 class ordersController {
     async orders(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         try {
             const result = await db.query(
@@ -50,8 +49,7 @@ class ordersController {
     }
 
     async buyItem(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { cart_item_id } = req.body // Ожидается массив идентификаторов элементов корзины
 
         try {
@@ -201,8 +199,7 @@ class ordersController {
     }
 
     async buyAllItems(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         try {
             await db.query('BEGIN')
@@ -277,8 +274,7 @@ class ordersController {
     }
 
     async addReview(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { order_id, rating, comment } = req.body
 
         if (!order_id) {

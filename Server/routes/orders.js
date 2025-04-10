@@ -5,8 +5,6 @@ const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/AdminMiddleware')
 const ordersController = require('../controllers/ordersController')
 
-router.use(authMiddleware)
-
 // Получение моих заказов
 router.get('/', ordersController.orders)
 

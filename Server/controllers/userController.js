@@ -20,12 +20,11 @@ class userController {
     }
 
     async me(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         try {
             const result = await db.query(
-                'SELECT username, rating, created_at, user_uuid  FROM users WHERE user_id = $1',
+                'SELECT username, rating, created_at, user_uuid,role  FROM users WHERE user_id = $1',
                 [user_id]
             )
             if (result.rows.length > 0) {

@@ -11,9 +11,9 @@ import { initDataRaw } from '@telegram-apps/sdk-react'
 import ReferralButton from './ReferralButton'
 
 const ProfileLayout = () => {
-    const { user, fetchMe, fetchBalance, balance, error, loading } =
+    const { user, fetchMe, fetchBalance, isAdmin, balance, error, loading } =
         useUserStore()
-    const { isAdmin } = useAdminStore()
+    // const { isAdmin } = useAdminStore()
 
     useEffect(() => {
         fetchMe(initDataRaw())

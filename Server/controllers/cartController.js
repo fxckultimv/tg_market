@@ -2,8 +2,7 @@ const db = require('../db')
 
 class CartController {
     async cart(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         try {
             const result = await db.query(
@@ -80,8 +79,7 @@ class CartController {
     }
 
     async addToCart(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { product_id, quantity, date, post_time, format } = req.body
 
         const isUnique = (arr) => new Set(arr).size === arr.length
@@ -176,8 +174,7 @@ class CartController {
     }
 
     async deleteItemCart(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         const { cart_item_id } = req.body
         try {
@@ -201,8 +198,7 @@ class CartController {
     }
 
     async deleteDateInCartItem(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { cart_item_id } = req.body
 
         try {
@@ -226,8 +222,7 @@ class CartController {
     }
 
     async deleteAllItemsCart(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         const { product_id } = req.body
         try {

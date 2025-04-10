@@ -2,8 +2,7 @@ const db = require('../db')
 
 class channelController {
     async verifiedChannels(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         try {
             const result = await db.query(

@@ -151,7 +151,6 @@ class AdminController {
 
     async deleteCategories(req, res) {
         const { category_id } = req.body
-        console.log(category_id)
 
         try {
             const result = await db.query(
@@ -310,7 +309,6 @@ class AdminController {
 
     async deleteProduct(req, res) {
         const { product_id } = req.params
-        console.log(`Продукт ${product_id} был удалён`)
 
         try {
             const result = await db.query(

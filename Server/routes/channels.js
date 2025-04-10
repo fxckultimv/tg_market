@@ -5,8 +5,6 @@ const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/AdminMiddleware')
 const channelsController = require('../controllers/channelsController')
 
-router.use(authMiddleware)
-
 // Получение моих верефицированных каналов
 router.get('/', channelsController.verifiedChannels)
 

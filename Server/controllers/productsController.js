@@ -96,8 +96,7 @@ class productController {
     }
 
     async myProducts(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         try {
             const result = await db.query(
@@ -342,8 +341,7 @@ class productController {
     }
 
     async addProduct(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const {
             channel_id,
             category_id,
@@ -444,8 +442,7 @@ class productController {
     }
 
     async editProduct(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const {
             channel_id,
             product_id: reqProduct_id,
@@ -576,8 +573,7 @@ class productController {
     }
 
     async deleteProduct(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
 
         const { product_id } = req.body
         try {
@@ -597,8 +593,7 @@ class productController {
     }
 
     async pauseProduct(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { id } = req.params
         const { status } = req.body
 
@@ -646,8 +641,7 @@ class productController {
     }
 
     async confirmation(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { id } = req.params
 
         try {

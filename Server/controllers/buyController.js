@@ -66,8 +66,7 @@ class buyController {
     // }
 
     async buyOrder(req, res) {
-        const initData = res.locals.initData
-        const user_id = initData.user.id
+        const user_id = req.user.userId
         const { order_id } = req.body
 
         try {

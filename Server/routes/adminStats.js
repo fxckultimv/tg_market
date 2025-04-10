@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware')
 const adminMiddleware = require('../middleware/AdminMiddleware')
 const adminController = require('../controllers/adminController')
 
-router.use(authMiddleware, adminMiddleware)
+router.use(adminMiddleware)
 
 //Общая статистика
 router.get('/', adminController.stats)
