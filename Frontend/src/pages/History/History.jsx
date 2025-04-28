@@ -4,16 +4,34 @@ import { useUserStore } from '../../store'
 import { Link } from 'react-router-dom'
 import Loading from '../../Loading'
 import Error from '../../Error'
+import Sort from '../../assets/sort.svg?react'
 import ProductCart from './ProductCart'
 import { useSearchParams } from 'react-router-dom'
 import { useState } from 'react'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { motion } from 'framer-motion'
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1, // Плавное появление кнопок одна за одной
+        },
+    },
+}
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+}
 
 const History = () => {
     const { history, fetchHistory, appendHistory, loading, error } =
         useUserStore()
     const [searchParams, setSearchParams] = useSearchParams()
+    const [visibilityButton, setVisibilityButton] = useState(false)
     const [offset, setOffset] = useState(0)
     const [count, setCount] = useState(1)
 
@@ -92,43 +110,43 @@ const History = () => {
     return (
         <div className="basis-2/3">
             <BackButton />
-            <div className="flex items-center justify-start gap-2 flex-wrap">
-                <button
-                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] max-sm:px-1 ${searchParams.get('status') === 'waiting' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
-                    value="waiting"
-                    onClick={handlerSubmit}
-                >
-                    ожидание
-                </button>
-                <button
-                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] max-sm:px-1 ${searchParams.get('status') === 'paid' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
-                    value="paid"
-                    onClick={handlerSubmit}
-                >
-                    в процессе
-                </button>
-                <button
-                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] max-sm:px-1 ${searchParams.get('status') === 'completed' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
-                    value="completed"
-                    onClick={handlerSubmit}
-                >
-                    выполненные
-                </button>
-                <button
-                    className={`rounded-md p-2 hover:text-gray border-gray border-[1px] max-sm:px-1 ${searchParams.get('status') === 'pending_payment' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
-                    value="pending_payment"
-                    onClick={handlerSubmit}
-                >
-                    ожидает оплаты
-                </button>
-                <button
-                    className={`rounded-md p-2 border-gray border-[1px] max-sm:px-1 ${searchParams.get('status') === 'rejected' ? 'bg-blue' : 'bg-card-white hover:text-gray'}`}
-                    value="rejected"
-                    onClick={handlerSubmit}
-                >
-                    отклонены
-                </button>
+            <div
+                onClick={() => setVisibilityButton(!visibilityButton)}
+                className="relative bg-background p-2"
+            >
+                <Sort className="text-blavk" />
             </div>
+
+            {visibilityButton && (
+                <motion.div
+                    className="absolute flex items-center justify-start gap-2 flex-wrap"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                >
+                    {[
+                        { value: 'waiting', label: 'ожидание' },
+                        { value: 'paid', label: 'в процессе' },
+                        { value: 'completed', label: 'выполненные' },
+                        { value: 'pending_payment', label: 'ожидает оплаты' },
+                        { value: 'rejected', label: 'отклонены' },
+                    ].map(({ value, label }) => (
+                        <motion.button
+                            key={value}
+                            className={`rounded-md p-2 border-gray border-[1px] max-sm:px-1 ${
+                                searchParams.get('status') === value
+                                    ? 'bg-blue'
+                                    : 'bg-card-white hover:text-gray'
+                            }`}
+                            value={value}
+                            onClick={handlerSubmit}
+                            variants={itemVariants}
+                        >
+                            {label}
+                        </motion.button>
+                    ))}
+                </motion.div>
+            )}
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-3">
                 {history.map((order) => (

@@ -647,7 +647,7 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                <FAQ className="z-50" />
+                {/* <FAQ className="z-50" /> */}
 
                 <div className="flex flex-col items-center text-center py-10 relative bg-background">
                     {/* Фоновое изображение */}

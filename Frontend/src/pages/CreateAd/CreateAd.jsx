@@ -211,7 +211,7 @@ const CreateAd = () => {
                 </h1>
             </div>
 
-            <div className="flex flex-col gap-6 mx-auto justify-center items-center w-[80%]">
+            <div className="flex flex-col gap-6 mx-auto justify-center items-center w-[80%] min-h-screen">
                 <div className="flex flex-col gap-6 min w-full">
                     {verifiedChannels.length > 0 ? (
                         <>

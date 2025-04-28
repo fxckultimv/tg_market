@@ -62,9 +62,9 @@ const Setting = () => {
                 </select>
             </div>
 
-            <Link to="/rules" className="text-blue hover:underline">
+            {/* <Link to="/rules" className="text-blue hover:underline">
                 Правила пользования
-            </Link>
+            </Link> */}
 
             {/* Добавить ссылку для возврата на предыдущую страницу */}
             <Link to="/" className="text-blue hover:underline">

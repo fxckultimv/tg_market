@@ -49,7 +49,7 @@ const Cart = () => {
                     <p>{Object.keys(cart.products).length}</p>
                 </div>
             </div>
-            <div className="flex justify-between p-16 max-md:p-5 max-xl:p-8 max-md:flex-col gap-3">
+            <div className="flex justify-between p-16 max-md:p-5 max-xl:p-8 max-md:flex-col gap-3 min-h-screen">
                 <CartItem cart={cart} />
             </div>
         </>

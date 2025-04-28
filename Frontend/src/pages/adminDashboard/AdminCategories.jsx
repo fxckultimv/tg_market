@@ -72,7 +72,7 @@ const AdminCategories = () => {
                             <>
                                 <input
                                     type="text"
-                                    className="w-full p-2 mb-2 rounded bg-medium-gray"
+                                    className="w-full p-2 mb-2 rounded bg-medium-gray text-black"
                                     value={editedCategoryName}
                                     onChange={(e) =>
                                         setEditedCategoryName(e.target.value)
@@ -137,7 +137,7 @@ const AdminCategories = () => {
                     <li className="p-4 mb-4 rounded-lg bg-gray-700 shadow">
                         <input
                             type="text"
-                            className="w-full p-2 mb-2 rounded bg-medium-gray"
+                            className="w-full p-2 mb-2 rounded bg-medium-gray text-black"
                             placeholder="Название категории"
                             value={newCategoryName}
                             onChange={(e) => setNewCategoryName(e.target.value)}

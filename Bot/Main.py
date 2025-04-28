@@ -451,6 +451,7 @@ async def ad_details(callback_query: CallbackQuery):
                     ),InlineKeyboardButton("Подтвердить", web_app=WebAppInfo(url="https://marusinohome.ru/profile/history/{order_id}")),
                         # InlineKeyboardButton("Не выполнено", callback_data=f"adnotdone_{ad_details['order_id']}")
                 )
+                
                 await callback_query.message.edit_text(response, parse_mode="Markdown", reply_markup=keyboard)
             else:
                 await callback_query.message.edit_text("Детали рекламы не найдены.")
@@ -1101,14 +1102,21 @@ async def handle_order(order: OrderRequest):
         if result:
             target_user_id = result['user_id']
 
-            # Отправляем сообщение пользователю
+            # Создаем клавиатуру с кнопкой отмены
+            keyboard = InlineKeyboardMarkup(row_width=2)
+            keyboard.add(
+                InlineKeyboardButton("❌ Отмена", callback_data="cancel_send")  # Обновленный callback_data
+            )
+
+            # Отправляем сообщение пользователю с кнопкой
             await bot.send_message(
                 user_id,
                 "✅ Ваше рекламное предложение будет отправлено продавцу для утверждения. "
-                "Отправьте сообщение для пересылки."
+                "Отправьте сообщение для пересылки.",
+                reply_markup=keyboard  # Добавляем клавиатуру с кнопкой
             )
 
-            # Используем FSMContext через dispatcher, а не напрямую в FastAPI
+            # Используем FSMContext для сохранения данных в состоянии
             state = dp.current_state(user=user_id)
             await state.update_data(target_user_id=target_user_id, order_id=order_id)
             await state.set_state(OrderState.waiting_for_advertisement)
@@ -1123,6 +1131,16 @@ async def handle_order(order: OrderRequest):
         logging.error(f"❌ Ошибка при обработке запроса: {e}")
         raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
 
+# Хендлер для кнопки "❌ Отмена"
+@dp.callback_query_handler(lambda c: c.data == "cancel_send")
+async def cancel_advertisement(callback_query: CallbackQuery, state: FSMContext):
+    logging.info(f"Callback data: {callback_query.data}")  # Добавляем логирование для отладки
+    user_id = callback_query.from_user.id
+    await state.finish()
+
+    await bot.send_message(user_id, "❌ Вы отменили отправку рекламного предложения.")
+
+    
 class BuyRequest(BaseModel):
     user_id: int
     order_id: Union[int, None] = None
@@ -1131,6 +1149,7 @@ class BuyRequest(BaseModel):
     post_time: Union[List[str], str]
     channel_name: str
     channel_url: str
+    chat_id: Union[int, None] = None
 
 @app.post('/buy')
 async def handle_buy(data: BuyRequest):
@@ -1150,8 +1169,15 @@ async def handle_buy(data: BuyRequest):
             f"🔗 Ссылка на канал: {data.channel_url}\n"
         )
 
+        get_message_button = InlineKeyboardMarkup().add(
+                InlineKeyboardButton("Пост", callback_data=f"adpost_{data.message_id}_{data.chat_id}")
+        )
+        print(get_message_button)
+        print(data.message_id)
+
+
         # Отправляем сообщение пользователю
-        await bot.send_message(data.user_id, text_message, parse_mode=ParseMode.MARKDOWN)
+        await bot.send_message(data.user_id, text_message, parse_mode=ParseMode.MARKDOWN, reply_markup=get_message_button)
 
         # Обновляем состояние пользователя, если требуется
         if data.message_id:

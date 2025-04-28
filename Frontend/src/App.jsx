@@ -72,19 +72,23 @@ const App = () => {
         fetchAuth(initDataRaw())
     }, [])
 
-    // useEffect(() => {
-    //     const enableFullscreen = async () => {
-    //         try {
-    //             if (viewport.requestFullscreen.isAvailable()) {
-    //                 await viewport.requestFullscreen()
-    //             }
-    //         } catch (err) {
-    //             console.warn('Ошибка при включении fullscreen:', err)
-    //         }
-    //     }
+    useEffect(() => {
+        const enableFullscreen = async () => {
+            try {
+                if (viewport?.requestFullscreen) {
+                    await viewport.requestFullscreen()
+                }
+            } catch (err) {
+                console.warn('Ошибка при включении fullscreen:', err)
+            }
+        }
 
-    //     enableFullscreen()
-    // }, [])
+        if (window.innerWidth < 976) {
+            return
+        }
+
+        enableFullscreen()
+    }, [])
 
     //Кнопка настрек
 

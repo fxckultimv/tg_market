@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useProductStore, useUserStore } from '../../store'
 import Document from '../../assets/document.svg'
 import settings from '../../assets/settings.svg'
-import Sort from '../../assets/sort.svg'
+import Sort from '../../assets/sort.svg?react'
 import { motion } from 'framer-motion'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 
@@ -139,74 +139,76 @@ const Filters = () => {
                 {/* Кнопка для фильтров */}
                 <div className="flex items-center justify-between w-full m-4">
                     {' '}
-                    <div className="flex flex-col px-2 items-center bg-card-white rounded-xl text-sm">
-                        <p>Каналы </p>
-                        <p>{totalProducts}</p>
-                    </div>
-                    <div className="">
-                        <button
-                            onClick={toggleFilters}
-                            className="flex items-center px-4 py-2 bg-blue text-white rounded-full hover:bg-blue-600 transition"
-                        >
-                            <img
-                                src={settings}
-                                alt="Tune icon"
-                                className="w-5 h-5 mr-2"
-                            />
-                            Фильтры
-                        </button>
-                    </div>
-                    <div className="flex items-center relative">
-                        <div className="flex mr-auto justify-start mx-3 relative">
-                            {/* Кнопка для открытия/закрытия меню */}
-                            <div
-                                className="bg-card-white flex justify-between items-center rounded-full"
-                                onClick={toggleSort}
+                    <div className="flex justify-evenly items-center max-w-md mx-auto gap-2">
+                        <div className="flex flex-col px-2 items-center bg-card-white rounded-xl text-sm">
+                            <p>Каналы </p>
+                            <p>{totalProducts}</p>
+                        </div>
+                        <div className="">
+                            <button
+                                onClick={toggleFilters}
+                                className="flex items-center px-4 py-2 bg-blue text-white rounded-full hover:bg-blue-600 transition"
                             >
-                                <div className="p-1 rounded-full bg-blue items-center cursor-pointer">
-                                    <motion.img
-                                        src={Sort}
-                                        alt="Sort Icon"
-                                        className="w-5 h-5 m-2"
-                                        animate={{ rotate: sort ? 180 : 0 }}
-                                        transition={{ duration: 0.3 }}
-                                    />
+                                <img
+                                    src={settings}
+                                    alt="Tune icon"
+                                    className="w-5 h-5 mr-2"
+                                />
+                                Фильтры
+                            </button>
+                        </div>
+                        <div className="flex items-center relative">
+                            <div className="flex mr-auto justify-start mx-3 relative">
+                                {/* Кнопка для открытия/закрытия меню */}
+                                <div
+                                    className="bg-card-white flex justify-between items-center rounded-full"
+                                    onClick={toggleSort}
+                                >
+                                    <div className="p-1 rounded-full bg-blue items-center cursor-pointer">
+                                        <motion.div
+                                            className="w-5 h-5 m-2 flex justify-center items-center text-center"
+                                            animate={{ rotate: sort ? 180 : 0 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <Sort className="text-white" />
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Текущий режим сортировки */}
+                                    <div className="m-2 text-gray-800 font-medium cursor-pointer">
+                                        {sort === 'asc' ? 'Дешевле' : 'Дороже'}
+                                    </div>
                                 </div>
 
-                                {/* Текущий режим сортировки */}
-                                <div className="m-2 text-gray-800 font-medium cursor-pointer">
-                                    {sort === 'asc' ? 'Дешевле' : 'Дороже'}
+                                {/* Выпадающее меню сортировки */}
+                                <div
+                                    className={`bg-card-white overflow-hidden absolute top-0 transition-all duration-300 ease-in-out border-gray border-[1px] rounded-2xl w-full ${sort ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                                >
+                                    <ul>
+                                        <li
+                                            onClick={() => {
+                                                handlerSort('asc')
+                                            }}
+                                            className={`cursor-pointer p-2 ${
+                                                filters.sort === 'asc'
+                                                    ? 'bg-blue text-white'
+                                                    : 'hover:bg-background'
+                                            }`}
+                                        >
+                                            Дешевле
+                                        </li>
+                                        <li
+                                            onClick={() => handlerSort('desc')}
+                                            className={`cursor-pointer p-2  ${
+                                                filters.sort === 'desc'
+                                                    ? 'bg-blue text-white'
+                                                    : 'hover:bg-background'
+                                            }`}
+                                        >
+                                            Дороже
+                                        </li>
+                                    </ul>
                                 </div>
-                            </div>
-
-                            {/* Выпадающее меню сортировки */}
-                            <div
-                                className={`bg-card-white overflow-hidden absolute top-0 transition-all duration-300 ease-in-out border-gray border-[1px] rounded-2xl w-full ${sort ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
-                            >
-                                <ul>
-                                    <li
-                                        onClick={() => {
-                                            handlerSort('asc')
-                                        }}
-                                        className={`cursor-pointer p-2 ${
-                                            filters.sort === 'asc'
-                                                ? 'bg-blue text-white'
-                                                : 'hover:bg-background'
-                                        }`}
-                                    >
-                                        Дешевле
-                                    </li>
-                                    <li
-                                        onClick={() => handlerSort('desc')}
-                                        className={`cursor-pointer p-2  ${
-                                            filters.sort === 'desc'
-                                                ? 'bg-blue text-white'
-                                                : 'hover:bg-background'
-                                        }`}
-                                    >
-                                        Дороже
-                                    </li>
-                                </ul>
                             </div>
                         </div>
                     </div>

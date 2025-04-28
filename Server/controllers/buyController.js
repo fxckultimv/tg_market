@@ -161,7 +161,7 @@ class buyController {
             if (result.rowCount > 0) {
                 try {
                     const buy_info = await db.query(
-                        `SELECT p.user_id, oi.post_time, vc.channel_name, vc.channel_title, vc.channel_url, oi.order_id, oi.message_id, pf.format_name
+                        `SELECT p.user_id, oi.post_time, vc.channel_name, vc.channel_title, vc.channel_url, oi.order_id, oi.message_id, oi.chat_id, pf.format_name
                         FROM orderitems AS oi
                         JOIN products p ON oi.product_id = p.product_id 
                         JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
@@ -189,6 +189,7 @@ class buyController {
                         channel_name: first_row.channel_name,
                         channel_url: first_row.channel_url,
                         format: first_row.format_name,
+                        chat_id: first_row.chat_id,
                     }
 
                     const response = await fetch('http://localhost:5001/buy', {

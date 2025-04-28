@@ -5,10 +5,10 @@ const authMiddleware = require('../middleware/authMiddleware')
 
 router.get('/balance', balanceController.getBalance.bind(balanceController))
 
-router.post(
-    '/replenish-balance',
-    balanceController.replenishBalance.bind(balanceController)
-)
+// router.post(
+//     '/replenish-balance',
+//     balanceController.replenishBalance.bind(balanceController)
+// )
 
 router.post('/top-up', balanceController.handleTonTopUp.bind(balanceController))
 

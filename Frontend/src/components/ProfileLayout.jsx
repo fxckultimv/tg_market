@@ -4,16 +4,18 @@ import { Outlet } from 'react-router-dom'
 import { useEffect } from 'react'
 import ProfileCustomLink from '../components/ProfileCustomLink'
 import ProfileLogo from '../assets/profile-logo.svg'
+import DefaultImage from '../assets/defaultImage.png'
 import StarFull from '../assets/star-full.svg'
 import Balance from './Balance'
 import Ton from './Ton'
-import { initDataRaw } from '@telegram-apps/sdk-react'
+import { initDataRaw, initData } from '@telegram-apps/sdk-react'
 import ReferralButton from './ReferralButton'
 
 const ProfileLayout = () => {
     const { user, fetchMe, fetchBalance, isAdmin, balance, error, loading } =
         useUserStore()
     // const { isAdmin } = useAdminStore()
+    const photoUrl = initData.user().photo_url
 
     useEffect(() => {
         fetchMe(initDataRaw())
@@ -41,9 +43,12 @@ const ProfileLayout = () => {
                         <div>
                             <div className="flex gap-3flex-col">
                                 <img
-                                    src={`http://localhost:5000/user_${user.user_uuid}.png`}
+                                    src={photoUrl || DefaultImage}
                                     alt="User Profile"
                                     className="rounded-full w-24 h-24 m-2"
+                                    onError={(e) => {
+                                        e.currentTarget.src = DefaultImage
+                                    }}
                                 />
                                 <div className="p-2">
                                     <p>{user.username}</p>
@@ -75,7 +80,7 @@ const ProfileLayout = () => {
                             <Ton />
                         </div>
                     </div>
-                    <div className="flex flex-col items-start bg-card-white rounded-b-xl gap-3">
+                    <div className="flex flex-col items-start bg-card-white rounded-b-xl gap-3 px-2 pb-2">
                         <ProfileCustomLink to="/profile">
                             Мои заказы
                         </ProfileCustomLink>

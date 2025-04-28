@@ -12,6 +12,11 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import Home from '../assets/layout/home.svg?react'
+import Buy from '../assets/layout/buy.svg?react'
+import Create from '../assets/layout/create.svg?react'
+import Cart from '../assets/layout/cart.svg?react'
+import Account from '../assets/layout/account.svg?react'
 
 const Layout = () => {
     const [menuOpen, setMenuOpen] = useState(false)
@@ -51,7 +56,7 @@ const Layout = () => {
 
     return (
         <div className="bg-background">
-            <header className="bg-background flex space-x-0 min-w-full justify-between p-4 items-center pt-10">
+            <header className="bg-background flex space-x-0 min-w-full justify-between p-4 items-center pt-10 relative">
                 {/* Логотип */}
                 <Link to="/" className="flex gap-1">
                     <img src={Carrot} alt="Logo" className="w-[27px]" />
@@ -65,78 +70,32 @@ const Layout = () => {
                         test
                     </p>
                 </Link>
-
-                {/* Блок с ссылками (скрывается на маленьких экранах) */}
-                <div className="hidden md:flex gap-2 items-center">
-                    <CustomLink to="/">Главная</CustomLink>
-                    <CustomLink to="/channels">Объявления</CustomLink>
-                    <CustomLink to="/create-ad">Создать объявление</CustomLink>
-                    <CustomLink to="/basket">Корзина</CustomLink>
-                    <CustomLink to="/profile">Профиль</CustomLink>
-                </div>
-
-                <div className="w-[27px] md:w-auto"></div>
-
-                {/* Бургер-иконка (видимая только на маленьких экранах) */}
-                <button
-                    className="md:hidden p-2 bg-blue flex justify-between gap-2 items-center rounded-xl"
-                    onClick={toggleMenu}
-                >
-                    <img src={Menu} alt="" />
-                    <p className="text-white">Меню</p>
-                </button>
-
-                {/* Выпадающее меню */}
-                <AnimatePresence>
-                    {menuOpen && (
-                        <motion.div
-                            className="bg-background absolute top-0 right-0 bottom-0 left-0 h-full z-50 flex flex-col p-4 overflow-hidden pt-20"
-                            initial={{ x: '100%', opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: '100%' }}
-                            transition={{ duration: 0.4, type: 'spring' }}
-                        >
-                            <button
-                                className="self-end p-2"
-                                onClick={toggleMenu}
-                            >
-                                <svg
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                            <CustomLink to="/">
-                                <p className="text-2xl">Главная</p>
-                            </CustomLink>
-                            <CustomLink to="/channels">
-                                <p className="text-2xl">Объявления</p>
-                            </CustomLink>
-                            <CustomLink to="/create-ad">
-                                <p className="text-2xl">Создать объявление</p>
-                            </CustomLink>
-                            <CustomLink to="/basket">
-                                {' '}
-                                <p className="text-2xl">Корзина</p>
-                            </CustomLink>
-                            <CustomLink to="/profile">
-                                <p className="text-2xl">Профиль</p>
-                            </CustomLink>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </header>
+
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-card-white py-4">
+                <div className="flex justify-evenly items-center max-w-md mx-auto w-full">
+                    <CustomLink to="/">
+                        <Home />
+                    </CustomLink>
+                    <CustomLink to="/channels">
+                        <Buy />
+                    </CustomLink>
+                    <CustomLink to="/create-ad">
+                        <Create />
+                    </CustomLink>
+                    <CustomLink to="/basket">
+                        <Cart />
+                    </CustomLink>
+                    <CustomLink to="/profile">
+                        <Account />
+                    </CustomLink>
+                </div>
+            </div>
+
             <Outlet></Outlet>
-            <div className="flex justify-between px-16 py-8 items-center max-md:justify-center bg-background">
+            <div className="h-8"></div>
+
+            {/* <div className="flex justify-between px-16 py-8 items-center max-md:justify-center bg-background mb-8">
                 {' '}
                 <div
                     className="flex gap-6 items-center text-text max-md:flex-col
@@ -150,7 +109,7 @@ const Layout = () => {
                     <img src={LogoGray} alt="" />
                     <img src={NameGray} alt="" />
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }
