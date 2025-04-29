@@ -75,16 +75,26 @@ const App = () => {
     useEffect(() => {
         const enableFullscreen = async () => {
             try {
-                if (viewport?.requestFullscreen) {
+                const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(
+                    navigator.userAgent
+                )
+
+                console.log('isMobileDevice:', isMobileDevice)
+
+                if (!isMobileDevice) {
+                    console.log('Desktop устройство, fullscreen не нужен')
+                    return
+                }
+
+                if (viewport.requestFullscreen.isAvailable()) {
                     await viewport.requestFullscreen()
+                    console.log(
+                        'Fullscreen успешно активирован на мобильном устройстве'
+                    )
                 }
             } catch (err) {
-                console.warn('Ошибка при включении fullscreen:', err)
+                console.warn('Ошибка при попытке включить fullscreen:', err)
             }
-        }
-
-        if (window.innerWidth < 976) {
-            return
         }
 
         enableFullscreen()

@@ -93,7 +93,7 @@ const Layout = () => {
             </div>
 
             <Outlet></Outlet>
-            <div className="h-8"></div>
+            <div className="h-24"></div>
 
             {/* <div className="flex justify-between px-16 py-8 items-center max-md:justify-center bg-background mb-8">
                 {' '}

@@ -676,36 +676,6 @@ const Home = () => {
                     {/* Контент */}
                     <Whell2 />
                 </div>
-                <div className="flex justify-center px-16 py-8 items-center bg-background">
-                    <div className="max-w-[540px] flex flex-col max-lg:items-center">
-                        <div className="flex gap-2 ">
-                            <img src={Logo} alt="Logo" className="w-[27px]" />
-                            <p className="text-2xl text-text">Carrot</p>
-                            {/* <img
-                                                    src={Name}
-                                                    alt="Name"
-                                                    className="h-28px min-w-[78px]"
-                                                /> */}
-                            <p className="bg-red text-white rounded-full px-2 flex items-center justify-center">
-                                test
-                            </p>
-                        </div>
-                        <p className="text-lg text-center text-pretty">
-                            Наше приложение помогает покупать рекламу в
-                            Telegram-каналах и автоматизировать процесс её
-                            продажи.{' '}
-                        </p>
-                    </div>
-                    <div className="bg-blue rounded-2xl items-center max-lg:hidden">
-                        <a
-                            href=""
-                            className=" p-3 text-xl  text-white gap-3 flex items-center"
-                        >
-                            <img src={Arrow} alt="" />
-                            <p className="text-base">Начать сейчас</p>
-                        </a>
-                    </div>
-                </div>
             </div>
         </>
     )
