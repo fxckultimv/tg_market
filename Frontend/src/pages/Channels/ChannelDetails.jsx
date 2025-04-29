@@ -16,6 +16,7 @@ import { useToast } from '../../components/ToastProvider'
 import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import DefaultImage from '../../assets/defaultImage.png'
 
 const ChannelDetails = () => {
     const navigate = useNavigate()
@@ -265,9 +266,15 @@ const ChannelDetails = () => {
                     <div className="flex-shrink-0">
                         <img
                             className="rounded-full object-cover border-2 border-accent-green shadow-lg max-h-[111px] max-w-[111px]"
-                            src={`http://localhost:5000/channel_${productDetails.channel_tg_id}.png`}
+                            src={
+                                `http://localhost:5000/channel_${productDetails.channel_tg_id}.png` ||
+                                DefaultImage
+                            }
                             alt={productDetails.channel_title}
                             style={{ aspectRatio: '1/1' }} // Сохранение пропорций изображения
+                            onError={(e) => {
+                                e.currentTarget.src = DefaultImage
+                            }}
                         />
                     </div>
                     <div className="flex flex-col justify-between">

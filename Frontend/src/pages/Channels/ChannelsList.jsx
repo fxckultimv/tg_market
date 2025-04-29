@@ -10,6 +10,7 @@ import arrowDown from '../../assets/chevron-down-gray.svg'
 import star from '../../assets/star.svg'
 import InfoBox from '../../components/InfoBox'
 import { motion, AnimatePresence } from 'framer-motion'
+import DefaultImage from '../../assets/defaultImage.png'
 
 const ChannelsList = () => {
     const { products, page, totalPages, plusPage, minusPage, loading, error } =
@@ -128,9 +129,15 @@ const ProductCard = ({ product }) => {
                     </div>
                     <div className="aspect-square">
                         <img
-                            src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                            src={
+                                `http://localhost:5000/channel_${product.channel_tg_id}.png` ||
+                                DefaultImage
+                            }
                             alt={product.title}
                             className="rounded-full max-h-[111px]"
+                            onError={(e) => {
+                                e.currentTarget.src = DefaultImage
+                            }}
                         />
                     </div>
                 </div>

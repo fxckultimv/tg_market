@@ -9,6 +9,7 @@ import Error from '../../Error'
 import Loading from '../../Loading'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import DefaultImage from '../../assets/defaultImage.png'
 
 const User = () => {
     const { id } = useParams()
@@ -34,8 +35,14 @@ const User = () => {
                 <div className="mb-2">
                     <img
                         className="rounded-full w-32 h-32 object-cover border-main-green border-2 "
-                        src={`http://localhost:5000/user_${id}.png`}
+                        src={
+                            `http://localhost:5000/user_${id}.png` ||
+                            DefaultImage
+                        }
                         alt={`${user.username}'s profile`}
+                        onError={(e) => {
+                            e.currentTarget.src = DefaultImage
+                        }}
                     />
                 </div>
                 <h1 className="text-xl font-bold  mb-4">{user.username}</h1>

@@ -14,6 +14,7 @@ import Check from '../../assets/check-contained.svg'
 import { useRef } from 'react'
 import { useToast } from '../../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import DefaultImage from '../../assets/defaultImage.png'
 
 const CreateAd = () => {
     const { addToast } = useToast()
@@ -260,9 +261,16 @@ const CreateAd = () => {
                                                 >
                                                     <div className="relative">
                                                         <img
-                                                            src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
+                                                            src={
+                                                                `http://localhost:5000/channel_${channel.channel_tg_id}.png` ||
+                                                                DefaultImage
+                                                            }
                                                             alt=""
                                                             className="rounded-full h-[82px]"
+                                                            onError={(e) => {
+                                                                e.currentTarget.src =
+                                                                    DefaultImage
+                                                            }}
                                                         />
                                                         {selectedChannel ===
                                                             channel.channel_id && (

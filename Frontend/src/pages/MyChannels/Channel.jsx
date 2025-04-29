@@ -1,5 +1,6 @@
 import React from 'react'
 import InfoBox from '../../components/InfoBox'
+import DefaultImage from '../../assets/defaultImage.png'
 
 const Chennel = ({ channel }) => {
     return (
@@ -21,8 +22,14 @@ const Chennel = ({ channel }) => {
                 <div className="aspect-square">
                     <img
                         className="rounded-full max-h-[111px] min-h-[85px]"
-                        src={`http://localhost:5000/channel_${channel.channel_tg_id}.png`}
+                        src={
+                            `http://localhost:5000/channel_${channel.channel_tg_id}.png` ||
+                            DefaultImage
+                        }
                         alt={channel.title}
+                        onError={(e) => {
+                            e.currentTarget.src = DefaultImage
+                        }}
                     />
                 </div>
             </div>

@@ -11,6 +11,7 @@ import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
 import star from '../../assets/star.svg'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import DefaultImage from '../../assets/defaultImage.png'
 
 const CartItem = ({ cart }) => {
     const navigate = useNavigate()
@@ -179,9 +180,16 @@ const CartItem = ({ cart }) => {
                                     </div>
                                     <div className="aspect-square">
                                         <img
-                                            src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                                            src={
+                                                `http://localhost:5000/channel_${product.channel_tg_id}.png` ||
+                                                DefaultImage
+                                            }
                                             alt={product.title}
                                             className="rounded-full max-h-[111px]"
+                                            onError={(e) => {
+                                                e.currentTarget.src =
+                                                    DefaultImage
+                                            }}
                                         />
                                     </div>
                                 </div>

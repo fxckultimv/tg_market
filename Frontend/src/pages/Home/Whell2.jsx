@@ -57,7 +57,7 @@ const Whell2 = () => {
                             style={{ rotate }} // Применяем rotate
                         >
                             <motion.div
-                                className="bg-white rounded-xl p-2"
+                                className="rounded-xl p-2"
                                 style={{ opacity }} // Применяем opacity
                             >
                                 <img

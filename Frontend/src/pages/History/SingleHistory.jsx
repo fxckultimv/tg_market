@@ -9,6 +9,7 @@ import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import Feedback from './Feedback'
+import DefaultImage from '../../assets/defaultImage.png'
 
 const SingleHistory = () => {
     const { order_id } = useParams()
@@ -36,8 +37,14 @@ const SingleHistory = () => {
                 <div className="aspect-square">
                     <img
                         className="rounded-full max-h-[111px]"
-                        src={`http://localhost:5000/channel_${singleHistory.channel_tg_id}.png`}
+                        src={
+                            `http://localhost:5000/channel_${singleHistory.channel_tg_id}.png` ||
+                            DefaultImage
+                        }
                         alt={singleHistory.channel_title}
+                        onError={(e) => {
+                            e.currentTarget.src = DefaultImage
+                        }}
                     />
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 import Ton from '../../../assets/ton_symbol.svg'
+import DefaultImage from '../../../assets/defaultImage.png'
 
 const ProductCard = ({ product }) => {
     return (
@@ -14,9 +15,15 @@ const ProductCard = ({ product }) => {
                 </div>
                 <div className="aspect-square">
                     <img
-                        src={`http://localhost:5000/channel_${product.channel_tg_id}.png`}
+                        src={
+                            `http://localhost:5000/channel_${product.channel_tg_id}.png` ||
+                            DefaultImage
+                        }
                         alt={product.title}
                         className="rounded-full max-h-[111px]"
+                        onError={(e) => {
+                            e.currentTarget.src = DefaultImage
+                        }}
                     />
                 </div>
             </div>
