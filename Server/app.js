@@ -24,6 +24,7 @@ const adminStatsRouter = require('./routes/adminStats')
 const ChannelsRouter = require('./routes/channels')
 const buyRouter = require('./routes/buy')
 const referralRouter = require('./routes/referral')
+const promoRouter = require('./routes/promo')
 const jwtAuth = require('./middleware/jwtAuth')
 
 const app = express()
@@ -66,6 +67,7 @@ app.use('/admin_stats', jwtAuth, adminStatsRouter)
 app.use('/channels', jwtAuth, ChannelsRouter)
 app.use('/buy', jwtAuth, buyRouter)
 app.use('/referral', jwtAuth, referralRouter)
+app.use('/promo', jwtAuth, promoRouter)
 
 // обработка ошибок в мидлварях
 app.use((err, req, res, next) => {

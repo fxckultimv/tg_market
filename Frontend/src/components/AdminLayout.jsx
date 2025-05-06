@@ -1,67 +1,57 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import Home from '../assets/admin/home.svg'
-import Users from '../assets/admin/users.svg'
-import Products from '../assets/admin/products.svg'
-import Orders from '../assets/admin/orders.svg'
-import Category from '../assets/admin/category.svg'
-import Money from '../assets/admin/money.svg'
-import Menu from '../assets/admin/menu.svg'
+import Logout from '../assets/admin/logout.svg?react'
+import Home from '../assets/admin/home.svg?react'
+import Users from '../assets/admin/users.svg?react'
+import Products from '../assets/admin/products.svg?react'
+import Orders from '../assets/admin/orders.svg?react'
+import Category from '../assets/admin/category.svg?react'
+import Conflict from '../assets/admin/conflict.svg?react'
+import Promo from '../assets/admin/promo.svg?react'
+import Money from '../assets/admin/money.svg?react'
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import AdminCastomLink from './AdminCastomLink'
+import { Link } from 'react-router-dom'
 
 const AdminLayout = () => {
     const [menuOpen, setMenuOpen] = useState(false)
-
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen)
-    }
     return (
         <div className="admin-layout flex ">
-            <motion.nav
-                initial={{ width: '60px' }}
-                animate={{ width: menuOpen ? '200px' : '60px' }}
-                transition={{ duration: 0.5 }}
-                className="bg-gray fixed top-0 left-0 h-full overflow-y-auto flex flex-col"
-            >
-                <div
-                    className="flex flex-col flex-grow m-4 gap-4"
-                    onClick={toggleMenu}
-                >
+            <nav className="bg-gray fixed top-0 left-0 h-full overflow-y-auto flex flex-col">
+                <div className="flex flex-col flex-grow m-4 gap-4">
+                    <Link to="..">
+                        <Logout className="text-red" />
+                    </Link>
                     <AdminCastomLink to="/admin">
-                        <img src={Home} alt="" />
-                        {menuOpen && <p>Dashboard</p>}
+                        <Home />
                     </AdminCastomLink>
 
                     <AdminCastomLink to="/admin/users">
-                        <img src={Users} alt="" />
-                        {menuOpen && <p>Users</p>}
+                        <Users />
                     </AdminCastomLink>
 
                     <AdminCastomLink to="/admin/products">
-                        <img src={Products} alt="" />
-                        {menuOpen && <p>Products</p>}
+                        <Products />
                     </AdminCastomLink>
 
                     <AdminCastomLink to="/admin/orders">
-                        <img src={Orders} alt="" />
-                        {menuOpen && <p>Orders</p>}
+                        <Orders />
                     </AdminCastomLink>
 
                     <AdminCastomLink to="/admin/categories">
-                        <img src={Category} alt="" />
-                        {menuOpen && <p>Categories</p>}
+                        <Category />
+                    </AdminCastomLink>
+                    <AdminCastomLink to="/admin/conflict">
+                        <Conflict />
+                    </AdminCastomLink>
+                    <AdminCastomLink to="/admin/promo">
+                        <Promo />
                     </AdminCastomLink>
                     <AdminCastomLink to="/admin/transactions">
-                        <img src={Money} alt="" />
-                        {menuOpen && <p>Transactions</p>}
+                        <Money />
                     </AdminCastomLink>
                 </div>
-                <div className="mt-auto cursor-pointer" onClick={toggleMenu}>
-                    <img src={Menu} alt="" />
-                </div>
-            </motion.nav>
+            </nav>
             <div className="admin-content ml-[60px] flex-grow overflow-y-auto">
                 <Outlet />
             </div>

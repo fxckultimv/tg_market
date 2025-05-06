@@ -32,7 +32,7 @@ import AdminProducts from './pages/adminDashboard/AdminProducts/AdminProducts'
 import ProductDetails from './pages/adminDashboard/ProductDetails/ProductDetails'
 import AdminOrders from './pages/adminDashboard/AdminOrders/AdminOrders'
 import OrderDetails from './pages/adminDashboard/OrderDetails/OrderDetails'
-import AdminCategories from './pages/adminDashboard/AdminCategories'
+import AdminCategories from './pages/adminDashboard/Categories/AdminCategories'
 import AdminTransactions from './pages/adminDashboard/AdminTransactions/AdminTransactions'
 
 import { useAdminStore, useUserStore } from './store'
@@ -41,6 +41,9 @@ import AnimatedPage from './components/AnimatedPage'
 import SessionExpiredModal from './components/SessionExpiredModal'
 import Rulers from './pages/Rules/Rules'
 import Referral from './pages/Referral/Referral'
+import Conflict from './pages/adminDashboard/AdminConflict/Conflict'
+import Promo from './pages/adminDashboard/Promo/Promo'
+import SingleConflict from './pages/adminDashboard/AdminConflict/SingleConflict'
 
 const App = () => {
     const navigate = useNavigate()
@@ -151,7 +154,7 @@ const App = () => {
     }
 
     return (
-        <div className="text-text">
+        <div className="text-text bg-background">
             <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
                     <Route path="/" element={<Layout />}>
@@ -299,84 +302,6 @@ const App = () => {
                                 </AnimatedPage>
                             }
                         />
-
-                        {isAdmin && (
-                            <Route path="admin" element={<AdminLayout />}>
-                                <Route
-                                    index
-                                    element={
-                                        <AnimatedPage>
-                                            <AdminDashboard />
-                                        </AnimatedPage>
-                                    }
-                                />
-                                <Route
-                                    path="users"
-                                    element={
-                                        <AnimatedPage>
-                                            <AdminUsers />
-                                        </AnimatedPage>
-                                    }
-                                />
-                                <Route
-                                    path="users/:id"
-                                    element={
-                                        <AnimatedPage>
-                                            <SingleUser />
-                                        </AnimatedPage>
-                                    }
-                                />{' '}
-                                <Route
-                                    path="products"
-                                    element={
-                                        <AnimatedPage>
-                                            <AdminProducts />
-                                        </AnimatedPage>
-                                    }
-                                />
-                                <Route
-                                    path="products/:id"
-                                    element={
-                                        <AnimatedPage>
-                                            <ProductDetails />
-                                        </AnimatedPage>
-                                    }
-                                />{' '}
-                                <Route
-                                    path="orders"
-                                    element={
-                                        <AnimatedPage>
-                                            <AdminOrders />
-                                        </AnimatedPage>
-                                    }
-                                />{' '}
-                                <Route
-                                    path="orders/:id"
-                                    element={
-                                        <AnimatedPage>
-                                            <OrderDetails />
-                                        </AnimatedPage>
-                                    }
-                                />
-                                <Route
-                                    path="categories"
-                                    element={
-                                        <AnimatedPage>
-                                            <AdminCategories />
-                                        </AnimatedPage>
-                                    }
-                                />
-                                <Route
-                                    path="transactions"
-                                    element={
-                                        <AnimatedPage>
-                                            <AdminTransactions />
-                                        </AnimatedPage>
-                                    }
-                                />
-                            </Route>
-                        )}
-
                         <Route
                             path="*"
                             element={
@@ -386,6 +311,106 @@ const App = () => {
                             }
                         />
                     </Route>
+                    {isAdmin && (
+                        <Route path="admin" element={<AdminLayout />}>
+                            <Route
+                                index
+                                element={
+                                    <AnimatedPage>
+                                        <AdminDashboard />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="users"
+                                element={
+                                    <AnimatedPage>
+                                        <AdminUsers />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="users/:id"
+                                element={
+                                    <AnimatedPage>
+                                        <SingleUser />
+                                    </AnimatedPage>
+                                }
+                            />{' '}
+                            <Route
+                                path="products"
+                                element={
+                                    <AnimatedPage>
+                                        <AdminProducts />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="products/:id"
+                                element={
+                                    <AnimatedPage>
+                                        <ProductDetails />
+                                    </AnimatedPage>
+                                }
+                            />{' '}
+                            <Route
+                                path="orders"
+                                element={
+                                    <AnimatedPage>
+                                        <AdminOrders />
+                                    </AnimatedPage>
+                                }
+                            />{' '}
+                            <Route
+                                path="orders/:id"
+                                element={
+                                    <AnimatedPage>
+                                        <OrderDetails />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="categories"
+                                element={
+                                    <AnimatedPage>
+                                        <AdminCategories />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="conflict"
+                                element={
+                                    <AnimatedPage>
+                                        <Conflict />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="conflict/:id"
+                                element={
+                                    <AnimatedPage>
+                                        <SingleConflict />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="promo"
+                                element={
+                                    <AnimatedPage>
+                                        <Promo />
+                                    </AnimatedPage>
+                                }
+                            />
+                            <Route
+                                path="transactions"
+                                element={
+                                    <AnimatedPage>
+                                        <AdminTransactions />
+                                    </AnimatedPage>
+                                }
+                            />
+                        </Route>
+                    )}
                 </Routes>
             </AnimatePresence>
             {sessionExpired && <SessionExpiredModal />}

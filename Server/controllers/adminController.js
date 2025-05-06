@@ -54,34 +54,41 @@ class AdminController {
 
     async users(req, res) {
         try {
+            const id = req.query.id ? parseInt(req.query.id) : null
             const skip = parseInt(req.query.skip) || 0
             const limit = parseInt(req.query.limit) || 10
-            const search = req.query.search || ''
 
-            const getUsersQuery = () => {
-                return `SELECT * FROM users
-                ORDER BY created_at DESC
-                LIMIT $1 OFFSET $2`
+            let baseQuery = 'FROM users WHERE 1=1'
+            const params = []
+
+            if (id !== null) {
+                baseQuery += ` AND user_id::text LIKE $${params.length + 1}`
+                params.push(`%${id}%`)
             }
 
-            const getCountQuery = () => {
-                return 'SELECT COUNT(*) FROM users'
-            }
+            const userQuery = `SELECT * ${baseQuery} LIMIT $${
+                params.length + 1
+            } OFFSET $${params.length + 2}`
+            const countQuery = `SELECT COUNT(*) ${baseQuery}`
 
-            // Формирование параметров для запросов
-            const usersQueryParams = [limit, skip]
+            params.push(limit)
+            params.push(skip)
 
-            // Выполнение запросов параллельно
             const [usersResult, countResult] = await Promise.all([
-                db.query(getUsersQuery(), usersQueryParams),
-                db.query(getCountQuery()),
+                db.query(userQuery, params),
+                db.query(countQuery, params.slice(0, -2)),
             ])
 
-            // Формирование ответа
-            res.json({
-                users: usersResult.rows,
-                total: parseInt(countResult.rows[0].count), // Общее количество заказов
-            })
+            const total = parseInt(countResult.rows[0].count, 10)
+
+            if (usersResult.rows.length > 0) {
+                res.json({
+                    users: usersResult.rows,
+                    total,
+                })
+            } else {
+                res.status(204).json({ error: 'Users not found' })
+            }
         } catch (err) {
             console.error(err)
             res.status(500).json({ error: 'Database error' })
@@ -118,6 +125,52 @@ class AdminController {
                 res.json(result.rows)
             } else {
                 res.status(404).json({ error: 'User products not found' })
+            }
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async products(req, res) {
+        try {
+            const name = req.query.name || null
+            const skip = parseInt(req.query.skip) || 0
+            const limit = parseInt(req.query.limit) || 10
+
+            let baseQuery =
+                'FROM products AS p JOIN verifiedchannels vc ON p.channel_id = vc.channel_id WHERE 1=1'
+            const params = []
+
+            if (name !== null) {
+                baseQuery += ` AND vc.channel_name::text LIKE $${
+                    params.length + 1
+                }`
+                params.push(`%${name}%`)
+            }
+
+            const productsQuery = `SELECT * ${baseQuery} LIMIT $${
+                params.length + 1
+            } OFFSET $${params.length + 2}`
+            const countQuery = `SELECT COUNT(*) ${baseQuery}`
+
+            params.push(limit)
+            params.push(skip)
+
+            const [productsResult, countResult] = await Promise.all([
+                db.query(productsQuery, params),
+                db.query(countQuery, params.slice(0, -2)),
+            ])
+
+            const total = parseInt(countResult.rows[0].count, 10)
+
+            if (productsResult.rows.length > 0) {
+                res.json({
+                    products: productsResult.rows,
+                    total,
+                })
+            } else {
+                res.status(204).json({ error: 'Products not found' })
             }
         } catch (err) {
             console.error(err)
@@ -218,61 +271,64 @@ class AdminController {
 
     async orders(req, res) {
         try {
+            const id = req.query.id ? parseInt(req.query.id) : null
             const skip = parseInt(req.query.skip) || 0
             const limit = parseInt(req.query.limit) || 10
-            const search = req.query.search || ''
 
-            // Функция для получения запроса на выборку заказов
-            const getOrdersQuery = () => {
-                return `
-                    SELECT * FROM orders 
-                    ORDER BY created_at DESC 
-                    LIMIT $1 OFFSET $2
-                `
+            let baseQuery = 'FROM orders AS o WHERE 1=1'
+            const params = []
+
+            if (id !== null) {
+                baseQuery += ` AND order_id::text LIKE $${params.length + 1}`
+                params.push(`%${id}%`)
             }
 
-            // Функция для получения запроса на подсчет заказов
-            const getCountQuery = () => {
-                return 'SELECT COUNT(*) FROM orders'
-            }
+            const ordersQuery = `SELECT * ${baseQuery} LIMIT $${
+                params.length + 1
+            } OFFSET $${params.length + 2}`
+            const countQuery = `SELECT COUNT(*) ${baseQuery}`
 
-            // Формирование параметров для запросов
-            const ordersQueryParams = [limit, skip]
+            params.push(limit)
+            params.push(skip)
 
-            // Выполнение запросов параллельно
             const [ordersResult, countResult] = await Promise.all([
-                db.query(getOrdersQuery(), ordersQueryParams),
-                db.query(getCountQuery()),
+                db.query(ordersQuery, params),
+                db.query(countQuery, params.slice(0, -2)),
             ])
 
-            // Формирование ответа
-            res.json({
-                orders: ordersResult.rows,
-                total: parseInt(countResult.rows[0].count), // Общее количество заказов
-            })
-        } catch (err) {
-            console.error(err)
-            res.status(500).json({ error: 'Database error' })
-        }
-    }
+            const total = parseInt(countResult.rows[0].count, 10)
 
-    async order(req, res) {
-        const { id } = req.params
-        try {
-            const result = await db.query(
-                `SELECT * FROM orders WHERE order_id = $1`,
-                [id]
-            )
-            if (result.rows.length > 0) {
-                res.json(result.rows[0])
+            if (ordersResult.rows.length > 0) {
+                res.json({
+                    orders: ordersResult.rows,
+                    total,
+                })
             } else {
-                res.status(204).send() // Возвращаем статус 204, если данных нет
+                res.status(204).json({ error: 'Products not found' })
             }
         } catch (err) {
             console.error(err)
             res.status(500).json({ error: 'Database error' })
         }
     }
+
+    // async order(req, res) {
+    //     const { id } = req.params
+    //     try {
+    //         const result = await db.query(
+    //             `SELECT * FROM orders WHERE order_id = $1`,
+    //             [id]
+    //         )
+    //         if (result.rows.length > 0) {
+    //             res.json(result.rows[0])
+    //         } else {
+    //             res.status(204).send() // Возвращаем статус 204, если данных нет
+    //         }
+    //     } catch (err) {
+    //         console.error(err)
+    //         res.status(500).json({ error: 'Database error' })
+    //     }
+    // }
 
     async orderDetails(req, res) {
         const { id } = req.params
@@ -320,6 +376,112 @@ class AdminController {
             } else {
                 res.status(404).json({ error: 'Product not found' })
             }
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async promo(req, res) {
+        try {
+            const result = await db.query('SELECT * FROM promo_codes')
+
+            res.json(result.rows)
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async addPromo(req, res) {
+        const { code, valid_days, max_activations, percent } = req.body
+
+        if (
+            !code ||
+            !valid_days ||
+            !max_activations ||
+            !percent ||
+            Number(percent) > 5
+        ) {
+            return res
+                .status(400)
+                .json({ error: 'All promo fields are required' })
+        }
+
+        try {
+            const result = await db.query(
+                `INSERT INTO promo_codes (code,  valid_days, max_activations, percent)
+                 VALUES ($1,  $2, $3, $4) RETURNING *`,
+                [code.trim(), valid_days, max_activations, percent]
+            )
+
+            res.status(201).json({
+                message: 'Promo code created',
+                promo: result.rows[0],
+            })
+        } catch (err) {
+            console.error('Add promo error:', err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async deletePromo(req, res) {
+        const { id } = req.body
+
+        if (!id) {
+            return res
+                .status(400)
+                .json({ error: 'Promo ID or code is required for deletion' })
+        }
+
+        try {
+            const result = await db.query(
+                `DELETE FROM promo_codes
+                 WHERE id = $1
+                 RETURNING *`,
+                [id]
+            )
+
+            if (result.rowCount === 0) {
+                return res.status(404).json({ error: 'Promo code not found' })
+            }
+
+            res.json({ message: 'Promo code deleted', deleted: result.rows[0] })
+        } catch (err) {
+            console.error('Delete promo error:', err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async conflict(req, res) {
+        try {
+            const result = await db.query(
+                `SELECT o.order_id, o.user_id, o.total_price, o.created_at, p.user_id AS seller_id, p.title, ARRAY_AGG(DISTINCT oi.post_time) AS post_times
+                FROM orders AS o 
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                JOIN products p ON oi.product_id = p.product_id
+                WHERE o.status = 'problem'
+                GROUP BY o.order_id, o.total_price, o.user_id, o.created_at, p.user_id, p.title `
+            )
+
+            res.json(result.rows)
+        } catch (err) {
+            console.error(err)
+            res.status(500).json({ error: 'Database error' })
+        }
+    }
+
+    async conflictFotId(req, res) {
+        const order_id = req.params
+        try {
+            const result = await db.query(
+                `SELECT * FROM orders AS oi
+                JOIN orderitems oi ON o.order_id = oi.order_id
+                WHERE o.order_id = $1`,
+                [order_id]
+            )
+
+            res.json(result.rows[0])
         } catch (err) {
             console.error(err)
             res.status(500).json({ error: 'Database error' })

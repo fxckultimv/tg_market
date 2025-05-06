@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { useAdminStore } from '../../../store'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import DefaultImage from '../../../assets/defaultImage.png'
+import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 
 const ProductDetails = () => {
     const { id } = useParams()
@@ -9,25 +11,14 @@ const ProductDetails = () => {
         useAdminStore()
     const navigate = useNavigate()
 
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //         }
-    //     }
-    // }, [backButton])
-
     useEffect(() => {
         fetchProductsForId(initDataRaw(), id)
     }, [fetchProductsForId, id])
+
+    const handlePause = async () => {
+        try {
+        } catch (err) {}
+    }
 
     const handleDelete = async () => {
         const confirmDelete = window.confirm(
@@ -56,12 +47,23 @@ const ProductDetails = () => {
     }
 
     return (
-        <div className="flex flex-col items-center bg-dark-gray  p-4 min-h-screen">
-            <ul className="w-full max-w-4xl bg-medium-gray rounded-lg p-6 shadow-md">
+        <div className="flex flex-col items-center p-4 min-h-screen">
+            <ul className="bg-card-white rounded-lg p-2">
                 <li
                     key={product.product_id}
                     className="mb-4 p-4 rounded-lg bg-dark-gray  shadow transition duration-300 hover:shadow-lg"
                 >
+                    <img
+                        className="rounded-full w-32 h-32 object-cover border-main-green border-2"
+                        src={
+                            `http://localhost:5000/channel_${product.channel_tg_id}.png` ||
+                            DefaultImage
+                        }
+                        alt={product.channel_name}
+                        onError={(e) => {
+                            e.currentTarget.src = DefaultImage
+                        }}
+                    />
                     <div className="text-xl font-bold mb-2">
                         {product.title}
                     </div>
@@ -78,7 +80,8 @@ const ProductDetails = () => {
                         {product.description}
                     </div>
                     <div className=" mb-2">
-                        <span className="">Цена:</span> {product.price} руб.
+                        <span className="">Цена:</span>{' '}
+                        {nanoTonToTon(product.price)} Ton.
                     </div>
                     <div className=" mb-2">
                         <span className="">Время публикации:</span>{' '}
@@ -88,7 +91,7 @@ const ProductDetails = () => {
                         <span className="">Дата создания:</span>{' '}
                         {new Date(product.created_at).toLocaleDateString()}
                     </div>
-                    <div className=" flex items-center mb-4">
+                    <div className="bg-background flex items-center mb-4">
                         <Link
                             to={`/admin/users/${product.user_id}`}
                             className="ml-4 px-3 py-1 rounded bg-blue-500  hover:bg-blue-600"

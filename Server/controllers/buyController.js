@@ -29,42 +29,6 @@ async function getUserIdByTelegramId(telegramId) {
 }
 
 class buyController {
-    // async infoForBuy(req, res) {
-    //     const initData = res.locals.initData
-    //     const user_id = initData.user.id
-    //     const { order_id } = req.query
-
-    //     try {
-    //         // Получение информации о цене заказа
-    //         const result = await db.query(
-    //             `SELECT total_price
-    //             FROM orders
-    //             WHERE order_id = $1 AND user_id = $2`,
-    //             [order_id, user_id]
-    //         )
-
-    //         if (result.rowCount === 0) {
-    //             return res.status(404).json({
-    //                 error: 'Order not found or you are not authorized to view it',
-    //             })
-    //         }
-
-    //         const orderInfo = result.rows[0]
-
-    //         // Отправка информации о цене заказа
-    //         res.status(200).json({
-    //             // message: 'Order information retrieved successfully',
-    //             total_price: orderInfo.total_price,
-    //         })
-    //     } catch (err) {
-    //         console.error('Error retrieving order information:', err)
-    //         res.status(500).json({
-    //             error: 'Internal server error',
-    //             details: err.message,
-    //         })
-    //     }
-    // }
-
     async buyOrder(req, res) {
         const user_id = req.user.userId
         const { order_id } = req.body
@@ -101,17 +65,31 @@ class buyController {
                     .json({ error: 'The order time has expired' })
             }
 
-            console.log(orderInfo.rows)
+            const checkPromoCode = await db.query(
+                'SELECT * FROM user_promo_codes AS upc JOIN promo_codes pc ON pc.id = upc.promo_code_id WHERE upc.user_id = $1 AND upc.expires_at > $2 AND used = false ORDER BY upc.expires_at DESC LIMIT 1',
+                [user_id, now]
+            )
 
             const orderRow = orderInfo.rows[0]
             const sellerId = await getUserIdByTelegramId(orderRow.user_id)
             const amount = orderRow.total_price
             const buyerId = await getUserIdByTelegramId(user_id)
-            console.log(amount)
 
             // Начало логики проведения платежа
             const fee = amount * MARKET_FEE_PERCENTAGE
-            const totalAmount = Number(amount)
+            let totalAmount = Number(amount)
+
+            if (checkPromoCode.rows.length > 0) {
+                const discountPercent = parseInt(checkPromoCode.rows[0].percent)
+
+                totalAmount = totalAmount * (1 - discountPercent / 100)
+            }
+
+            if (isNaN(totalAmount) || totalAmount <= 0) {
+                return res
+                    .status(400)
+                    .json({ error: 'Invalid discounted amount' })
+            }
 
             const buyerUpdate = await UserBalance.findOneAndUpdate(
                 { userId: buyerId, balance: { $gte: totalAmount } },
@@ -154,9 +132,24 @@ class buyController {
 
             // Логика обновления статуса заказа
             const result = await db.query(
-                `UPDATE orders SET status = 'paid' WHERE order_id = $1 AND user_id = $2`,
-                [order_id, user_id]
+                `UPDATE orders SET status = 'paid', discounted_price = $1, promo_code_id = $2 WHERE order_id = $3 AND user_id = $4`,
+                [
+                    totalAmount,
+                    checkPromoCode.rows[0].promo_code_id,
+                    order_id,
+                    user_id,
+                ]
             )
+
+            // И только если обновление заказа прошло успешно — обновляем used
+            if (result.rowCount > 0 && checkPromoCode.rows.length > 0) {
+                await db.query(
+                    `UPDATE user_promo_codes 
+                    SET used = true 
+                    WHERE user_id = $1 AND promo_code_id = $2`,
+                    [user_id, checkPromoCode.rows[0].promo_code_id]
+                )
+            }
 
             if (result.rowCount > 0) {
                 try {

@@ -1,32 +1,36 @@
 import React, { useState, useCallback } from 'react'
+import { useAdminStore } from '../../../store'
+import { initDataRaw } from '@telegram-apps/sdk-react'
 
-const OrderSearch = ({ onSearch, fetchAllOrders }) => {
-    const [searchOrderId, setSearchOrderId] = useState('')
+const OrderSearch = () => {
+    const { fetchOrders, total } = useAdminStore()
+    const [id, setId] = useState()
 
     const handleSearch = useCallback(() => {
-        if (searchOrderId.trim()) {
-            onSearch(searchOrderId)
-        } else {
-            fetchAllOrders()
-        }
-    }, [searchOrderId, onSearch, fetchAllOrders])
+        fetchOrders(initDataRaw(), id)
+    }, [id])
 
     return (
-        <div className="w-full max-w-4xl mb-6">
-            <input
-                type="text"
-                className="w-full p-2 mb-2 rounded bg-medium-gray "
-                placeholder="Введите ID заказа"
-                value={searchOrderId}
-                onChange={(e) => setSearchOrderId(e.target.value)}
-            />
-            <button
-                className="w-full p-2  bg-blue-500 rounded hover:bg-blue-600"
-                onClick={handleSearch}
-            >
-                Найти заказ
-            </button>
-        </div>
+        <>
+            <div className="flex w-full max-w-4xl mb-4 text-black">
+                <input
+                    type="text"
+                    className="w-full p-2 m-2 rounded bg-medium-gray "
+                    placeholder="Введите id заказа"
+                    value={id}
+                    onChange={(e) => setId(e.target.value)}
+                />
+                <button
+                    className="w-full bg-blue rounded max-w-[200px] text-white"
+                    onClick={handleSearch}
+                >
+                    <p>Найти</p>
+                </button>
+            </div>
+            <div className="items-start text-start p-2">
+                <p>всего: {total}</p>
+            </div>
+        </>
     )
 }
 

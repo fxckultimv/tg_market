@@ -9,7 +9,7 @@ const AdminCastomLink = ({ to, children, ...props }) => {
         <Link
             to={to}
             className={`flex gap-2 items-center ${
-                match ? ' border-r-2 border-blue' : ' hover:text-white'
+                match ? ' text-blue' : ' text-black'
             }`}
             {...props}
         >

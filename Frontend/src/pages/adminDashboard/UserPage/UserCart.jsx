@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useAdminStore } from '../../../store'
 import { useParams } from 'react-router-dom'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 
 const UserCart = () => {
     const { carts, fetchCartForUser, loading, error } = useAdminStore()
@@ -9,7 +10,7 @@ const UserCart = () => {
 
     useEffect(() => {
         fetchCartForUser(initDataRaw(), id)
-    }, [fetchCartForUser])
+    }, [])
 
     if (loading) {
         return (
@@ -32,53 +33,39 @@ const UserCart = () => {
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
                 Управление корзиной
             </h2>
-            <ul className="w-full max-w-4xl bg-card-white rounded-lg p-2 shadow-md">
+            <div className=" bg-card-white p-4">
+                {/* Заголовки */}
+                <div className="grid grid-cols-8 gap-4 text-sm font-semibold text-white mb-2">
+                    <div>Название</div>
+                    <div>ID продукта</div>
+                    <div>ID корзины</div>
+                    <div>Категория</div>
+                    <div>Описание</div>
+                    <div>Цена</div>
+                    <div>Количество</div>
+                    <div>Дата добавления</div>
+                </div>
+
+                {/* Строки корзины */}
                 {carts &&
                     carts.map((cart) => (
-                        <li
+                        <div
                             key={cart.cart_item_id}
-                            className="mb-4 p-4 rounded-lg bg-dark-gray bg-card-white shadow transition duration-300 hover:shadow-lg"
+                            className="grid grid-cols-8 gap-4 p-4 bg-card-white border-[1px] m-2"
                         >
-                            <div className="text-xl font-bold">
-                                {cart.title}
-                            </div>
-                            <div className="">
-                                <span className="">ID продукта:</span>{' '}
-                                {cart.product_id}
-                            </div>
-                            <div className="">
-                                <span className="">ID корзины:</span>{' '}
-                                {cart.cart_id}
-                            </div>
-                            <div className="">
-                                <span className="">Категория:</span>{' '}
-                                {cart.category_id}
-                            </div>
-                            <div className="">
-                                <span className="">Описание:</span>{' '}
-                                {cart.description}
-                            </div>
-                            <div className="">
-                                <span className="">Цена:</span> {cart.price}{' '}
-                                руб.
-                            </div>
-                            <div className="">
-                                <span className="">Количество:</span>{' '}
-                                {cart.quantity}
-                            </div>
-                            <div className="">
-                                <span className="">Время публикации:</span>{' '}
-                                {new Date(cart.post_time).toLocaleDateString()}
-                            </div>
-                            <div className="">
-                                <span className="">
-                                    Дата добавления в корзину:
-                                </span>{' '}
+                            <div className="font-bold">{cart.title}</div>
+                            <div>{cart.product_id}</div>
+                            <div>{cart.cart_id}</div>
+                            <div>{cart.category_id}</div>
+                            <div className="truncate">{cart.description}</div>
+                            <div>{nanoTonToTon(cart.price)} Ton.</div>
+                            <div>{cart.quantity}</div>
+                            <div>
                                 {new Date(cart.created_at).toLocaleDateString()}
                             </div>
-                        </li>
+                        </div>
                     ))}
-            </ul>
+            </div>
         </div>
     )
 }

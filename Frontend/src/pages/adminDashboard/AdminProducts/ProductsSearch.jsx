@@ -1,33 +1,36 @@
 import React, { useState, useCallback } from 'react'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { useAdminStore } from '../../../store'
 
-const ProductsSearch = ({ onSearch, fetchAllProducts }) => {
-    const [searchProductId, setSearchProductId] = useState('')
+const ProductsSearch = () => {
+    const { fetchProducts, total } = useAdminStore()
+    const [name, setName] = useState()
 
     const handleSearch = useCallback(() => {
-        if (searchProductId.trim()) {
-            onSearch(searchProductId)
-        } else {
-            fetchAllProducts(initDataRaw())
-        }
-    }, [searchProductId, onSearch, fetchAllProducts])
+        fetchProducts(initDataRaw(), name)
+    }, [name])
 
     return (
-        <div className="w-full max-w-4xl mb-6">
-            <input
-                type="text"
-                className="w-full p-2 mb-2 rounded bg-medium-gray "
-                placeholder="Введите ID продукта"
-                value={searchProductId}
-                onChange={(e) => setSearchProductId(e.target.value)}
-            />
-            <button
-                className="w-full p-2  bg-blue rounded hover:bg-blue-600"
-                onClick={handleSearch}
-            >
-                Найти продукт
-            </button>
-        </div>
+        <>
+            <div className="flex w-full max-w-4xl mb-4 text-black">
+                <input
+                    type="text"
+                    className="w-full p-2 m-2 rounded bg-medium-gray "
+                    placeholder="Введите название канала"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
+                <button
+                    className="w-full bg-blue rounded max-w-[200px] text-white"
+                    onClick={handleSearch}
+                >
+                    <p>Найти</p>
+                </button>
+            </div>
+            <div className="items-start text-start p-2">
+                <p>всего: {total}</p>
+            </div>
+        </>
     )
 }
 

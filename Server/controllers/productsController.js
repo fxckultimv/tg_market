@@ -647,13 +647,13 @@ class productController {
         try {
             // Первичная проверка в базе данных
             const checkResult = await db.query(
-                `SELECT o.order_id, o.total_price, o.status, o.user_id AS buyerId, p.user_id, p.title,
+                `SELECT o.order_id, o.total_price, o.status, o.user_id AS buyerId, o.promo_code_id, p.user_id, p.title,
                     ARRAY_AGG(DISTINCT oi.post_time) as post_times
                 FROM orders AS o
                 JOIN orderitems oi ON o.order_id = oi.order_id
                 JOIN products p ON p.product_id = oi.product_id
                 WHERE o.order_id = $1 AND o.user_id = $2
-                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id, p.title`,
+                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id,o.promo_code_id, p.title`,
                 [id, user_id]
             )
 
@@ -667,175 +667,165 @@ class productController {
                     order.post_times.every((time) => new Date(time) < now)
 
                 if (order.status === 'paid' && allDatesInFuture) {
-                    // Если проверки выполнены, обновляем статус заказа
-                    const result = await db.query(
-                        `UPDATE orders 
-                         SET status = 'completed' 
-                         WHERE user_id = $1 AND order_id = $2 AND status = 'paid'`,
-                        [user_id, id]
-                    )
+                    const amount = order.total_price
+                    const buyerId = order.buyerId
+                    const order_id = order.order_id
 
-                    if (result.rowCount > 0) {
-                        const amount = order.total_price
-                        const buyerId = order.buyerId
-                        const order_id = order.order_id
-
-                        const sellerId = await getUserIdByTelegramId(
-                            order.user_id
-                        )
-                        const refCheck = await db.query(
-                            `SELECT referrer_id 
+                    const sellerId = await getUserIdByTelegramId(order.user_id)
+                    const refCheck = await db.query(
+                        `SELECT referrer_id 
                                FROM referrals
                               WHERE referred_id = $1
                               LIMIT 1`,
-                            [user_id]
+                        [user_id]
+                    )
+
+                    const platformCommission = Math.round(amount * 0.07) // комиссия платформы
+
+                    // Если нашли реферера и нету промокода
+                    if (
+                        refCheck.rows.length > 0 &&
+                        (order.promo_code_id === null ||
+                            order.promo_code_id === undefined)
+                    ) {
+                        const referrerTgId = refCheck.rows[0].referrer_id
+
+                        const referrerId = await getUserIdByTelegramId(
+                            refCheck.rows[0].referrer_id
                         )
-                        console.log('buyerID: ', buyerId)
 
-                        const platformCommission = Math.round(amount * 0.07) // комиссия платформы
-                        let referrerShare = 0
-
-                        // Если нашли реферера
-                        if (refCheck.rows.length > 0) {
-                            const referrerTgId = refCheck.rows[0].referrer_id
-
-                            const referrerId = await getUserIdByTelegramId(
-                                refCheck.rows[0].referrer_id
-                            )
-                            console.log('referrerId: ', referrerId)
-
-                            const referrerTurnoverResult = await db.query(
-                                `SELECT COALESCE(SUM(partner_commission), 0) AS total_sum
+                        const referrerTurnoverResult = await db.query(
+                            `SELECT COALESCE(SUM(partner_commission), 0) AS total_sum
                                  FROM referral_commissions
                                  WHERE referrer_id = $1`,
-                                [referrerTgId]
-                            )
-
-                            const referrerTurnover =
-                                parseFloat(
-                                    referrerTurnoverResult.rows[0].total_sum
-                                ) || 0
-
-                            // Вычисляем процент партнёрского вознаграждения в зависимости от оборота
-                            let partnerPercent = 0.5 // по умолчанию 10%
-
-                            if (referrerTurnover >= 100_000_000_000) {
-                                partnerPercent = 0.2
-                            } else if (referrerTurnover >= 25_000_000_000) {
-                                partnerPercent = 0.25
-                            } else if (referrerTurnover >= 10_000_000_000) {
-                                partnerPercent = 0.3
-                            } else if (referrerTurnover >= 5_000_000_000) {
-                                partnerPercent = 0.35
-                            } else if (referrerTurnover >= 1_000_000_000) {
-                                partnerPercent = 0.4
-                            }
-
-                            // Теперь считаем вознаграждение
-                            const referrerShare = Math.round(
-                                platformCommission * partnerPercent
-                            )
-
-                            // Начисляем рефереру
-                            const referrerUpdate =
-                                await UserBalance.findOneAndUpdate(
-                                    { userId: referrerId },
-                                    { $inc: { balance: referrerShare } },
-                                    { new: true, runValidators: true }
-                                )
-
-                            // Логгируем транзакцию для реферера (если хотите)
-                            if (referrerUpdate) {
-                                await Transaction.create({
-                                    userId: referrerId,
-                                    type: 'purchase',
-                                    amount: referrerShare,
-                                    fee: 0,
-                                    status: 'completed',
-                                    details: { order_id, buyerId },
-                                })
-                            }
-                            await db.query(
-                                `INSERT INTO referral_commissions 
-                                 (order_id, user_id, referrer_id, platform_commission, partner_commission)
-                                 VALUES ($1, $2, $3, $4, $5)`,
-                                [
-                                    order_id,
-                                    user_id,
-                                    referrerTgId,
-                                    platformCommission,
-                                    referrerShare,
-                                ]
-                            )
-                        }
-
-                        const sellerAmount = amount - platformCommission
-
-                        const sellerUpdate = await UserBalance.findOneAndUpdate(
-                            { userId: sellerId },
-                            { $inc: { balance: sellerAmount } },
-                            { new: true, runValidators: true }
+                            [referrerTgId]
                         )
 
-                        if (!sellerUpdate) {
-                            await UserBalance.findOneAndUpdate(
-                                { userId: buyerId },
-                                { $inc: { balance: totalAmount } }
-                            )
-                            return res.status(500).json({
-                                error: 'Не удалось обновить баланс продавца',
-                            })
+                        const referrerTurnover =
+                            parseFloat(
+                                referrerTurnoverResult.rows[0].total_sum
+                            ) || 0
+
+                        // Вычисляем процент партнёрского вознаграждения в зависимости от оборота
+                        let partnerPercent = 0.5 // по умолчанию 10%
+
+                        if (referrerTurnover >= 100_000_000_000) {
+                            partnerPercent = 0.2
+                        } else if (referrerTurnover >= 25_000_000_000) {
+                            partnerPercent = 0.25
+                        } else if (referrerTurnover >= 10_000_000_000) {
+                            partnerPercent = 0.3
+                        } else if (referrerTurnover >= 5_000_000_000) {
+                            partnerPercent = 0.35
+                        } else if (referrerTurnover >= 1_000_000_000) {
+                            partnerPercent = 0.4
                         }
 
-                        const [sellerTransaction] = await Promise.all([
-                            Transaction.create({
-                                userId: sellerId,
+                        // Теперь считаем вознаграждение
+                        const referrerShare = Math.round(
+                            platformCommission * partnerPercent
+                        )
+
+                        // Начисляем рефереру
+                        const referrerUpdate =
+                            await UserBalance.findOneAndUpdate(
+                                { userId: referrerId },
+                                { $inc: { balance: referrerShare } },
+                                { new: true, runValidators: true }
+                            )
+
+                        // Логгируем транзакцию для реферера (если хотите)
+                        if (referrerUpdate) {
+                            await Transaction.create({
+                                userId: referrerId,
                                 type: 'purchase',
-                                amount,
+                                amount: referrerShare,
                                 fee: 0,
                                 status: 'completed',
                                 details: { order_id, buyerId },
-                            }),
-                        ])
-
-                        const requestBody = {
-                            user_id: order.user_id,
-                            order_id: order_id,
-                            channel_name: order.title,
-                            price: amount,
+                            })
                         }
-
-                        console.log(requestBody)
-
-                        const response = await fetch(
-                            'http://localhost:5001/confirmation',
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(requestBody),
-                            }
+                        await db.query(
+                            `INSERT INTO referral_commissions 
+                                 (order_id, user_id, referrer_id, platform_commission, partner_commission)
+                                 VALUES ($1, $2, $3, $4, $5)`,
+                            [
+                                order_id,
+                                user_id,
+                                referrerTgId,
+                                platformCommission,
+                                referrerShare,
+                            ]
                         )
+                    }
 
-                        if (!response.ok) {
-                            throw new Error(
-                                `Error from POST request: ${response.statusText}`
-                            )
-                        }
+                    const sellerAmount = amount - platformCommission
 
-                        const data = await response.json()
+                    const sellerUpdate = await UserBalance.findOneAndUpdate(
+                        { userId: sellerId },
+                        { $inc: { balance: sellerAmount } },
+                        { new: true, runValidators: true }
+                    )
 
-                        res.status(200).json({
-                            message:
-                                'Order status updated successfully and POST request sent successfully',
-                            sellerTransaction: sellerTransaction._id,
-                        })
-                    } else {
-                        res.status(404).json({
-                            error: 'Order not found or already completed',
+                    if (!sellerUpdate) {
+                        // await UserBalance.findOneAndUpdate(
+                        //     { userId: buyerId },
+                        //     { $inc: { balance: totalAmount } }
+                        // )
+                        return res.status(500).json({
+                            error: 'Не удалось обновить баланс продавца',
                         })
                     }
+
+                    const [sellerTransaction] = await Promise.all([
+                        Transaction.create({
+                            userId: sellerId,
+                            type: 'purchase',
+                            amount,
+                            fee: 0,
+                            status: 'completed',
+                            details: { order_id, buyerId },
+                        }),
+                    ])
+
+                    const result = await db.query(
+                        `UPDATE orders 
+                             SET status = 'completed' 
+                             WHERE user_id = $1 AND order_id = $2 AND status = 'paid'`,
+                        [user_id, id]
+                    )
+
+                    const requestBody = {
+                        user_id: order.user_id,
+                        order_id: order_id,
+                        channel_name: order.title,
+                        price: amount,
+                    }
+
+                    const response = await fetch(
+                        'http://localhost:5001/confirmation',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(requestBody),
+                        }
+                    )
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `Error from POST request: ${response.statusText}`
+                        )
+                    }
+
+                    const data = await response.json()
+
+                    res.status(200).json({
+                        message:
+                            'Order status updated successfully and POST request sent successfully',
+                        sellerTransaction: sellerTransaction._id,
+                    })
                 } else {
                     res.status(403).json({
                         error: 'Invalid status or post times not valid',

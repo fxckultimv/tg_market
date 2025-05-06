@@ -19,7 +19,7 @@ export const handleServerResponse = async (response, set) => {
     return await response.json()
 }
 
-export const useAdminStore = create((set) => ({
+export const useAdminStore = create((set, get) => ({
     isAdmin: false,
     stats: [],
     users: [],
@@ -31,6 +31,7 @@ export const useAdminStore = create((set) => ({
     orderDetails: [],
     categories: [],
     carts: [],
+    promo: [],
 
     checkAdmin: async (initDataRaw) => {
         set({ loading: true, error: null })
@@ -83,40 +84,18 @@ export const useAdminStore = create((set) => ({
             console.error('Error:', error)
         }
     },
-    fetchUsers: async (initDataRaw) => {
+    fetchUsers: async (initDataRaw, id, skip = 0, limit = 10) => {
         set({ loading: true })
-        try {
-            const response = await fetch(
-                'http://localhost:5000/admin_stats/users',
-                {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `tma ${initDataRaw}`,
-                    },
-                }
-            )
-            if (response.status === 204) {
-                // Если сервер вернул 204, устанавливаем пустой массив
-                set({ users: [], loading: false })
-                return []
-            }
-            if (!response.ok) {
-                throw new Error('Network response was not ok')
-            }
-            const data = await handleServerResponse(response, set)
-            set({ users: data, loading: false })
-        } catch (error) {
-            set({ loading: false })
-            console.error('Error:', error)
+
+        const queryParams = new URLSearchParams()
+        if (id !== undefined && id !== null && id !== '') {
+            queryParams.append('id', id)
         }
-    },
-    fetchUsers: async (initDataRaw, skip = 0, limit = 10) => {
-        set({ loading: true })
+        queryParams.append('skip', skip)
+        queryParams.append('limit', limit)
         try {
             const response = await fetch(
-                `http://localhost:5000/admin_stats/users?skip=${skip}&limit=${limit}`,
+                `http://localhost:5000/admin_stats/users?${queryParams.toString()}`,
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -132,14 +111,31 @@ export const useAdminStore = create((set) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
-            set({ users: data.users, loading: false })
+            set({
+                users: data.users,
+                skip,
+                limit,
+                total: data.total,
+                loading: false,
+            })
             return data
         } catch (error) {
-            set({ loading: false })
+            set({ loading: false, error: error })
             console.error('Error:', error)
+            throw error
         }
     },
     fetchUserForId: async (initDataRaw, user_id) => {
@@ -157,50 +153,41 @@ export const useAdminStore = create((set) => ({
                 }
             )
             if (response.status === 204) {
-                // Если сервер вернул 204, устанавливаем пустой массив
                 set({ user: [], loading: false })
                 return []
+            }
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
         } catch (error) {
-            set({ loading: false })
+            set({ loading: false, error: error })
             console.error('Error:', error)
+            throw error
         }
     },
-    fetchAllProducts: async (initDataRaw) => {
+    fetchProducts: async (initDataRaw, name, skip = 0, limit = 10) => {
         set({ loading: true })
-        try {
-            const response = await fetch('http://localhost:5000/products', {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `tma ${initDataRaw}`,
-                },
-            })
-            if (response.status === 204) {
-                // Если сервер вернул 204, устанавливаем пустой массив
-                set({ products: [], loading: false })
-                return []
-            }
-            if (!response.ok) {
-                throw new Error('Network response was not ok')
-            }
-            const data = await handleServerResponse(response, set)
-            set({ products: data.products, loading: false })
-            return data
-        } catch (error) {
-            set({ loading: false })
-            console.error('Error:', error)
-            return null
+        const queryParams = new URLSearchParams()
+        if (name !== undefined && name !== null && name !== '') {
+            queryParams.append('name', name)
         }
-    },
-    fetchProducts: async (initDataRaw, skip = 0, limit = 10) => {
-        set({ loading: true })
+        queryParams.append('skip', skip)
+        queryParams.append('limit', limit)
         try {
             const response = await fetch(
-                `http://localhost:5000/products?skip=${skip}&limit=${limit}`,
+                `http://localhost:5000/admin_stats/products?${queryParams.toString()}`,
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -216,15 +203,31 @@ export const useAdminStore = create((set) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
-            set({ products: data.products, loading: false })
+            set({
+                products: data.products,
+                skip,
+                limit,
+                total: data.total,
+                loading: false,
+            })
             return data
         } catch (error) {
-            set({ loading: false })
+            set({ loading: false, error: error })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     fetchProductsForId: async (initDataRaw, product_id) => {
@@ -242,12 +245,63 @@ export const useAdminStore = create((set) => ({
                 }
             )
             if (response.status === 204) {
-                // Если сервер вернул 204, устанавливаем пустой массив
                 set({ product: [], loading: false })
                 return []
             }
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
             const data = await handleServerResponse(response, set)
             set({ product: data, loading: false })
+        } catch (error) {
+            set({ loading: false, error: error })
+            console.error('Error:', error)
+            throw error
+        }
+    },
+    fetchUserForId: async (initDataRaw, user_id) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                `http://localhost:5000/admin_stats/users/${user_id}`,
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+            if (response.status === 204) {
+                set({ user: [], loading: false })
+                return []
+            }
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+            const data = await handleServerResponse(response, set)
+            set({ user: data, loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)
@@ -340,11 +394,20 @@ export const useAdminStore = create((set) => ({
     //         console.error('Error:', error)
     //     }
     // },
-    fetchOrders: async (initDataRaw, skip = 0, limit = 10) => {
+    fetchOrders: async (initDataRaw, id, skip = 0, limit = 10) => {
         set({ loading: true })
+        const queryParams = new URLSearchParams()
+        if (name !== undefined && name !== null && name !== '') {
+            queryParams.append('name', name)
+        }
+        if (id !== undefined && id !== null && id !== '') {
+            queryParams.append('id', id)
+        }
+        queryParams.append('skip', skip)
+        queryParams.append('limit', limit)
         try {
             const response = await fetch(
-                `http://localhost:5000/admin_stats/orders?skip=${skip}&limit=${limit}`,
+                `http://localhost:5000/admin_stats/orders?${queryParams.toString()}`,
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -360,15 +423,31 @@ export const useAdminStore = create((set) => ({
                 return []
             }
             if (!response.ok) {
-                throw new Error('Network response was not ok')
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
             }
             const data = await handleServerResponse(response, set)
-            set({ orders: data.orders, loading: false })
+            set({
+                orders: data.orders,
+                skip,
+                limit,
+                total: data.total,
+                loading: false,
+            })
             return data
         } catch (error) {
-            set({ loading: false })
+            set({ loading: false, error: error })
             console.error('Error:', error)
-            return null
+            throw error
         }
     },
     fetchOrdersForUser: async (initDataRaw, user_id) => {
@@ -616,6 +695,168 @@ export const useAdminStore = create((set) => ({
             set({ loading: false })
             console.error('Error:', error)
             return null
+        }
+    },
+    fetchPromo: async (initDataRaw) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                'http://localhost:5000/admin_stats/promo',
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+            if (response.status === 204) {
+                set({ promo: [], loading: false })
+                return []
+            }
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+            const data = await handleServerResponse(response, set)
+            set({ promo: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+            throw error
+        }
+    },
+
+    addPromo: async (initDataRaw, code, validDays, maxActivations, percent) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                'http://localhost:5000/admin_stats/promo',
+                {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({
+                        code,
+                        valid_days: validDays,
+                        max_activations: maxActivations,
+                        percent,
+                    }),
+                }
+            )
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+            await get().fetchPromo(initDataRaw)
+            const data = await handleServerResponse(response, set)
+            set({ loading: false })
+            return data
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+            throw error
+        }
+    },
+    deletePromo: async (initDataRaw, id) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                'http://localhost:5000/admin_stats/promo',
+                {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({
+                        id,
+                    }),
+                }
+            )
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+            await get().fetchPromo(initDataRaw)
+            const data = await handleServerResponse(response, set)
+            set({ loading: false })
+            return data
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+            throw error
+        }
+    },
+    fetchConflictOrders: async (initDataRaw) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                'http://localhost:5000/admin_stats/conflict',
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                }
+            )
+            if (response.status === 204) {
+                set({ conflictOrders: [], loading: false })
+                return []
+            }
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+            const data = await handleServerResponse(response, set)
+            set({ conflictOrders: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+            throw error
         }
     },
 }))
@@ -1489,6 +1730,76 @@ export const useUserStore = create((set) => ({
         } catch (error) {
             set({ error: error.message, loading: false })
             console.error('Error:', error)
+            throw error
+        }
+    },
+    activatePromo: async (initDataRaw, code) => {
+        try {
+            const response = await fetch(
+                'http://localhost:5000/promo/activate',
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({ code }),
+                }
+            )
+
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+
+            const data = await handleServerResponse(response, set)
+            return data
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error creating order:', error)
+            throw error
+        }
+    },
+    getMyLastPromo: async (initDataRaw) => {
+        try {
+            const response = await fetch('http://localhost:5000/promo/', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `tma ${initDataRaw}`,
+                },
+            })
+
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+
+            const data = await handleServerResponse(response, set)
+            set({ promo: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error creating order:', error)
             throw error
         }
     },

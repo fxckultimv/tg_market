@@ -15,8 +15,10 @@ const BuyOrder = () => {
     const {
         orderInfo,
         balance,
+        promo,
         fetchBalance,
         checkingStatus,
+        getMyLastPromo,
         buyProduct,
         loading,
         error,
@@ -28,23 +30,8 @@ const BuyOrder = () => {
     useEffect(() => {
         checkingStatus(initDataRaw(), id)
         fetchBalance(initDataRaw())
+        getMyLastPromo(initDataRaw())
     }, [])
-
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //         }
-    //     }
-    // }, [backButton])
 
     const handleBuyProduct = async () => {
         setIsOrderProcessing(true)
@@ -82,8 +69,10 @@ const BuyOrder = () => {
         )
     }
 
+    const discountPercent = promo?.percent || 0
+    const discountedPrice = orderInfo.total_price * (1 - discountPercent / 100)
     const isBalanceSufficient =
-        nanoTonToTon(balance) >= nanoTonToTon(orderInfo.total_price)
+        nanoTonToTon(balance) >= nanoTonToTon(discountedPrice)
 
     return (
         <div className="text-text container mx-auto p-4 flex-row min-h-screen">
@@ -131,9 +120,25 @@ const BuyOrder = () => {
             </div>
 
             <p className="py-2">Ваш баланс: {nanoTonToTon(balance)} TON</p>
-            <p className="py-2">
-                Стоимость заказа: {nanoTonToTon(orderInfo.total_price)} TON
-            </p>
+            {discountPercent > 0 ? (
+                <div className="py-2">
+                    <p>
+                        <span className="line-through text-gray-400">
+                            {nanoTonToTon(orderInfo.total_price)} TON
+                        </span>{' '}
+                        <span className="text-green-600 font-semibold">
+                            {nanoTonToTon(discountedPrice)} TON
+                        </span>
+                    </p>
+                    <p className="text-sm text-green-500">
+                        Скидка по промокоду: {discountPercent}%
+                    </p>
+                </div>
+            ) : (
+                <p className="py-2">
+                    Стоимость заказа: {nanoTonToTon(orderInfo.total_price)} TON
+                </p>
+            )}
             <button
                 onClick={handleBuyProduct}
                 className={`bg-blue px-6 py-3 rounded-2xl font-semibold transition-transform transform${

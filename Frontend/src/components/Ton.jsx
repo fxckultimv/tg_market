@@ -141,7 +141,7 @@ const Ton = () => {
                 <TonConnectButton />
             </div>
 
-            {wallet && wallet.account.chain === CHAIN.MAINNET && (
+            {wallet && wallet.account.chain === CHAIN.TESTNET && (
                 <>
                     <div className="flex justify-between items-center m-2 gap-1">
                         {/* Кнопка для отправки транзакции */}

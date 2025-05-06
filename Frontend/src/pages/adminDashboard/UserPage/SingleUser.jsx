@@ -5,6 +5,7 @@ import UserProducts from './UserProducts'
 import UserOrders from './UserOrders'
 import UserCart from './UserCart'
 import BackButton from '../../../components/BackButton'
+import DefaultImage from '../../../assets/defaultImage.png'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const SingleUser = () => {
@@ -12,25 +13,9 @@ const SingleUser = () => {
     const { id } = useParams()
     const [activeSection, setActiveSection] = useState('products')
 
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //         }
-    //     }
-    // }, [backButton])
-
     useEffect(() => {
         fetchUserForId(initDataRaw(), id)
-    }, [fetchUserForId, id])
+    }, [id])
 
     const renderActiveSection = () => {
         switch (activeSection) {
@@ -49,15 +34,31 @@ const SingleUser = () => {
         <div>
             <BackButton />
             {user && (
-                <ul className="w-full max-w-4xl bg-card-white rounded-lg p-2 shadow-md">
-                    <li
-                        key={user.user_id}
-                        className="mb-4 p-4 rounded-lg bg-dark-gray bg-card-white shadow transition duration-300 hover:shadow-lg"
-                    >
+                <div className="flex bg-card-white rounded-lg p-2 m-2">
+                    <img
+                        src={`` || DefaultImage}
+                        alt={
+                            <div className="text-xl font-bold">
+                                {user.username}
+                            </div>
+                        }
+                        className="rounded-full max-h-[111px]"
+                        onError={(e) => {
+                            e.currentTarget.src = DefaultImage
+                        }}
+                    />
+                    <div key={user.user_id} className="p-4 rounded-lg">
                         <div className="text-xl font-bold">{user.username}</div>
-                        <div className="">
+                        <div
+                            className="text-gray cursor-pointer hover:underline"
+                            onClick={() =>
+                                navigator.clipboard.writeText(user.user_id)
+                            }
+                            title="Копировать"
+                        >
                             <span className="">ID:</span> {user.user_id}
                         </div>
+
                         <div className="">
                             <span className="">Рейтинг:</span> {user.rating}
                         </div>
@@ -65,16 +66,14 @@ const SingleUser = () => {
                             <span className="">Дата создания:</span>{' '}
                             {new Date(user.created_at).toLocaleDateString()}
                         </div>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             )}
 
-            <div className="flex space-x-4 mt-4">
+            <div className="flex space-x-4 m-4">
                 <button
                     className={`px-4 py-2 rounded ${
-                        activeSection === 'products'
-                            ? 'bg-blue-500 bg'
-                            : 'bg-gray-700 text-gray-300'
+                        activeSection === 'products' ? 'bg-blue' : 'bg-gray'
                     }`}
                     onClick={() => setActiveSection('products')}
                 >
@@ -82,9 +81,7 @@ const SingleUser = () => {
                 </button>
                 <button
                     className={`px-4 py-2 rounded ${
-                        activeSection === 'orders'
-                            ? 'bg-blue-500 bg'
-                            : 'bg-gray-700 text-gray-300'
+                        activeSection === 'orders' ? 'bg-blue' : 'bg-gray'
                     }`}
                     onClick={() => setActiveSection('orders')}
                 >
@@ -92,9 +89,7 @@ const SingleUser = () => {
                 </button>
                 <button
                     className={`px-4 py-2 rounded ${
-                        activeSection === 'cart'
-                            ? 'bg-blue-500 bg'
-                            : 'bg-gray-700 text-gray-300'
+                        activeSection === 'cart' ? 'bg-blue' : 'bg-gray'
                     }`}
                     onClick={() => setActiveSection('cart')}
                 >
@@ -102,7 +97,7 @@ const SingleUser = () => {
                 </button>
             </div>
 
-            <div className="mt-4">{renderActiveSection()}</div>
+            <div className="m-2 rounded-xl">{renderActiveSection()}</div>
         </div>
     )
 }

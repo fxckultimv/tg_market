@@ -18,6 +18,7 @@ const Feedback = ({ order_id }) => {
         setSubmitted(false)
         addToast('Спасибо за отзыв')
         fetchSingleHistory(initDataRaw(), order_id)
+        setIsVisible(false)
     }
 
     const handleClose = () => {
@@ -43,7 +44,7 @@ const Feedback = ({ order_id }) => {
     }
 
     return (
-        <div className="fixed bottom-4 bg-card-white rounded-xl max-w-full mr-4 p-2">
+        <div className="fixed bottom-4 bg-card-white rounded-xl max-w-full mr-4 p-2 mb-20">
             <button
                 onClick={handleClose}
                 className="absolute top-2 right-3 text-gray-500 hover:text-red-500 text-lg"

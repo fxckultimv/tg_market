@@ -19,6 +19,9 @@ router.get('/users/:id', adminController.user)
 //Получение продуктов пользователя
 router.get('/users/:id/products', adminController.userProducts)
 
+//Поиск продуктов
+router.get('/products', adminController.products)
+
 //Получение категорий
 router.get('/categories', adminController.categories)
 
@@ -37,8 +40,8 @@ router.get('/cart/:id', adminController.cartUser)
 //Получение заказов
 router.get('/orders', adminController.orders)
 
-//Получение конкретного заказа
-router.get('/orders/:id', adminController.order)
+// //Получение конкретного заказа
+// router.get('/orders/:id', adminController.order)
 
 //Получение деталей заказа
 router.get('/orders/details/:id', adminController.orderDetails)
@@ -48,5 +51,13 @@ router.get('/orders/user/:id', adminController.orderUser)
 
 //Удаление продукта
 router.delete('/products/:product_id', adminController.deleteProduct)
+
+router.get('/promo', adminController.promo)
+
+router.put('/promo', adminController.addPromo)
+
+router.delete('/promo', adminController.deletePromo)
+
+router.get('/conflict', adminController.conflict)
 
 module.exports = router

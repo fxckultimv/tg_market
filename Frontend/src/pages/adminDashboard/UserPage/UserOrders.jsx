@@ -5,24 +5,16 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 
 const UserOrders = () => {
     const { orders, fetchOrdersForUser, loading, error } = useAdminStore()
     const { id } = useParams()
     const [hasFetched, setHasFetched] = useState(false)
 
-    console.log(id)
-
     useEffect(() => {
-        if (!hasFetched) {
-            fetchOrdersForUser(
-                initDataRaw(),
-                id.then(() => {
-                    setHasFetched(true)
-                })
-            )
-        }
-    }, [fetchOrdersForUser, orders])
+        fetchOrdersForUser(initDataRaw(), id)
+    }, [])
 
     if (loading) {
         return (
@@ -43,55 +35,38 @@ const UserOrders = () => {
     return (
         <div className="flex min-h-screen flex-col items-center bg-dark-gray  p-1">
             <h2 className="mb-6 text-xl font-extrabold text-main-green">
-                Управление заказами
+                Управление заказами пользователя
             </h2>
-            <ul className="w-full max-w-4xl bg-card-white rounded-lg p-2 shadow-md">
+            <div className="w-full max-w-7xl bg-medium-gray rounded-lg p-4 shadow-md">
+                {/* Заголовки */}
+                <div className="grid grid-cols-5 gap-4 text-sm font-semibold text-white mb-2">
+                    <div>ID заказа</div>
+                    <div>ID пользователя</div>
+                    <div>Сумма</div>
+                    <div>Статус</div>
+                    <div>Дата создания</div>
+                </div>
+
+                {/* Строки заказов */}
                 {orders.map((order) => (
                     <Link
-                        key={order.user_id}
                         to={`/admin/orders/${order.order_id}`}
+                        key={order.order_id}
                     >
-                        <li
-                            key={order.order_id}
-                            className="mb-4 p-4 rounded-lg bg-background  shadow transition duration-300 hover:shadow-lg"
-                        >
-                            <div className="text-xl font-bold">
-                                Заказ #{order.order_id}
-                            </div>
-                            <div className="">
-                                <span className="font-semibold">
-                                    ID заказа:
-                                </span>{' '}
-                                {order.order_id}
-                            </div>
-                            <div className="">
-                                <span className="font-semibold">
-                                    ID пользователя:
-                                </span>{' '}
-                                {order.user_id}
-                            </div>
-                            <div className="">
-                                <span className="font-semibold">Статус:</span>{' '}
-                                {order.status}
-                            </div>
-                            <div className="">
-                                <span className="font-semibold">
-                                    Общая сумма:
-                                </span>{' '}
-                                {order.total_price} руб.
-                            </div>
-                            <div className="">
-                                <span className="font-semibold">
-                                    Дата создания:
-                                </span>{' '}
+                        <div className="grid grid-cols-5 gap-4 p-4 bg-card-white border-[1px]">
+                            <div className="font-bold">№{order.order_id}</div>
+                            <div>{order.user_id}</div>
+                            <div>{nanoTonToTon(order.total_price)} Ton.</div>
+                            <div>{order.status}</div>
+                            <div>
                                 {new Date(
                                     order.created_at
                                 ).toLocaleDateString()}
                             </div>
-                        </li>
+                        </div>
                     </Link>
                 ))}
-            </ul>
+            </div>
         </div>
     )
 }

@@ -10,6 +10,7 @@ import Balance from './Balance'
 import Ton from './Ton'
 import { initDataRaw, initData } from '@telegram-apps/sdk-react'
 import ReferralButton from './ReferralButton'
+import Promo from './Promo'
 
 const ProfileLayout = () => {
     const { user, fetchMe, fetchBalance, isAdmin, balance, error, loading } =
@@ -78,6 +79,7 @@ const ProfileLayout = () => {
                                 </div>
                             )} */}
                             <Ton />
+                            <Promo />
                         </div>
                     </div>
                     <div className="flex flex-col items-start bg-card-white rounded-b-xl gap-3 px-2 pb-2">

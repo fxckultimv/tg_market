@@ -46,7 +46,7 @@ class historyController {
 
         try {
             const result = await db.query(
-                `SELECT o.order_id,  o.total_price, o.status, o.created_at, 
+                `SELECT o.order_id,  o.total_price, o.status, o.created_at, o.discounted_price,
 	            oi.product_id, oi.price,ARRAY_AGG(DISTINCT oi.post_time) as post_times, oi.format, oi.quantity, vc.channel_tg_id,
 	            vc.channel_url, vc.channel_title, r.review_id
                 FROM orders AS o

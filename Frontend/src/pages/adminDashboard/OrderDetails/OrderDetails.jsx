@@ -11,12 +11,7 @@ const OrderDetails = () => {
 
     useEffect(() => {
         if (!hasFetched) {
-            fetchOrdersDetails(
-                initDataRaw(),
-                id.then(() => {
-                    setHasFetched(true)
-                })
-            )
+            fetchOrdersDetails(initDataRaw(), id)
         }
     }, [fetchOrdersDetails, hasFetched, id])
 

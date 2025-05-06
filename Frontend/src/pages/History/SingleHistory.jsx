@@ -72,6 +72,12 @@ const SingleHistory = () => {
                     <strong>Общая стоимость:</strong>{' '}
                     {nanoTonToTon(singleHistory.total_price)} ton.
                 </p>
+                {singleHistory.discounted_price && (
+                    <p>
+                        <strong>Цена со скидкой:</strong>{' '}
+                        {nanoTonToTon(singleHistory.discounted_price)} ton.
+                    </p>
+                )}
                 <p>
                     <strong>Количество реклам:</strong>{' '}
                     {singleHistory.post_times?.length || 0}
