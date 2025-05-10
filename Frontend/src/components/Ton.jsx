@@ -160,7 +160,7 @@ const Ton = () => {
                         </button>
                     </div>
                     {/* Вывод */}
-                    {balance === undefined && balance === null && (
+                    {balance !== undefined && balance !== null && (
                         <div className="m-2 flex flex-col gap-2">
                             <div className="flex gap-2 items-center">
                                 <input

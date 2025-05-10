@@ -9,7 +9,8 @@ import DefaultImage from '../../../assets/defaultImage.png'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const SingleUser = () => {
-    const { user, fetchUserForId, loading, error } = useAdminStore()
+    const { user, fetchUserForId, withdrawalBan, loading, error } =
+        useAdminStore()
     const { id } = useParams()
     const [activeSection, setActiveSection] = useState('products')
 
@@ -66,6 +67,24 @@ const SingleUser = () => {
                             <span className="">Дата создания:</span>{' '}
                             {new Date(user.created_at).toLocaleDateString()}
                         </div>
+                        <button
+                            onClick={async () => {
+                                const newBanStatus = !user.withdrawal_ban
+
+                                await withdrawalBan(
+                                    initDataRaw(),
+                                    user.user_id,
+                                    newBanStatus
+                                )
+                            }}
+                            className={`mt-4 px-4 py-2 rounded text-white ${
+                                user.withdrawal_ban ? 'bg-green' : 'bg-red'
+                            }`}
+                        >
+                            {user.withdrawal_ban
+                                ? 'Разблокировать вывод'
+                                : 'Заблокировать вывод'}
+                        </button>
                     </div>
                 </div>
             )}

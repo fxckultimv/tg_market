@@ -859,6 +859,45 @@ export const useAdminStore = create((set, get) => ({
             throw error
         }
     },
+    withdrawalBan: async (initDataRaw, user_id, ban) => {
+        set({ loading: true })
+        try {
+            const response = await fetch(
+                'http://localhost:5000/admin_stats/withdrawalban',
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({
+                        user_id,
+                        ban,
+                    }),
+                }
+            )
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+            await get().fetchUserForId(initDataRaw, user_id)
+            set({ loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error:', error)
+            throw error
+        }
+    },
 }))
 
 export const useUserStore = create((set, get) => ({

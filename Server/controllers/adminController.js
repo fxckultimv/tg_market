@@ -487,6 +487,44 @@ class AdminController {
             res.status(500).json({ error: 'Database error' })
         }
     }
+    async withdrawalBan(req, res) {
+        const { user_id, ban } = req.body
+
+        // Валидация входных данных
+        if (!user_id) {
+            return res.status(400).json({ error: 'Некорректный user_id' })
+        }
+
+        if (typeof ban !== 'boolean') {
+            return res
+                .status(400)
+                .json({ error: 'Поле ban должно быть true или false' })
+        }
+
+        try {
+            const result = await db.query(
+                `
+                UPDATE users
+                SET withdrawal_ban = $1
+                WHERE user_id = $2
+                RETURNING withdrawal_ban
+                `,
+                [ban, user_id]
+            )
+
+            if (result.rowCount === 0) {
+                return res.status(404).json({ error: 'Пользователь не найден' })
+            }
+
+            res.status(200).json({
+                user_id,
+                ban: result.rows[0].withdrawal_ban,
+            })
+        } catch (err) {
+            console.error('Ошибка при обновлении withdrawal_ban:', err)
+            res.status(500).json({ error: 'Ошибка базы данных' })
+        }
+    }
 }
 
 module.exports = new AdminController()

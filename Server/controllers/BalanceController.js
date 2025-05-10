@@ -1,4 +1,5 @@
 const logger = require('../config/logging')
+const db = require('../db')
 const UserBalance = require('../models/UserBalance')
 const Transaction = require('../models/Transaction')
 const {
@@ -212,6 +213,7 @@ class BalanceController {
         try {
             const { amount, toAddress } = req.body
             const userId = req.user._id
+            const user_id = req.user.userId
 
             // Валидация amount
             if (
@@ -234,6 +236,15 @@ class BalanceController {
                 return res
                     .status(400)
                     .json({ error: 'Некорректный адрес получателя' })
+            }
+
+            const checkBan = await db.query(
+                'SELECT EXISTS (SELECT 1 FROM users WHERE user_id = $1 AND withdrawal_ban = true) AS banned',
+                [user_id]
+            )
+
+            if (checkBan.rows[0]?.banned) {
+                return res.status(403).json({ error: 'Вывод заблокирован' })
             }
 
             const amountStr = amount.toString() // Всегда строка

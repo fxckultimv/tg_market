@@ -60,4 +60,6 @@ router.delete('/promo', adminController.deletePromo)
 
 router.get('/conflict', adminController.conflict)
 
+router.post('/withdrawalban', adminController.withdrawalBan)
+
 module.exports = router
