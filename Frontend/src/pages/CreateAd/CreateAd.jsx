@@ -15,6 +15,8 @@ import { useRef } from 'react'
 import { useToast } from '../../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import DefaultImage from '../../assets/defaultImage.png'
+import FormatInfo from '../../components/FormatInfo'
+import EquivalentCourse from '../../components/EquivalentCourse'
 
 const CreateAd = () => {
     const { addToast } = useToast()
@@ -212,7 +214,7 @@ const CreateAd = () => {
                 </h1>
             </div>
 
-            <div className="flex flex-col gap-6 mx-auto justify-center items-center w-[80%] min-h-screen">
+            <div className="flex flex-col gap-5 mx-auto justify-center items-center w-[90%] min-h-screen max-sm:gap-2">
                 <div className="flex flex-col gap-6 min w-full">
                     {verifiedChannels.length > 0 ? (
                         <>
@@ -326,9 +328,13 @@ const CreateAd = () => {
 
                             {/* Выбор формата размещения */}
                             <div className="bg-card-white rounded-xl p-6">
-                                <p className="text-base">
-                                    Выберите формат публикации:
-                                </p>
+                                <div className="flex gap-3">
+                                    <p className="text-base">
+                                        Выберите формат :
+                                    </p>
+                                    <FormatInfo />
+                                </div>
+
                                 <div className="flex gap-2 p-6 flex-wrap">
                                     {formats.map((format) => (
                                         <button
@@ -479,6 +485,7 @@ const CreateAd = () => {
                                             }}
                                         />
                                     </div>
+                                    <EquivalentCourse ton={price} />
                                 </div>
                             </div>
                         </>

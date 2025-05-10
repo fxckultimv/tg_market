@@ -2,6 +2,7 @@ import React from 'react'
 import { nanoTonToTon, tonToNanoTon } from '../../../utils/tonConversion'
 import Ton from '../../../assets/ton_symbol.svg'
 import DefaultImage from '../../../assets/defaultImage.png'
+import EquivalentCourse from '../../../components/EquivalentCourse'
 
 const ProductCard = ({ product }) => {
     return (
@@ -38,6 +39,7 @@ const ProductCard = ({ product }) => {
                         {nanoTonToTon(product.price)} Ton
                     </p>
                 </div>
+                <EquivalentCourse ton={nanoTonToTon(product.price)} />
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useProductStore } from '../../store'
+import { useProductStore, useUserStore } from '../../store'
 import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
 import Loading from '../../Loading'
@@ -11,6 +11,7 @@ import star from '../../assets/star.svg'
 import InfoBox from '../../components/InfoBox'
 import { motion, AnimatePresence } from 'framer-motion'
 import DefaultImage from '../../assets/defaultImage.png'
+import EquivalentCourse from '../../components/EquivalentCourse'
 
 const ChannelsList = () => {
     const { products, page, totalPages, plusPage, minusPage, loading, error } =
@@ -69,6 +70,7 @@ const ProductCard = ({ product }) => {
     const [postTime, setPostTime] = useState('')
     const [format, setFormat] = useState(0)
     const navigate = useNavigate()
+    const { course, courses, convertTon, isCoursesReady } = useUserStore()
 
     const handleButtonClick = (event, action) => {
         event.preventDefault() // Предотвращает переход по ссылке
@@ -270,7 +272,7 @@ const ProductCard = ({ product }) => {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col items-center">
                         <div className="flex items-center gap-2">
                             <p className="text-3xl max-md:text-xl ">
                                 {nanoTonToTon(product.price)}
@@ -282,6 +284,8 @@ const ProductCard = ({ product }) => {
                                 style={{ verticalAlign: 'middle' }}
                             />
                         </div>
+
+                        <EquivalentCourse ton={nanoTonToTon(product.price)} />
                         {/* <h2 className="text-3xl">{product.price} ₽</h2> */}
                     </div>
                 </div>

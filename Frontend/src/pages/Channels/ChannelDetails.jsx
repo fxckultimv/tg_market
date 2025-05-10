@@ -17,6 +17,8 @@ import { nanoTonToTon, tonToNanoTon } from '../../utils/tonConversion'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import DefaultImage from '../../assets/defaultImage.png'
+import FormatInfo from '../../components/FormatInfo'
+import EquivalentCourse from '../../components/EquivalentCourse'
 
 const ChannelDetails = () => {
     const navigate = useNavigate()
@@ -259,7 +261,7 @@ const ChannelDetails = () => {
     }
 
     return (
-        <div className="flex flex-col gap-5 p-8 max-sm:gap-2">
+        <div className="flex flex-col gap-5 p-4 max-sm:gap-2">
             <BackButton></BackButton>
             <div className="bg-card-white flex flex-col justify-between rounded-xl">
                 <div className="flex gap-6 py-2 px-6 w-full">
@@ -301,7 +303,7 @@ const ChannelDetails = () => {
                         </Link>
                     </div>
                 </div>
-                <div className="flex gap-5 py-2 px-6 max-md:flex-col max-sm:gap-2">
+                <div className="flex gap-3 py-2 px-6 max-md:flex-col max-sm:gap-1">
                     <p className="text-base">
                         <span className="font-bold">Канал:</span>{' '}
                         {productDetails.channel_name}
@@ -330,11 +332,17 @@ const ChannelDetails = () => {
                 </p>
             </div>
             <div className="flex bg-card-white py-2 px-6 rounded-xl">
-                <div className="bg-blue flex items-center justify-between rounded-lg p-2">
-                    <img src={Ton} alt="" className="h-[2em]" />
-                    <p className="text-lg p-3 rounded-lg text-white">
-                        {nanoTonToTon(productDetails.price)} Ton
-                    </p>
+                <div className="flex flex-col items-center">
+                    <div className="bg-blue flex items-center justify-between rounded-lg p-1">
+                        <div></div>
+                        <img src={Ton} alt="" className="h-[2em]" />
+                        <p className="text-lg p-2 rounded-lg text-white">
+                            {nanoTonToTon(productDetails.price)} Ton
+                        </p>
+                    </div>
+                    <EquivalentCourse
+                        ton={nanoTonToTon(productDetails.price)}
+                    />
                 </div>
             </div>
             <div className="bg-card-white py-2 px-6 rounded-xl">
@@ -344,12 +352,16 @@ const ChannelDetails = () => {
             <div className="flex bg-card-white rounded-xl gap-4 py-2 px-6 max-sm:flex-col">
                 {/* Выпадающий список для выбора формата */}
                 <div className="basis-1/2">
-                    <label
-                        htmlFor="format"
-                        className="block text-lg font-semibold mb-2"
-                    >
-                        Выберите формат:
-                    </label>
+                    <div className="flex gap-3">
+                        <label
+                            htmlFor="format"
+                            className="block text-base font-semibold mb-2"
+                        >
+                            Выберите формат:
+                        </label>
+                        <FormatInfo />
+                    </div>
+
                     <select
                         id="format"
                         value={format} // Значение выбранного формата
@@ -369,7 +381,7 @@ const ChannelDetails = () => {
                 <div className="basis-1/2">
                     <label
                         htmlFor="post_time"
-                        className="block text-lg font-semibold mb-2"
+                        className="block text-base font-semibold mb-2"
                     >
                         Выберите время:
                     </label>
@@ -391,7 +403,7 @@ const ChannelDetails = () => {
             </div>
 
             {/* Блок с календарем */}
-            <div className="bg-card-white p-2">
+            <div className="bg-card-white p-2 rounded-xl">
                 <h3 className="text-2xl py-2 px-4">Выберите даты:</h3>
                 <Calendar
                     onClickDay={handleDateChange} // Используем onClickDay для обработки кликов по дням

@@ -18,6 +18,7 @@ import check from '../../../assets/check.svg'
 import { useToast } from '../../../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import DefaultImage from '../../../assets/defaultImage.png'
+import EquivalentCourse from '../../../components/EquivalentCourse'
 
 const ChannelStats = () => {
     const { id } = useParams()
@@ -440,6 +441,7 @@ const ChannelStats = () => {
                                     }}
                                 />
                             </div>
+                            <EquivalentCourse ton={price} />
                         </div>
                     </div>
 

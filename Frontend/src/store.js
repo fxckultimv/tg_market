@@ -861,7 +861,7 @@ export const useAdminStore = create((set, get) => ({
     },
 }))
 
-export const useUserStore = create((set) => ({
+export const useUserStore = create((set, get) => ({
     authReady: false,
     setAuthReady: (value) => set({ authReady: value }),
     sessionExpired: false, // Состояние для модального окна сессии
@@ -882,6 +882,20 @@ export const useUserStore = create((set) => ({
     balance: 0,
     orderInfo: [],
     referral: [],
+    courses: {},
+    course: '',
+    setCourse: (userCourse) => set({ course: userCourse }),
+    isCoursesReady: () => {
+        const { courses, course } = get()
+        return !!courses?.[course]
+    },
+
+    convertTon: (amountTon) => {
+        const { courses, course } = get()
+        if (!courses || !courses[course]) return null
+        return Math.round(amountTon * courses[course])
+    },
+
     fetchAuth: async (initDataRaw) => {
         set({ loading: true, error: null })
 
@@ -934,7 +948,7 @@ export const useUserStore = create((set) => ({
         set({ loading: true, error: null })
         try {
             const response = await fetch(
-                'http://localhost:5000/balance/balance?id=801541001',
+                'http://localhost:5000/balance/balance',
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -1797,6 +1811,40 @@ export const useUserStore = create((set) => ({
 
             const data = await handleServerResponse(response, set)
             set({ promo: data, loading: false })
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error creating order:', error)
+            throw error
+        }
+    },
+
+    fetchCourses: async () => {
+        try {
+            const response = await fetch(
+                'https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd,eur,rub,byr,kzt,uah,cny',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+            const data = await response.json()
+            set({ courses: data['the-open-network'], loading: false })
         } catch (error) {
             set({ loading: false })
             console.error('Error creating order:', error)

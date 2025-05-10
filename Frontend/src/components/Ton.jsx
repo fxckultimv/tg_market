@@ -61,7 +61,6 @@ const Ton = () => {
             // Отправляем транзакцию через TonConnect UI
             const transactionResponse =
                 await tonConnectUI.sendTransaction(myTransaction)
-            console.log(transactionResponse)
             await topUpBalance(
                 initDataRaw(),
                 tonToNanoTon(amount),
@@ -161,7 +160,7 @@ const Ton = () => {
                         </button>
                     </div>
                     {/* Вывод */}
-                    {balance && (
+                    {balance === undefined && balance === null && (
                         <div className="m-2 flex flex-col gap-2">
                             <div className="flex gap-2 items-center">
                                 <input

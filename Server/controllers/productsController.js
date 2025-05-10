@@ -317,7 +317,7 @@ class productController {
 
         try {
             const result = await db.query(
-                `SELECT p.product_id, p.category_id, p.title,  p.description, p.price, p.post_time, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, u.username,
+                `SELECT p.product_id, p.category_id, p.title,  p.description, p.price, p.post_time, v.channel_id, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, u.username,
                 COALESCE(ARRAY_AGG(DISTINCT ppf.format_id), ARRAY[]::INTEGER[]) AS format_ids, COALESCE(ARRAY_AGG(DISTINCT ppt.post_time), ARRAY[]::time with time zone[]) AS post_times
                 FROM products p
                 LEFT JOIN verifiedchannels v ON p.channel_id = v.channel_id
@@ -325,7 +325,7 @@ class productController {
                 LEFT JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
                 LEFT JOIN products_post_time ppt ON p.product_id = ppt.product_id
                 WHERE p.product_id = $1
-                GROUP BY p.product_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url, v.channel_tg_id, u.rating, u.user_uuid, u.username, v.views, v.subscribers_count`,
+                GROUP BY p.product_id, v.channel_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url, v.channel_tg_id, u.rating, u.user_uuid, u.username, v.views, v.subscribers_count`,
                 [id]
             )
 

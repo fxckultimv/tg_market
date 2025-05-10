@@ -12,6 +12,7 @@ import Ton from '../../assets/ton_symbol.svg'
 import star from '../../assets/star.svg'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import DefaultImage from '../../assets/defaultImage.png'
+import EquivalentCourse from '../../components/EquivalentCourse'
 
 const CartItem = ({ cart }) => {
     const navigate = useNavigate()
@@ -228,15 +229,21 @@ const CartItem = ({ cart }) => {
                                 </div>
                                 <div className="bg-gray w-full h-[1px] "></div>
                                 <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-1">
-                                        <img
-                                            src={Ton}
-                                            alt=""
-                                            className="h-[2em]"
+                                    <div>
+                                        <div className="flex items-center gap-1">
+                                            <img
+                                                src={Ton}
+                                                alt=""
+                                                className="h-[2em]"
+                                            />
+                                            <p className=" text-lg text-accent-green">
+                                                {nanoTonToTon(product.price)}{' '}
+                                                Ton
+                                            </p>
+                                        </div>
+                                        <EquivalentCourse
+                                            ton={nanoTonToTon(product.price)}
                                         />
-                                        <p className=" text-lg text-accent-green">
-                                            {nanoTonToTon(product.price)} Ton
-                                        </p>
                                     </div>
 
                                     <button

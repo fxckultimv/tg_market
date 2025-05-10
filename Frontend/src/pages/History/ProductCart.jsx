@@ -2,6 +2,7 @@ import React from 'react'
 import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
 import DefaultImage from '../../assets/defaultImage.png'
+import EquivalentCourse from '../../components/EquivalentCourse'
 
 const ProductCart = ({ order }) => {
     const statusTranslations = {
@@ -67,6 +68,7 @@ const ProductCart = ({ order }) => {
                         {nanoTonToTon(order.total_price)} Ton
                     </p>
                 </div>
+                <EquivalentCourse ton={nanoTonToTon(order.total_price)} />
             </div>
 
             {/* <div className="flex-shrink-0">

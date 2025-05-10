@@ -35,7 +35,7 @@ import OrderDetails from './pages/adminDashboard/OrderDetails/OrderDetails'
 import AdminCategories from './pages/adminDashboard/Categories/AdminCategories'
 import AdminTransactions from './pages/adminDashboard/AdminTransactions/AdminTransactions'
 
-import { useAdminStore, useUserStore } from './store'
+import { useAdminStore, useProductStore, useUserStore } from './store'
 import { AnimatePresence } from 'framer-motion'
 import AnimatedPage from './components/AnimatedPage'
 import SessionExpiredModal from './components/SessionExpiredModal'
@@ -47,32 +47,24 @@ import SingleConflict from './pages/adminDashboard/AdminConflict/SingleConflict'
 
 const App = () => {
     const navigate = useNavigate()
-    const { fetchAuth, authReady, isAdmin, theme, setTheme, sessionExpired } =
-        useUserStore()
+    const {
+        fetchAuth,
+        authReady,
+        isAdmin,
+        theme,
+        course,
+        setCourse,
+        setTheme,
+        sessionExpired,
+        fetchCourses,
+    } = useUserStore()
     const location = useLocation()
-
-    // const { isAdmin, checkAdmin } = useAdminStore()
-
-    // useEffect(() => {
-    //     const applyFullscreen = async () => {
-    //         if (typeof viewport !== 'undefined') {
-    //             // Проверяем доступность viewport
-    //             if (isFullscreen) {
-    //                 if (viewport.requestFullscreen.isAvailable()) {
-    //                     await viewport.exitFullscreen()
-    //                 }
-    //             } else {
-    //                 if (viewport.exitFullscreen.isAvailable()) {
-    //                     await viewport.requestFullscreen()
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     applyFullscreen()
-    // }, [isFullscreen])
 
     useEffect(() => {
         fetchAuth(initDataRaw())
+    }, [])
+    useEffect(() => {
+        fetchCourses()
     }, [])
 
     useEffect(() => {
@@ -135,6 +127,11 @@ const App = () => {
         // Устанавливаем начальный класс на <html> элемент
         document.body.classList.add(savedTheme)
     }, [setTheme])
+
+    useEffect(() => {
+        const userCourse = localStorage.getItem('userCourse') || 'usd'
+        setCourse(userCourse)
+    }, [])
 
     // if (loading) {
     //     return <div>Загрузка...</div>

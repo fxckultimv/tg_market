@@ -10,6 +10,7 @@ import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import Feedback from './Feedback'
 import DefaultImage from '../../assets/defaultImage.png'
+import EquivalentCourse from '../../components/EquivalentCourse'
 
 const SingleHistory = () => {
     const { order_id } = useParams()
@@ -70,12 +71,18 @@ const SingleHistory = () => {
                 </p>
                 <p>
                     <strong>Общая стоимость:</strong>{' '}
-                    {nanoTonToTon(singleHistory.total_price)} ton.
+                    {nanoTonToTon(singleHistory.total_price)} ton.{' '}
+                    <EquivalentCourse
+                        ton={nanoTonToTon(singleHistory.total_price)}
+                    />
                 </p>
                 {singleHistory.discounted_price && (
-                    <p>
+                    <p className="">
                         <strong>Цена со скидкой:</strong>{' '}
-                        {nanoTonToTon(singleHistory.discounted_price)} ton.
+                        {nanoTonToTon(singleHistory.discounted_price)} ton.{' '}
+                        <EquivalentCourse
+                            ton={nanoTonToTon(singleHistory.discounted_price)}
+                        />
                     </p>
                 )}
                 <p>

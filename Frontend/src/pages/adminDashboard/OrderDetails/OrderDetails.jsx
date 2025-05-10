@@ -15,22 +15,6 @@ const OrderDetails = () => {
         }
     }, [fetchOrdersDetails, hasFetched, id])
 
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //         }
-    //     }
-    // }, [backButton])
-
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-dark-gray ">

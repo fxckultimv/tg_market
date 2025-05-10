@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useUserStore } from '../../store'
 
 const Setting = () => {
     const [theme, setTheme] = useState('dark') // Тема по умолчанию - тёмная
     const [language, setLanguage] = useState('ru') // Язык по умолчанию - русский
+    const { course, setCourse } = useUserStore()
 
     useEffect(() => {
         // Получаем тему из localStorage при загрузке компонента
@@ -26,6 +28,10 @@ const Setting = () => {
     const handleLanguageChange = (e) => {
         setLanguage(e.target.value)
         // Здесь можно добавить логику по изменению языка в приложении
+    }
+    const handleUserCourse = (e) => {
+        localStorage.setItem('userCourse', e.target.value)
+        setCourse(e.target.value)
     }
 
     return (
@@ -59,6 +65,21 @@ const Setting = () => {
                 >
                     <option value="ru">Русский</option>
                     <option value="en">English</option>
+                </select>
+            </div>
+
+            <div className=" mb-6">
+                <label className="mr-4 font-medium">Эквивалент валюты:</label>
+                <select
+                    value={course}
+                    onChange={handleUserCourse}
+                    className="px-4 py-2 rounded-lg font-semibold bg-background text-text border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                    <option value="rub">RUB</option>
+                    <option value="eur">EUR</option>
+                    <option value="usd">USD</option>
+                    <option value="uah">UAH</option>
+                    <option value="cny">CNY</option>
                 </select>
             </div>
 
