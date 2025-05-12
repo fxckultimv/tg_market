@@ -1890,6 +1890,46 @@ export const useUserStore = create((set, get) => ({
             throw error
         }
     },
+
+    addConflict: async (initDataRaw, order_id) => {
+        try {
+            const response = await fetch(
+                'http://localhost:5000/orders/conflict',
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({ order_id }),
+                }
+            )
+
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+
+            await get().fetchSingleHistory(initDataRaw, order_id)
+
+            const data = await handleServerResponse(response, set)
+            return data
+        } catch (error) {
+            set({ loading: false })
+            console.error('Error creating order:', error)
+            throw error
+        }
+    },
 }))
 
 export const useProductStore = create((set, get) => ({

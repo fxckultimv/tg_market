@@ -19,4 +19,7 @@ router.post('/buy', ordersController.buyItem)
 // Добавление отзыва
 router.post('/review', ordersController.addReview)
 
+// Создать спор
+router.post('/conflict', ordersController.addConflict)
+
 module.exports = router

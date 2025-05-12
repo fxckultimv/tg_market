@@ -55,6 +55,11 @@ const SingleHistory = () => {
                 created_at={singleHistory.created_at}
                 post_times={singleHistory.post_times || []}
             />
+            {singleHistory.status === 'problem' && (
+                <div className="p-2 mt-2 items-center text-center bg-red rounded-xl">
+                    <p className="text-xl text-white">Спорт открыт</p>
+                </div>
+            )}
 
             {/* Данные о товаре */}
             <div className="mt-8 p-4 bg-card-white rounded-xl">

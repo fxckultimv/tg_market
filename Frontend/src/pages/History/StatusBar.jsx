@@ -11,8 +11,13 @@ import { useToast } from '../../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 
 const StatusBar = ({ status, order_id, created_at, post_times }) => {
-    const { confirmationOrder, fetchSingleHistory, error, loading } =
-        useUserStore()
+    const {
+        confirmationOrder,
+        fetchSingleHistory,
+        addConflict,
+        error,
+        loading,
+    } = useUserStore()
     const { addToast } = useToast()
     const now = new Date()
 
@@ -31,6 +36,18 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 addToast('Заказ подтверждён!')
             } catch (err) {
                 console.error('Ошибка:', err)
+            }
+        }
+    }
+
+    const handlerAddOrderConflict = async () => {
+        if (window.confirm('Открыт спор?')) {
+            try {
+                await addConflict(initDataRaw(), order_id)
+                addToast('Спор открыт!')
+            } catch (err) {
+                console.error('Ошибка:', err)
+                addToast(`Ошибка: ${error}`, 'error')
             }
         }
     }
@@ -135,9 +152,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                                 <button
                                     type="submit"
                                     className="bg-red px-4 py-2 rounded-md"
-                                    onClick={() =>
-                                        alert('Обратитесь в поддержку')
-                                    }
+                                    onClick={handlerAddOrderConflict}
                                 >
                                     Открыть спор
                                 </button>

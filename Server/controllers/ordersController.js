@@ -340,6 +340,73 @@ class ordersController {
             res.status(500).json({ error: 'Database error' })
         }
     }
+
+    async addConflict(req, res) {
+        const user_id = req.user.userId
+        const { order_id } = req.body
+
+        if (!order_id) {
+            return res.status(400).json({ error: 'Order id not found' })
+        }
+
+        try {
+            // Проверяем, что все посты уже опубликованы (post_time < NOW()) и заказ оплачен
+            const checkPostedTime = await db.query(
+                `SELECT NOT EXISTS (
+                    SELECT 1
+                    FROM orderItems oi
+                    JOIN orders o ON o.order_id = oi.order_id
+                    WHERE oi.order_id = $1 AND oi.post_time >= NOW() AND o.status = 'paid'
+                ) AS all_posts_before_now;`,
+                [order_id]
+            )
+
+            const allPostsBeforeNow =
+                checkPostedTime.rows[0]?.all_posts_before_now
+
+            if (!allPostsBeforeNow) {
+                return res
+                    .status(400)
+                    .json({ error: 'Не все даты публикации прошли!' })
+            }
+
+            // Обновляем статус заказа на 'problem'
+            const updateOrder = await db.query(
+                `UPDATE orders
+                 SET status = 'problem'
+                 WHERE order_id = $1
+                 RETURNING *;`,
+                [order_id]
+            )
+
+            if (updateOrder.rowCount === 0) {
+                return res.status(404).json({ error: 'Order not found' })
+            }
+
+            // Отправка данных на внешний сервер
+            const sendAdmins = await fetch('http://localhost:5001/conflict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: updateOrder.rows[0].user_id,
+                    order_id: parseInt(order_id),
+                }),
+            })
+
+            if (!sendAdmins.ok) {
+                throw new Error(
+                    `Error from POST request: ${sendAdmins.statusText}`
+                )
+            }
+
+            return res.json(updateOrder.rows[0])
+        } catch (err) {
+            console.error('Ошибка при добавлении конфликта:', err)
+            return res.status(500).json({ error: 'Внутренняя ошибка сервера' })
+        }
+    }
 }
 
 module.exports = new ordersController()

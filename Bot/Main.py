@@ -1273,7 +1273,6 @@ class ConfirmationRequest(BaseModel):
 
 @app.post('/confirmation')
 async def handle_buy(data: ConfirmationRequest):
-    print(data)
     try:
         # Создаем текст сообщения
         text_message = (
@@ -1291,6 +1290,113 @@ async def handle_buy(data: ConfirmationRequest):
     except Exception as e:
         logging.error(f"Ошибка при обработке запроса: {e}")
         raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
+    
+class ConflictRequest(BaseModel):
+    user_id: int
+    order_id: Union[int, None] = None
+
+@app.post('/conflict')
+async def handle_conflict(data: ConflictRequest):
+    try:
+        if data.order_id is None:
+            raise HTTPException(status_code=400, detail="order_id is required")
+
+        async with db_pool.acquire() as connection:
+            # Получаем всех админов
+            admins = await connection.fetch(
+                """SELECT user_id
+                   FROM users
+                   WHERE role = 'admin'"""
+            )
+
+        if not admins:
+            raise HTTPException(status_code=404, detail="No admins found")
+
+        text_message = (
+            f"🚨 *Конфликт по заказу #{data.order_id}*\n\n"
+            f"Пользователь ID `{data.user_id}` подал жалобу.\n"
+            f"Проверьте заказ как можно скорее!"
+        )
+
+        # Клавиатура с mini app
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[[
+                InlineKeyboardButton(
+                    text="👁 Открыть заказ",
+                    web_app=WebAppInfo(url=f"https://tma.internal/admin/conflict/{data.order_id}")
+                )
+            ]]
+        )
+        # Рассылка всем админам
+        for admin in admins:
+            try:
+                await bot.send_message(
+                    admin['user_id'],
+                    text_message,
+                    parse_mode="Markdown",
+                    reply_markup=keyboard
+                )
+            except Exception as e:
+                logging.warning(f"Не удалось отправить сообщение админу {admin['user_id']}: {e}")
+
+        return {"status": "success", "message": "Уведомления отправлены администраторам"}
+
+    except Exception as e:
+        logging.error(f"Ошибка при отправке уведомлений о конфликте: {e}")
+        raise HTTPException(status_code=500, detail=f"Произошла ошибка: {str(e)}")
+    
+async def check_post_time_loop():
+    await asyncio.sleep(5)  # Ждём запуска бота
+
+    while True:
+        now = datetime.utcnow()
+        start = now.replace(second=0, microsecond=0)
+        end = start + timedelta(minutes=1)
+
+        async with db_pool.acquire() as connection:
+            rows = await connection.fetch(
+                """
+                SELECT oi.order_id, o.user_id, oi.post_time, oi.message_id, oi.chat_id, pf.format_name
+                FROM orderitems AS oi
+                JOIN orders o ON o.order_id = oi.order_id
+                JOIN publication_formats pf ON oi.format = pf.format_id
+                WHERE oi.post_time >= $1 AND oi.post_time < $2 AND oi.message_id IS NOT NULL AND chat_id IS NOT NULL
+                """,
+                start, end
+            )
+
+            for row in rows:
+                try:
+                    channel_link = f"https://t.me/c/{str(row['chat_id'])[4:]}"  # убираем -100, чтобы получить id канала в ссылке
+                    message_text = (
+                        f"<b>⏰ Время публикации поста!</b>\n\n"
+                        f"🧾 Заказ <b>#{row['order_id']}</b>\n"
+                        f"🕒 Время поста: {row['post_time'].strftime('%H:%M')}\n"
+                        f"    Формат: {row['format_name']}\n"
+                        f"📢 Канал: <a href='{channel_link}'>перейти в канал</a>\n\n"
+                        f"Пожалуйста, выложите пост прямо сейчас."
+                    )
+
+                    keyboard = InlineKeyboardMarkup().add(
+                        InlineKeyboardButton(
+                            text="Пост",
+                        callback_data=f"post_{row['message_id']}_{row['chat_id']}"
+                        )
+                    )
+
+                    await bot.send_message(
+                        row["user_id"],
+                        message_text,
+                        parse_mode="HTML",
+                        reply_markup=keyboard
+                    )
+
+                    print(f"📨 Уведомление отправлено пользователю {row['user_id']}")
+
+                except Exception as e:
+                    print(f"❌ Ошибка отправки уведомления пользователю {row['user_id']}: {e}")
+
+        await asyncio.sleep(60)  # Проверять каждую минуту
 
 async def start_fastapi():
     config = Config(app=app, host="0.0.0.0", port=5001, log_level="info")
@@ -1305,6 +1411,7 @@ if __name__ == "__main__":
     async def main():
         # Инициализация базы данных
         await create_db_pool()
+        asyncio.create_task(check_post_time_loop())
 
         # Параллельный запуск FastAPI и Aiogram
         await asyncio.gather(
