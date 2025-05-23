@@ -2,6 +2,13 @@ const db = require('../db')
 const UserBalance = require('../models/UserBalance')
 const Transaction = require('../models/Transaction')
 const User = require('../models/User')
+const {
+    sendTon,
+    sendFee,
+    estimateTransactionFees,
+} = require('../utils/tonUtils')
+const MARKET_ADDRESS = process.env.MARKET_WALLET_ADDRESS
+const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS
 
 async function getUserIdByTelegramId(telegramId) {
     try {
@@ -647,13 +654,13 @@ class productController {
         try {
             // Первичная проверка в базе данных
             const checkResult = await db.query(
-                `SELECT o.order_id, o.total_price, o.status, o.user_id AS buyerId, o.promo_code_id, p.user_id, p.title,
+                `SELECT o.order_id, o.total_price, o.status, o.discounted_price, o.user_id AS buyerId, o.promo_code_id, p.user_id, p.title,
                     ARRAY_AGG(DISTINCT oi.post_time) as post_times
                 FROM orders AS o
                 JOIN orderitems oi ON o.order_id = oi.order_id
                 JOIN products p ON p.product_id = oi.product_id
                 WHERE o.order_id = $1 AND o.user_id = $2
-                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id,o.promo_code_id, p.title`,
+                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id, o.promo_code_id, o.discounted_price, p.title`,
                 [id, user_id]
             )
 
@@ -670,6 +677,11 @@ class productController {
                     const amount = order.total_price
                     const buyerId = order.buyerId
                     const order_id = order.order_id
+                    const discounted_price =
+                        order.discounted_price !== null &&
+                        order.discounted_price !== undefined
+                            ? order.discounted_price
+                            : null
 
                     const sellerId = await getUserIdByTelegramId(order.user_id)
                     const refCheck = await db.query(
@@ -681,6 +693,7 @@ class productController {
                     )
 
                     const platformCommission = Math.round(amount * 0.07) // комиссия платформы
+                    let referrerShare
 
                     // Если нашли реферера и нету промокода
                     if (
@@ -722,7 +735,7 @@ class productController {
                         }
 
                         // Теперь считаем вознаграждение
-                        const referrerShare = Math.round(
+                        referrerShare = Math.round(
                             platformCommission * partnerPercent
                         )
 
@@ -794,6 +807,34 @@ class productController {
                              WHERE user_id = $1 AND order_id = $2 AND status = 'paid'`,
                         [user_id, id]
                     )
+
+                    // отправка TON комиссии платформы
+                    let sendTonResult
+                    if (referrerShare) {
+                        sendTonResult = await sendTon(
+                            MARKET_ADDRESS,
+                            FEE_WALLET_ADDRESS,
+                            platformCommission - referrerShare
+                        )
+                    } else if (discounted_price) {
+                        sendTonResult = await sendTon(
+                            MARKET_ADDRESS,
+                            FEE_WALLET_ADDRESS,
+                            platformCommission - (amount - discounted_price)
+                        )
+                    } else {
+                        sendTonResult = await sendTon(
+                            MARKET_ADDRESS,
+                            FEE_WALLET_ADDRESS,
+                            platformCommission
+                        )
+                    }
+
+                    if (!sendTonResult.success) {
+                        logger.error(
+                            `TON комиссия не отправлена: ${sendTonResult.details}`
+                        )
+                    }
 
                     const requestBody = {
                         user_id: order.user_id,
