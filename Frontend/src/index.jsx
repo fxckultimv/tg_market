@@ -13,13 +13,18 @@ import { BrowserRouter } from 'react-router-dom'
 import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { ToastProvider } from './components/ToastProvider'
 import { StrictMode } from 'react'
+import { detectTelegramEnvironment } from './telegram'
 
-init()
-backButton.mount()
-initData.restore()
-viewport.mount()
-swipeBehavior.mount()
-mainButton.mount()
+let isTelegram = detectTelegramEnvironment()
+
+if (isTelegram) {
+    init()
+    backButton.mount()
+    initData.restore()
+    viewport.mount()
+    swipeBehavior.mount()
+    mainButton.mount()
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <TonConnectUIProvider

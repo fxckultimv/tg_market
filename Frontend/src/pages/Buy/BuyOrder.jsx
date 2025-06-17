@@ -70,7 +70,9 @@ const BuyOrder = () => {
     }
 
     const discountPercent = promo?.percent || 0
-    const discountedPrice = orderInfo.total_price * (1 - discountPercent / 100)
+    const discountedPrice =
+        orderInfo.role != 'admin' &&
+        orderInfo.total_price * (1 - discountPercent / 100)
     const isBalanceSufficient =
         nanoTonToTon(balance) >= nanoTonToTon(discountedPrice)
 
@@ -119,8 +121,10 @@ const BuyOrder = () => {
                 )}
             </div>
 
-            <p className="py-2">Ваш баланс: {nanoTonToTon(balance)} TON</p>
-            {discountPercent > 0 ? (
+            <p className="py-2">
+                Ваш баланс: {nanoTonToTon(balance).toFixed(3)} TON
+            </p>
+            {discountPercent > 0 && orderInfo.role != 'admin' ? (
                 <div className="py-2">
                     <p>
                         <span className="line-through text-gray-400">

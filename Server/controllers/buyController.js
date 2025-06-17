@@ -37,10 +37,11 @@ class buyController {
             // Получение информации о заказе с валидацией
             const orderInfo = await db.query(
                 `
-                SELECT DISTINCT o.total_price, p.user_id, oi.post_time
+                SELECT DISTINCT o.total_price, p.user_id, oi.post_time, u.role
                 FROM orders AS o
                 JOIN orderitems oi ON oi.order_id = o.order_id
                 JOIN products p ON p.product_id = oi.product_id
+                JOIN users u ON u.user_id = p.user_id
                 WHERE o.order_id = $1 AND o.user_id = $2 AND o.status = 'pending_payment'
                 `,
                 [order_id, user_id]
@@ -74,14 +75,14 @@ class buyController {
             const sellerId = await getUserIdByTelegramId(orderRow.user_id)
             const amount = orderRow.total_price
             const buyerId = await getUserIdByTelegramId(user_id)
+            const isAdmin = orderRow.role === 'admin'
 
             // Начало логики проведения платежа
-            const fee = amount * MARKET_FEE_PERCENTAGE
+            const fee = isAdmin ? 0 : amount * MARKET_FEE_PERCENTAGE
             let totalAmount = Number(amount)
 
-            if (checkPromoCode.rows.length > 0) {
+            if (checkPromoCode.rows.length > 0 && !isAdmin) {
                 const discountPercent = parseInt(checkPromoCode.rows[0].percent)
-
                 totalAmount = totalAmount * (1 - discountPercent / 100)
             }
 
@@ -131,18 +132,23 @@ class buyController {
             ])
 
             // Логика обновления статуса заказа
+            const promoCodeId =
+                checkPromoCode.rows.length > 0
+                    ? checkPromoCode.rows[0].promo_code_id
+                    : null
+            const discounted_price = isAdmin ? null : totalAmount
+
             const result = await db.query(
                 `UPDATE orders SET status = 'paid', discounted_price = $1, promo_code_id = $2 WHERE order_id = $3 AND user_id = $4`,
-                [
-                    totalAmount,
-                    checkPromoCode.rows[0].promo_code_id,
-                    order_id,
-                    user_id,
-                ]
+                [discounted_price, promoCodeId, order_id, user_id]
             )
 
             // И только если обновление заказа прошло успешно — обновляем used
-            if (result.rowCount > 0 && checkPromoCode.rows.length > 0) {
+            if (
+                result.rowCount > 0 &&
+                checkPromoCode.rows.length > 0 &&
+                !isAdmin
+            ) {
                 await db.query(
                     `UPDATE user_promo_codes 
                     SET used = true 

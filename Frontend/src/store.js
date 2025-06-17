@@ -1245,6 +1245,10 @@ export const useUserStore = create((set, get) => ({
             const response = await fetch('http://localhost:5000/products/add', {
                 method: 'POST',
                 credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `tma ${initDataRaw}`,
+                },
                 body: JSON.stringify({
                     channel_id,
                     category_id,
@@ -1618,6 +1622,7 @@ export const useUserStore = create((set, get) => ({
             }
             const data = await handleServerResponse(response, set)
             set({ user: data, loading: false })
+            fetchSingleHistory(initDataRaw, id)
         } catch (error) {
             set({ loading: false })
             console.error('Error:', error)

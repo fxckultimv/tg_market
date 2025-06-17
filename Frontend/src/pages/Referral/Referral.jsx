@@ -82,6 +82,28 @@ const Referral = () => {
 
     return (
         <>
+            <div className="flex flex-col items-center justify-center gap-4">
+                <div
+                    className="bg-background border-[1px] border-gray rounded-xl p-2 flex items-center"
+                    onClick={handleCopy}
+                >
+                    <p className="text-gray text-xs truncate">{`https://t.me/Banana_Star_Server_bot?start=re...`}</p>
+                    <Copy className="text-white" />
+                </div>
+                <AnimatePresence>
+                    {copyModal && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 30 }}
+                            transition={{ duration: 0.3 }}
+                            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue text-white px-4 py-2 rounded-xl text-sm z-50 shadow-lg"
+                        >
+                            Ссылка скопирована
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
             <ReferralCount />
             <ReferralPayments />
         </>

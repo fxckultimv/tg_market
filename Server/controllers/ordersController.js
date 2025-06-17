@@ -26,13 +26,14 @@ class ordersController {
 
         try {
             const result = await db.query(
-                `SELECT o.status, o.total_price, p.title, vc.channel_tg_id, vc.channel_url, pf.format_name, ARRAY_AGG(DISTINCT oi.post_time) AS post_times FROM orders AS o 
+                `SELECT o.status, u.role, o.total_price, p.title, vc.channel_tg_id, vc.channel_url, pf.format_name, ARRAY_AGG(DISTINCT oi.post_time) AS post_times FROM orders AS o 
                 JOIN orderItems oi ON o.order_id = oi.order_id
-                JOIN products p ON p.product_id = oi.product_id 
+                JOIN products p ON p.product_id = oi.product_id
+                JOIN users u ON u.user_id = p.user_id
                 JOIN verifiedchannels vc ON p.channel_id = vc.channel_id
                 JOIN publication_formats pf ON oi.format = pf.format_id
                 WHERE o.order_id = $1
-                GROUP BY o.status, o.total_price, p.title, vc.channel_tg_id, vc.channel_url, pf.format_name`,
+                GROUP BY o.status, u.user_id, o.total_price, p.title, vc.channel_tg_id, vc.channel_url, pf.format_name`,
                 [id]
             )
 
@@ -57,9 +58,10 @@ class ordersController {
 
             // Получение элементов корзины
             const cartItemsResult = await db.query(
-                `SELECT ci.product_id, ci.quantity, ci.format, ci.post_time, p.price
+                `SELECT ci.product_id, u.role, ci.quantity, ci.format, ci.post_time, p.price
             FROM cartitems ci
             JOIN products p ON ci.product_id = p.product_id
+            JOIN users u ON u.user_id = p.user_id
             LEFT JOIN orderitems oi ON ci.product_id = oi.product_id AND ci.post_time = oi.post_time
             LEFT JOIN orders o ON oi.order_id = o.order_id
             WHERE ci.cart_item_id = ANY($1)

@@ -324,7 +324,7 @@ class productController {
 
         try {
             const result = await db.query(
-                `SELECT p.product_id, p.category_id, p.title,  p.description, p.price, p.post_time, v.channel_id, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, u.username,
+                `SELECT p.product_id, p.category_id, p.title, p.status, p.description, p.price, p.post_time, v.channel_id, v.channel_name, v.channel_title, v.is_verified, v.channel_url , v.channel_tg_id, v.views, v.subscribers_count, u.rating, u.user_uuid, u.username,
                 COALESCE(ARRAY_AGG(DISTINCT ppf.format_id), ARRAY[]::INTEGER[]) AS format_ids, COALESCE(ARRAY_AGG(DISTINCT ppt.post_time), ARRAY[]::time with time zone[]) AS post_times
                 FROM products p
                 LEFT JOIN verifiedchannels v ON p.channel_id = v.channel_id
@@ -332,7 +332,7 @@ class productController {
                 LEFT JOIN product_publication_formats ppf ON ppf.product_id = p.product_id
                 LEFT JOIN products_post_time ppt ON p.product_id = ppt.product_id
                 WHERE p.product_id = $1
-                GROUP BY p.product_id, v.channel_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url, v.channel_tg_id, u.rating, u.user_uuid, u.username, v.views, v.subscribers_count`,
+                GROUP BY p.product_id, p.status, v.channel_id, v.channel_name,v.channel_title, v.is_verified, v.channel_url, v.channel_tg_id, u.rating, u.user_uuid, u.username, v.views, v.subscribers_count`,
                 [id]
             )
 
@@ -371,7 +371,7 @@ class productController {
             !post_time ||
             !Array.isArray(post_time) ||
             post_time.length === 0 ||
-            price < 0.1 ||
+            price < 100000000 ||
             !isUnique(post_time)
         ) {
             return res
@@ -654,18 +654,28 @@ class productController {
         try {
             // Первичная проверка в базе данных
             const checkResult = await db.query(
-                `SELECT o.order_id, o.total_price, o.status, o.discounted_price, o.user_id AS buyerId, o.promo_code_id, p.user_id, p.title,
+                `SELECT o.order_id, u.role, o.total_price, o.status, o.discounted_price, o.user_id AS buyerId, o.promo_code_id, p.user_id, p.title,
                     ARRAY_AGG(DISTINCT oi.post_time) as post_times
                 FROM orders AS o
                 JOIN orderitems oi ON o.order_id = oi.order_id
                 JOIN products p ON p.product_id = oi.product_id
+                JOIN users u ON u.user_id = p.user_id
                 WHERE o.order_id = $1 AND o.user_id = $2
-                GROUP BY o.order_id, o.status, p.user_id, o.total_price, o.user_id, o.promo_code_id, o.discounted_price, p.title`,
+                GROUP BY o.order_id, u.role, o.status, p.user_id, o.total_price, o.user_id, o.promo_code_id, o.discounted_price, p.title`,
                 [id, user_id]
             )
 
             if (checkResult.rows.length > 0) {
                 const order = checkResult.rows[0]
+
+                // Проверка, что заказ ещё не был подтверждён
+                if (order.status !== 'paid') {
+                    return res.status(403).json({
+                        error: 'Order already confirmed or invalid status',
+                    })
+                }
+
+                const isAdmin = order.role === 'admin'
 
                 // Проверяем, что статус 'paid' и все даты позже текущего времени
                 const now = new Date()
@@ -677,6 +687,8 @@ class productController {
                     const amount = order.total_price
                     const buyerId = order.buyerId
                     const order_id = order.order_id
+
+                    // Проверка наличия скидки
                     const discounted_price =
                         order.discounted_price !== null &&
                         order.discounted_price !== undefined
@@ -684,6 +696,8 @@ class productController {
                             : null
 
                     const sellerId = await getUserIdByTelegramId(order.user_id)
+
+                    // Проверка наличия реферера
                     const refCheck = await db.query(
                         `SELECT referrer_id 
                                FROM referrals
@@ -692,88 +706,98 @@ class productController {
                         [user_id]
                     )
 
-                    const platformCommission = Math.round(amount * 0.07) // комиссия платформы
-                    let referrerShare
+                    // Инициализация комиссии и доли реферера
+                    let platformCommission = 0
+                    let referrerShare = 0
 
-                    // Если нашли реферера и нету промокода
-                    if (
-                        refCheck.rows.length > 0 &&
-                        (order.promo_code_id === null ||
-                            order.promo_code_id === undefined)
-                    ) {
-                        const referrerTgId = refCheck.rows[0].referrer_id
+                    // Админы не платят комиссию и не участвуют в реферальной системе
+                    if (!isAdmin) {
+                        platformCommission = Math.round(amount * 0.07) // комиссия платформы
 
-                        const referrerId = await getUserIdByTelegramId(
-                            refCheck.rows[0].referrer_id
-                        )
+                        // Если нашли реферера и нету промокода
+                        if (
+                            refCheck.rows.length > 0 &&
+                            (order.promo_code_id === null ||
+                                order.promo_code_id === undefined)
+                        ) {
+                            const referrerTgId = refCheck.rows[0].referrer_id
 
-                        const referrerTurnoverResult = await db.query(
-                            `SELECT COALESCE(SUM(partner_commission), 0) AS total_sum
-                                 FROM referral_commissions
-                                 WHERE referrer_id = $1`,
-                            [referrerTgId]
-                        )
-
-                        const referrerTurnover =
-                            parseFloat(
-                                referrerTurnoverResult.rows[0].total_sum
-                            ) || 0
-
-                        // Вычисляем процент партнёрского вознаграждения в зависимости от оборота
-                        let partnerPercent = 0.5 // по умолчанию 10%
-
-                        if (referrerTurnover >= 100_000_000_000) {
-                            partnerPercent = 0.2
-                        } else if (referrerTurnover >= 25_000_000_000) {
-                            partnerPercent = 0.25
-                        } else if (referrerTurnover >= 10_000_000_000) {
-                            partnerPercent = 0.3
-                        } else if (referrerTurnover >= 5_000_000_000) {
-                            partnerPercent = 0.35
-                        } else if (referrerTurnover >= 1_000_000_000) {
-                            partnerPercent = 0.4
-                        }
-
-                        // Теперь считаем вознаграждение
-                        referrerShare = Math.round(
-                            platformCommission * partnerPercent
-                        )
-
-                        // Начисляем рефереру
-                        const referrerUpdate =
-                            await UserBalance.findOneAndUpdate(
-                                { userId: referrerId },
-                                { $inc: { balance: referrerShare } },
-                                { new: true, runValidators: true }
+                            const referrerId = await getUserIdByTelegramId(
+                                refCheck.rows[0].referrer_id
                             )
 
-                        // Логгируем транзакцию для реферера (если хотите)
-                        if (referrerUpdate) {
-                            await Transaction.create({
-                                userId: referrerId,
-                                type: 'purchase',
-                                amount: referrerShare,
-                                fee: 0,
-                                status: 'completed',
-                                details: { order_id, buyerId },
-                            })
-                        }
-                        await db.query(
-                            `INSERT INTO referral_commissions 
+                            // Получаем общий оборот реферера
+                            const referrerTurnoverResult = await db.query(
+                                `SELECT COALESCE(SUM(partner_commission), 0) AS total_sum
+                                 FROM referral_commissions
+                                 WHERE referrer_id = $1`,
+                                [referrerTgId]
+                            )
+
+                            const referrerTurnover =
+                                parseFloat(
+                                    referrerTurnoverResult.rows[0].total_sum
+                                ) || 0
+
+                            // Вычисляем процент партнёрского вознаграждения в зависимости от оборота
+                            let partnerPercent = 0.5 // по умолчанию 10%
+
+                            if (referrerTurnover >= 100_000_000_000) {
+                                partnerPercent = 0.2
+                            } else if (referrerTurnover >= 25_000_000_000) {
+                                partnerPercent = 0.25
+                            } else if (referrerTurnover >= 10_000_000_000) {
+                                partnerPercent = 0.3
+                            } else if (referrerTurnover >= 5_000_000_000) {
+                                partnerPercent = 0.35
+                            } else if (referrerTurnover >= 1_000_000_000) {
+                                partnerPercent = 0.4
+                            }
+
+                            // Теперь считаем вознаграждение
+                            referrerShare = Math.round(
+                                platformCommission * partnerPercent
+                            )
+
+                            // Начисляем рефереру
+                            const referrerUpdate =
+                                await UserBalance.findOneAndUpdate(
+                                    { userId: referrerId },
+                                    { $inc: { balance: referrerShare } },
+                                    { new: true, runValidators: true }
+                                )
+
+                            // Логгируем транзакцию для реферера (если хотите)
+                            if (referrerUpdate) {
+                                await Transaction.create({
+                                    userId: referrerId,
+                                    type: 'purchase',
+                                    amount: referrerShare,
+                                    fee: 0,
+                                    status: 'completed',
+                                    details: { order_id, buyerId },
+                                })
+                            }
+                            await db.query(
+                                `INSERT INTO referral_commissions 
                                  (order_id, user_id, referrer_id, platform_commission, partner_commission)
                                  VALUES ($1, $2, $3, $4, $5)`,
-                            [
-                                order_id,
-                                user_id,
-                                referrerTgId,
-                                platformCommission,
-                                referrerShare,
-                            ]
-                        )
+                                [
+                                    order_id,
+                                    user_id,
+                                    referrerTgId,
+                                    platformCommission,
+                                    referrerShare,
+                                ]
+                            )
+                        }
                     }
+                    // Расчёт выплаты продавцу
+                    const sellerAmount = isAmbassador
+                        ? amount
+                        : amount - platformCommission
 
-                    const sellerAmount = amount - platformCommission
-
+                    // Начисление продавцу
                     const sellerUpdate = await UserBalance.findOneAndUpdate(
                         { userId: sellerId },
                         { $inc: { balance: sellerAmount } },
@@ -800,7 +824,7 @@ class productController {
                             details: { order_id, buyerId },
                         }),
                     ])
-
+                    // Обновляем статус заказа на 'completed'
                     const result = await db.query(
                         `UPDATE orders 
                              SET status = 'completed' 
@@ -810,32 +834,34 @@ class productController {
 
                     // отправка TON комиссии платформы
                     let sendTonResult
-                    if (referrerShare) {
-                        sendTonResult = await sendTon(
-                            MARKET_ADDRESS,
-                            FEE_WALLET_ADDRESS,
-                            platformCommission - referrerShare
-                        )
-                    } else if (discounted_price) {
-                        sendTonResult = await sendTon(
-                            MARKET_ADDRESS,
-                            FEE_WALLET_ADDRESS,
-                            platformCommission - (amount - discounted_price)
-                        )
-                    } else {
-                        sendTonResult = await sendTon(
-                            MARKET_ADDRESS,
-                            FEE_WALLET_ADDRESS,
-                            platformCommission
-                        )
-                    }
+                    if (!isAdmin) {
+                        if (referrerShare) {
+                            sendTonResult = await sendTon(
+                                MARKET_ADDRESS,
+                                FEE_WALLET_ADDRESS,
+                                platformCommission - referrerShare
+                            )
+                        } else if (discounted_price) {
+                            sendTonResult = await sendTon(
+                                MARKET_ADDRESS,
+                                FEE_WALLET_ADDRESS,
+                                platformCommission - (amount - discounted_price)
+                            )
+                        } else {
+                            sendTonResult = await sendTon(
+                                MARKET_ADDRESS,
+                                FEE_WALLET_ADDRESS,
+                                platformCommission
+                            )
+                        }
 
-                    if (!sendTonResult.success) {
-                        logger.error(
-                            `TON комиссия не отправлена: ${sendTonResult.details}`
-                        )
+                        if (!sendTonResult.success) {
+                            logger.error(
+                                `TON комиссия не отправлена: ${sendTonResult.details}`
+                            )
+                        }
                     }
-
+                    // Уведомляем бот, что заказ подтверждён
                     const requestBody = {
                         user_id: order.user_id,
                         order_id: order_id,

@@ -44,9 +44,17 @@ import Referral from './pages/Referral/Referral'
 import Conflict from './pages/adminDashboard/AdminConflict/Conflict'
 import Promo from './pages/adminDashboard/Promo/Promo'
 import SingleConflict from './pages/adminDashboard/AdminConflict/SingleConflict'
+import { detectTelegramEnvironment } from './telegram'
+import NoTelegram from './NoTelegram'
 
 const App = () => {
     const navigate = useNavigate()
+    const isTelegram = detectTelegramEnvironment()
+    console.log(isTelegram)
+
+    if (!isTelegram) {
+        return <NoTelegram />
+    }
     const {
         fetchAuth,
         authReady,
