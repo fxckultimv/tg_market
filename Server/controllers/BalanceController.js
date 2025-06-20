@@ -13,6 +13,9 @@ const MARKET_FEE_PERCENTAGE = 0.05 // 5%
 const MARKET_WALLET_ADDRESS = process.env.MARKET_WALLET_ADDRESS
 const FEE_WALLET_ADDRESS = process.env.FEE_WALLET_ADDRESS
 
+const CRYPTO_PAY_TOKEN = process.env.CRYPTO_PAY_TOKEN
+const API_URL = 'https://testnet-pay.crypt.bot/api/createInvoice'
+
 class BalanceController {
     async getBalance(req, res) {
         try {
@@ -309,6 +312,47 @@ class BalanceController {
     handleError(res, error) {
         logger.error(`Ошибка обработки запроса: ${error.message}`)
         res.status(500).json({ error: 'Внутренняя ошибка сервера' })
+    }
+
+    async createInvoice(req, res) {
+        const user_id = req.user.userId
+        const { amount } = req.body
+
+        try {
+            /* 1. Запрашиваем счёт у Crypto Pay */
+            const apiRes = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Crypto-Pay-API-Token': CRYPTO_PAY_TOKEN,
+                },
+                body: JSON.stringify({
+                    asset: 'TON', // фиксированная валюта
+                    amount: String(amount),
+                    payload: String(user_id),
+                    expires_in: 900, // 15 минут
+                }),
+            })
+
+            const json = await apiRes.json()
+            if (!json.ok) {
+                // Crypto Pay вернул ошибку (limit, некорректная сумма, и т. д.)
+                logger.error(json)
+                return res.status(400).json({ error: json.error })
+            }
+
+            /* 2. Отдаём ссылку клиенту */
+            const { mini_app_invoice_url, bot_invoice_url, invoice_id } =
+                json.result
+            res.status(200).json({
+                payLinkMiniApp: mini_app_invoice_url,
+                payLinkBot: bot_invoice_url,
+                invoiceId: invoice_id,
+            })
+        } catch (err) {
+            logger.error('Create invoice error:', err) // Ошибку логируем в catch
+            res.status(500).json({ error: 'Failed to create invoice' })
+        }
     }
 }
 

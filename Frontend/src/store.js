@@ -1673,6 +1673,50 @@ export const useUserStore = create((set, get) => ({
             throw error
         }
     },
+
+    createInvoice: async (initDataRaw, ton) => {
+        set({ loading: true, error: null })
+
+        try {
+            const response = await fetch(
+                'http://localhost:5000/balance/createInvoice',
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `tma ${initDataRaw}`,
+                    },
+                    body: JSON.stringify({
+                        amount: ton,
+                    }),
+                }
+            )
+            // Проверяем, был ли запрос успешным
+            if (!response.ok) {
+                let errorMessage = `Ошибка сервера: ${response.status}`
+                try {
+                    const errorData = await response.json()
+                    if (errorData?.error) {
+                        errorMessage = errorData.error
+                    }
+                } catch (jsonError) {
+                    console.warn('Ошибка при чтении тела ошибки:', jsonError)
+                }
+
+                throw new Error(errorMessage)
+            }
+
+            const data = await handleServerResponse(response, set)
+            set({ loading: false })
+            return data // Вернем добавленный продукт
+        } catch (error) {
+            set({ error: error.message, loading: false })
+            console.error('Error:', error)
+            throw error
+        }
+    },
+
     handleWithdrawal: async (initDataRaw, amount, address) => {
         set({ loading: true, error: null })
 

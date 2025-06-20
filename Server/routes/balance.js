@@ -20,6 +20,11 @@ router.post(
     '/withdraw',
     balanceController.handleWithdrawal.bind(balanceController)
 )
+
+router.post(
+    '/createInvoice',
+    balanceController.createInvoice.bind(balanceController)
+)
 // router.post('/handle-payment-notification', balanceController.handlePaymentNotification.bind(balanceController));
 
 module.exports = router

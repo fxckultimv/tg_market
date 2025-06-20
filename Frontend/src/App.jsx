@@ -71,9 +71,9 @@ const App = () => {
     useEffect(() => {
         fetchAuth(initDataRaw())
     }, [])
-    useEffect(() => {
-        fetchCourses()
-    }, [])
+    // useEffect(() => {
+    //     fetchCourses()
+    // }, [])
 
     useEffect(() => {
         const enableFullscreen = async () => {

@@ -12,11 +12,19 @@ import { tonToNanoTon } from '../utils/tonConversion'
 import { useState } from 'react'
 import { useToast } from '../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import TonModal from './TonModal'
 
 const Ton = () => {
-    const { initData, topUpBalance, handleWithdrawal, fetchBalance, balance } =
-        useUserStore()
+    const {
+        initData,
+        topUpBalance,
+        handleWithdrawal,
+        createInvoice,
+        fetchBalance,
+        balance,
+    } = useUserStore()
     const { addToast } = useToast()
+    const [showModal, setShowModal] = useState(false)
     const languageCode = initData.raw?.result?.user?.languageCode || 'en'
     const userFriendlyAddress = useTonAddress()
     const rawAddress = useTonAddress(false)
@@ -32,7 +40,9 @@ const Ton = () => {
     }, [])
 
     const handleTransaction = async () => {
-        if (!amount || isNaN(amount) || Number(amount) <= 0.01) {
+        console.log('amount', amount)
+
+        if (!amount || isNaN(amount) || Number(amount) < 0.01) {
             addToast('Введите корректную сумму.', 'error')
             return
         }
@@ -69,10 +79,12 @@ const Ton = () => {
             )
 
             fetchBalance(initDataRaw())
+            setShowModal(false)
             addToast('Баланс пополнен')
             setAmount('')
         } catch (error) {
             console.error('Ошибка при отправке транзакции:', error)
+            setShowModal(false)
             addToast('Ошибка при пополнении', 'error')
             setAmount('')
         }
@@ -82,7 +94,7 @@ const Ton = () => {
         if (
             !amountWithdrawal ||
             isNaN(amountWithdrawal) ||
-            Number(amountWithdrawal) <= 0.01
+            Number(amountWithdrawal) < 0.01
         ) {
             addToast('Введите корректную сумму.', 'error')
             return
@@ -119,6 +131,20 @@ const Ton = () => {
         }
     }
 
+    const handleCreateInvoice = async () => {
+        if (!amount || isNaN(amount) || Number(amount) < 0.01) {
+            addToast('Введите корректную сумму.', 'error')
+            return
+        }
+        const result = await createInvoice(initDataRaw(), Number(amount)) // получаем ссылку напрямую
+        setShowModal(false)
+        return result
+    }
+
+    const openModal = () => {
+        return setShowModal(true)
+    }
+
     return (
         <>
             <div className="flex justify-between m-2">
@@ -153,12 +179,32 @@ const Ton = () => {
                             className="border p-2 rounded-lg min-w-10 text-black w-2/3"
                         />
                         <button
-                            onClick={handleTransaction}
+                            onClick={() => {
+                                const numericAmount = parseFloat(amount)
+                                if (!numericAmount || numericAmount < 0.01) {
+                                    alert(
+                                        'Введите корректную сумму (минимум 0.1 TON)'
+                                    )
+                                    return
+                                }
+                                openModal()
+                            }}
                             className="bg-blue rounded-xl p-2 w-1/3"
+                            disabled={amount < 0.01}
                         >
                             <p className="text-white">Пополнить</p>
-                        </button>
+                        </button>{' '}
+                        {showModal && (
+                            <TonModal
+                                handleTransaction={handleTransaction}
+                                handleCreateInvoice={handleCreateInvoice}
+                                setShowModal={setShowModal}
+                                amount={amount}
+                                className="bg-blue rounded-xl p-2 w-1/3"
+                            ></TonModal>
+                        )}
                     </div>
+
                     {/* Вывод */}
                     {balance !== undefined && balance !== null && (
                         <div className="m-2 flex flex-col gap-2">

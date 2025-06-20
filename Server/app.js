@@ -26,6 +26,7 @@ const buyRouter = require('./routes/buy')
 const referralRouter = require('./routes/referral')
 const promoRouter = require('./routes/promo')
 const jwtAuth = require('./middleware/jwtAuth')
+const cryptoBotRouter = require('./routes/cryptoBot')
 
 const app = express()
 
@@ -45,6 +46,15 @@ app.use(
         credentials: true, // разрешаем пересылать куки
     })
 )
+
+app.use(
+    express.json({
+        verify: (req, res, buf) => {
+            req.rawBody = buf
+        },
+    })
+)
+
 app.use(cookieParser())
 app.use(express.json())
 
@@ -68,6 +78,7 @@ app.use('/channels', jwtAuth, ChannelsRouter)
 app.use('/buy', jwtAuth, buyRouter)
 app.use('/referral', jwtAuth, referralRouter)
 app.use('/promo', jwtAuth, promoRouter)
+app.use('/api/cryptoBot', cryptoBotRouter)
 
 // обработка ошибок в мидлварях
 app.use((err, req, res, next) => {
