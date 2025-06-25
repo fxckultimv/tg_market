@@ -1,0 +1,51 @@
+{
+    "title": "Order History",
+    "filters": {
+        "waiting": "waiting",
+        "paid": "in progress",
+        "completed": "completed",
+        "pending_payment": "awaiting payment",
+        "rejected": "rejected"
+    },
+    "loadMore": "Load more",
+    "empty": "No orders yet!",
+    "productCard": {
+        "from": "From",
+        "status": {
+            "wait": "Waiting for ad",
+            "waiting": "Waiting",
+            "paid": "In progress",
+            "completed": "Completed",
+            "pending_payment": "Awaiting payment",
+            "rejected": "Rejected",
+            "problem": "Problem",
+            "unknown": "Unknown status"
+        }
+    },
+    "single": {
+        "channel": "Channel link",
+        "totalPrice": "Total price",
+        "discountedPrice": "Discounted price",
+        "postCount": "Number of ads",
+        "postDate": "Post date and time",
+        "price": "Price"
+    },
+    "statusBar": {
+        "created": "Order created",
+        "approved": "Order approved",
+        "rejected": "Order rejected",
+        "paid": "Order paid",
+        "completed": "Order completed",
+        "payNow": "Pay now",
+        "tooLate": "You missed the payment deadline",
+        "confirm": "Confirm order",
+        "conflict": "Open dispute"
+    },
+    "feedback": {
+        "title": "Thanks for confirmation!",
+        "placeholder": "Write your feedback...",
+        "button": "Submit feedback",
+        "thanks": "Thanks for your feedback!",
+        "leaveReview": "Leave feedback about your cooperation with this channel."
+    }
+}

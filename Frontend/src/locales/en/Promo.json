@@ -1,0 +1,6 @@
+{
+    "placeholder": "Promo code",
+    "activate": "Activate",
+    "success": "Promo code activated",
+    "error": "Promo code is invalid"
+}

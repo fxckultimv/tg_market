@@ -11,8 +11,10 @@ import Ton from './Ton'
 import { initDataRaw, initData } from '@telegram-apps/sdk-react'
 import ReferralButton from './ReferralButton'
 import Promo from './Promo'
+import { useTranslation } from 'react-i18next'
 
 const ProfileLayout = () => {
+    const { t } = useTranslation('Profile')
     const { user, fetchMe, fetchBalance, isAdmin, balance, error, loading } =
         useUserStore()
     // const { isAdmin } = useAdminStore()
@@ -35,7 +37,7 @@ const ProfileLayout = () => {
                     />
                 </div>
                 <h1 className="text-text text-5xl text-center max-md:text-3xl">
-                    Личный кабинет
+                    {t('profileTitle')}
                 </h1>
             </div>
             <div className="flex gap-4 p-16 max-md:p-5 max-xl:p-8 max-md:flex-col text-text">
@@ -84,26 +86,26 @@ const ProfileLayout = () => {
                     </div>
                     <div className="flex flex-col items-start bg-card-white rounded-b-xl gap-3 px-2 pb-2">
                         <ProfileCustomLink to="/profile">
-                            Мои заказы
+                            {t('myOrders')}
                         </ProfileCustomLink>
                         <ProfileCustomLink to="/profile/products">
-                            Мои продукты
+                            {t('myProducts')}
                         </ProfileCustomLink>
                         <ProfileCustomLink to="/profile/my_channels">
-                            Мои каналы
+                            {t('myChannels')}
                         </ProfileCustomLink>
                         <ProfileCustomLink to="/profile/referral">
-                            Реферальная программа
+                            {t('referralProgram')}
                         </ProfileCustomLink>
                         <a
                             href="https://t.me/Stepanusik"
                             className="p-3 rounded-lg hover:text-gray text-text border-[1px] border-gray w-full max-sm:p-2"
                         >
-                            Поддержка
+                            {t('support')}
                         </a>
                         {isAdmin && (
                             <ProfileCustomLink to="/admin">
-                                Перейти в админ-панель
+                                {t('adminPanel')}
                             </ProfileCustomLink>
                         )}{' '}
                     </div>

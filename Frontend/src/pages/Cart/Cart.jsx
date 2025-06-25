@@ -5,9 +5,11 @@ import Loading from '../../Loading'
 import Bag from '../../assets/bag.svg'
 import CartItem from './CartItem'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { useTranslation } from 'react-i18next'
 
 const Cart = () => {
     const { cart, fetchCart, loading, error } = useUserStore()
+    const { t } = useTranslation('Cart')
 
     useEffect(() => {
         fetchCart(initDataRaw())
@@ -25,14 +27,14 @@ const Cart = () => {
         return (
             <div className="min-h-screen flex flex-col justify-center gap-3 items-center">
                 <div className="text-2xl font-bold mb-4">
-                    Ваша корзина пуста
+                    <p>{t('empty')}</p>
                 </div>
 
                 <Link
                     to="/channels"
                     className="bg-blue px-6 py-3 rounded-xl text-lg transition-transform transform hover:scale-105"
                 >
-                    Перейти к товарам
+                    {t('goToProducts')}
                 </Link>
             </div>
         )
@@ -45,7 +47,9 @@ const Cart = () => {
                     <img src={Bag} alt="Документ" className="h-[32px]" />
                 </div>
                 <div className="flex">
-                    <h1 className="text-5xl max-md:text-3xl">Корзина</h1>
+                    <h1 className="text-5xl max-md:text-3xl">
+                        {t('cartTitle')}
+                    </h1>
                     <p>{Object.keys(cart.products).length}</p>
                 </div>
             </div>

@@ -46,11 +46,11 @@ import Promo from './pages/adminDashboard/Promo/Promo'
 import SingleConflict from './pages/adminDashboard/AdminConflict/SingleConflict'
 import { detectTelegramEnvironment } from './telegram'
 import NoTelegram from './NoTelegram'
+import i18n from './i18n'
 
 const App = () => {
     const navigate = useNavigate()
     const isTelegram = detectTelegramEnvironment()
-    console.log(isTelegram)
 
     if (!isTelegram) {
         return <NoTelegram />
@@ -71,6 +71,22 @@ const App = () => {
     useEffect(() => {
         fetchAuth(initDataRaw())
     }, [])
+
+    useEffect(() => {
+        const storedLang = localStorage.getItem('language')
+        if (storedLang && ['ru', 'en'].includes(storedLang)) {
+            i18n.changeLanguage(storedLang)
+            return
+        }
+
+        const tgLang = initData?.user?.()?.language_code
+        if (tgLang && ['ru', 'en'].includes(tgLang)) {
+            const finalLang = tgLang.startsWith('ru') ? 'ru' : 'en'
+            i18n.changeLanguage(finalLang)
+            localStorage.setItem('language', finalLang) // сохраняем впервые
+        }
+    }, [])
+
     // useEffect(() => {
     //     fetchCourses()
     // }, [])

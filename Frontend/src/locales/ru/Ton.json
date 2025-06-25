@@ -1,0 +1,19 @@
+{
+    "networkMainnet": "MainNet",
+    "networkTestnet": "TestNet",
+    "networkUnknown": "N/A",
+    "enterAmount": "Введите сумму",
+    "topUp": "Пополнить",
+    "invalidAmount": "Введите корректную сумму.",
+    "mainnetError": "Подключите TestNet кошелёк.",
+    "withdraw": "Вывести",
+    "withdrawToWallet": "Вывести на привязанный кошелёк",
+    "enterWalletAddress": "Введите адрес кошелька",
+    "withdrawalSuccess": "Деньги выведены",
+    "withdrawalError": "Ошибка при выводе денег",
+    "topupSuccess": "Баланс пополнен",
+    "topupError": "Ошибка при пополнении",
+    "selectPaymentMethod": "Выберите способ оплаты",
+    "wallet": "Wallet",
+    "cryptobot": "CryptoBot"
+}

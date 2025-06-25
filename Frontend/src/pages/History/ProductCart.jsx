@@ -3,21 +3,23 @@ import { nanoTonToTon } from '../../utils/tonConversion'
 import Ton from '../../assets/ton_symbol.svg'
 import DefaultImage from '../../assets/defaultImage.png'
 import EquivalentCourse from '../../components/EquivalentCourse'
+import { useTranslation } from 'react-i18next'
 
 const ProductCart = ({ order }) => {
+    const { t } = useTranslation('History')
     const statusTranslations = {
-        wait: 'Ожидает рекламы',
-        waiting: 'Ожидание',
-        paid: 'В процессе',
-        completed: 'Выполненные',
-        pending_payment: 'Ожидает оплаты',
-        rejected: 'Отклонены',
-        problem: 'Проблема',
+        wait: t('productCard.status.wait'),
+        waiting: t('productCard.status.waiting'),
+        paid: t('productCard.status.paid'),
+        completed: t('productCard.status.completed'),
+        pending_payment: t('productCard.status.pending_payment'),
+        rejected: t('productCard.status.rejected'),
+        problem: t('productCard.status.problem'),
     }
 
     // Если статус не найден, подставляется "Неизвестный статус"
     const translatedStatus =
-        statusTranslations[order.status] || 'Неизвестный статус'
+        statusTranslations[order.status] || t('productCard.status.unknown')
 
     return (
         <div
@@ -60,7 +62,8 @@ const ProductCart = ({ order }) => {
             <div className="bg-gray w-full h-[1px] my-4"></div>
             <div>
                 <p className="">
-                    От: {new Date(order.created_at).toLocaleDateString()}
+                    {t('productCard.from')}:{' '}
+                    {new Date(order.created_at).toLocaleDateString()}
                 </p>
                 <div className="flex items-center gap-2">
                     <img src={Ton} alt="" className="h-[2em]" />

@@ -1,0 +1,22 @@
+{
+    "howToAddTitle": "How to add a channel to the marketplace?",
+    "howToAddStep1": "1️⃣ Add our bot to your channel.",
+    "howToAddStep2": "2️⃣ Grant the bot admin rights to manage ads.",
+    "howToAddStep3": "3️⃣ If you are an admin, you will be able to create a product for the channel.",
+    "howToAddFinal": "After that, your channel will appear on the marketplace and you can start selling ads! 🚀",
+    "createAd": "Create an Ad",
+    "chooseVerified": "Select a verified channel:",
+    "chooseCategory": "Select a category:",
+    "selectCategoryPlaceholder": "-- Select a category --",
+    "chooseFormat": "Select format:",
+    "enterDescription": "Enter ad description:",
+    "descriptionPlaceholder": "Enter description up to 256 characters",
+    "chooseTime": "Select publication time:",
+    "addTime": "Add time",
+    "delete": "Delete",
+    "setPrice": "Set the placement price:",
+    "enterPrice": "Enter Price:",
+    "noVerified": "You have no verified channels.",
+    "needVerification": "To create an ad offer, you need to verify your channel.",
+    "howToVerify": "How to verify a channel?"
+}

@@ -11,6 +11,7 @@ import { useState } from 'react'
 import BackButton from '../../components/BackButton'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -30,6 +31,7 @@ const itemVariants = {
 const History = () => {
     const { history, fetchHistory, appendHistory, loading, error } =
         useUserStore()
+    const { t } = useTranslation('History')
     const [searchParams, setSearchParams] = useSearchParams()
     const [visibilityButton, setVisibilityButton] = useState(false)
     const [offset, setOffset] = useState(0)
@@ -75,22 +77,6 @@ const History = () => {
         }
     }, [fetchHistory, searchParams])
 
-    // useEffect(() => {
-    //     const handleBackClick = () => {
-    //         window.history.back()
-    //     }
-
-    //     if (backButton) {
-    //         backButton.show()
-    //         backButton.on('click', handleBackClick)
-
-    //         return () => {
-    //             backButton.hide()
-    //             backButton.off('click', handleBackClick)
-    //         }
-    //     }
-    // }, [backButton])
-
     if (loading) {
         return <Loading />
     }
@@ -102,7 +88,7 @@ const History = () => {
     if (!history) {
         return (
             <div className="bg-dark-gray flex min-h-screen items-center justify-center bg">
-                <div className="text-red-500 text-xl">Заказов ещё нет!</div>
+                <div className="text-red-500 text-xl">{t('empty')}</div>
             </div>
         )
     }
@@ -125,11 +111,14 @@ const History = () => {
                     animate="show"
                 >
                     {[
-                        { value: 'waiting', label: 'ожидание' },
-                        { value: 'paid', label: 'в процессе' },
-                        { value: 'completed', label: 'выполненные' },
-                        { value: 'pending_payment', label: 'ожидает оплаты' },
-                        { value: 'rejected', label: 'отклонены' },
+                        { value: 'waiting', label: t('filters.waiting') },
+                        { value: 'paid', label: t('filters.paid') },
+                        { value: 'completed', label: t('filters.completed') },
+                        {
+                            value: 'pending_payment',
+                            label: t('filters.pending_payment'),
+                        },
+                        { value: 'rejected', label: t('filters.rejected') },
                     ].map(({ value, label }) => (
                         <motion.button
                             key={value}
@@ -161,7 +150,7 @@ const History = () => {
                         className="rounded-lg bg-blue px-4 py-2 bg"
                         onClick={loadMoreHistory}
                     >
-                        Загрузить ещё
+                        {t('loadMore')}
                     </button>
                 </div>
             )}

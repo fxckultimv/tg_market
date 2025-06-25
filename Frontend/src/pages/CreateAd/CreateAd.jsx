@@ -17,8 +17,10 @@ import { initDataRaw } from '@telegram-apps/sdk-react'
 import DefaultImage from '../../assets/defaultImage.png'
 import FormatInfo from '../../components/FormatInfo'
 import EquivalentCourse from '../../components/EquivalentCourse'
+import { useTranslation } from 'react-i18next'
 
 const CreateAd = () => {
+    const { t } = useTranslation('CreateAd')
     const { addToast } = useToast()
     const {
         categories,
@@ -210,7 +212,7 @@ const CreateAd = () => {
                     <img src={Document} alt="Документ" className="h-[32px]" />
                 </div>
                 <h1 className=" text-5xl text-center max-md:text-3xl">
-                    Создать объявление
+                    {t('createAd')}
                 </h1>
             </div>
 
@@ -222,7 +224,7 @@ const CreateAd = () => {
                                 <div className="flex flex-col">
                                     <div className="flex justify-between items-center">
                                         <p className="text-base">
-                                            Выберите верифицированный канал:
+                                            {t('chooseVerified')}
                                         </p>
                                         <div className="flex gap-3">
                                             <button onClick={scrollLeft}>
@@ -300,7 +302,7 @@ const CreateAd = () => {
                                     className="block mb-2"
                                 >
                                     <p className="text-base">
-                                        Выберите категорию:
+                                        {t('chooseCategory')}
                                     </p>
                                 </label>
                                 <select
@@ -313,7 +315,7 @@ const CreateAd = () => {
                                     }}
                                 >
                                     <option value="" disabled>
-                                        -- Выберите категорию --
+                                        -- {t('selectCategoryPlaceholder')} --
                                     </option>
                                     {categories.map((category) => (
                                         <option
@@ -330,7 +332,7 @@ const CreateAd = () => {
                             <div className="bg-card-white rounded-xl p-6">
                                 <div className="flex gap-3">
                                     <p className="text-base">
-                                        Выберите формат :
+                                        {t('chooseFormat')}
                                     </p>
                                     <FormatInfo />
                                 </div>
@@ -373,12 +375,12 @@ const CreateAd = () => {
                                     htmlFor="description"
                                     className="block text-base mb-2"
                                 >
-                                    Введите описание рекламы:
+                                    {t('enterDescription')}
                                 </label>
                                 <textarea
                                     id="description"
                                     className="w-full p-3 rounded bg-info-box"
-                                    placeholder="Введите описание до 256 символов"
+                                    placeholder={t('descriptionPlaceholder')}
                                     value={description}
                                     onChange={(e) =>
                                         setDescription(e.target.value)
@@ -393,7 +395,7 @@ const CreateAd = () => {
                                         htmlFor="publication-time"
                                         className="block text-base font-semibold"
                                     >
-                                        Выберите время публикации:
+                                        {t('chooseTime')}
                                     </label>
                                     {publicationTimes.map((time, index) => (
                                         <div
@@ -418,7 +420,7 @@ const CreateAd = () => {
                                                 }
                                                 className="ml-2 bg-red p-2 rounded"
                                             >
-                                                Удалить
+                                                {t('delete')}
                                             </button>
                                         </div>
                                     ))}
@@ -430,7 +432,7 @@ const CreateAd = () => {
                                                 className="px-4 py-2 rounded-md bg-green"
                                             >
                                                 <p className="text-base bg">
-                                                    Добавить время
+                                                    {t('addTime')}
                                                 </p>
                                             </button>
                                         </div>
@@ -449,7 +451,7 @@ const CreateAd = () => {
                                         htmlFor="price"
                                         className="block text-base font-semibold mb-2"
                                     >
-                                        Установите цену за размещение:
+                                        {t('setPrice')}
                                     </label>
 
                                     <div className="flex justify-between items-center rounded-md border-2 bg-info-box border-gray">
@@ -464,7 +466,7 @@ const CreateAd = () => {
                                         <input
                                             id="price"
                                             className="bg-info-box w-full px-4 py-2 rounded-md text-base focus:outline-none focus:ring-0 focus:border-transparent"
-                                            placeholder="Введите цену"
+                                            placeholder={t('enterPrice')}
                                             value={price}
                                             onChange={(e) => {
                                                 const value = e.target.value
@@ -491,18 +493,15 @@ const CreateAd = () => {
                         </>
                     ) : (
                         <div className="text-center bg-card-white">
-                            <p className="text-lg mb-4">
-                                У вас нет верифицированных каналов.
-                            </p>
+                            <p className="text-lg mb-4">{t('noVerified')}</p>
                             <p className="text-lg mb-8">
-                                Для того чтобы создать рекламное предложение,
-                                вам необходимо верифицировать ваш канал.
+                                {t('needVerification')}
                             </p>
                             <Link
                                 to="/how-create"
                                 className="rounded-full bg-blue-500 px-6 py-2 font-bold shadow-xl transition duration-300 hover:bg-blue-600"
                             >
-                                Как верифицировать канал?
+                                {t('howToVerify')}
                             </Link>
                         </div>
                     )}

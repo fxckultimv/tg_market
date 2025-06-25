@@ -19,8 +19,10 @@ import { initDataRaw } from '@telegram-apps/sdk-react'
 import DefaultImage from '../../assets/defaultImage.png'
 import FormatInfo from '../../components/FormatInfo'
 import EquivalentCourse from '../../components/EquivalentCourse'
+import { useTranslation } from 'react-i18next'
 
 const ChannelDetails = () => {
+    const { t } = useTranslation('Channels')
     const navigate = useNavigate()
     const { addToast } = useToast()
     const [searchParams, setSearchParams] = useSearchParams()
@@ -305,15 +307,17 @@ const ChannelDetails = () => {
                 </div>
                 <div className="flex gap-3 py-2 px-6 max-md:flex-col max-sm:gap-1">
                     <p className="text-base">
-                        <span className="font-bold">Канал:</span>{' '}
+                        <span className="font-bold">{t('channel')}</span>{' '}
                         {productDetails.channel_name}
                     </p>
                     <p className="text-base">
-                        <span className="font-bold">Верифицирован:</span>{' '}
-                        {productDetails.is_verified ? 'Да' : 'Нет'}
+                        <span className="font-bold">{t('verified')}</span>{' '}
+                        {productDetails.is_verified
+                            ? `${t('yes')}`
+                            : `${t('no')}`}
                     </p>
                     <p className="text-base">
-                        <span className="font-bold">URL Канала:</span>{' '}
+                        <span className="font-bold">{t('channelUrl')}</span>{' '}
                         <a
                             href={productDetails.channel_url}
                             target="_blank"
@@ -327,7 +331,7 @@ const ChannelDetails = () => {
             </div>
             <div className="bg-card-white py-2 px-6 rounded-xl ">
                 <p className="text-lg rounded-lg">
-                    <span className="font-bold">Описание:</span>{' '}
+                    <span className="font-bold">{t('description')}</span>{' '}
                     {productDetails.description}
                 </p>
             </div>
@@ -357,7 +361,7 @@ const ChannelDetails = () => {
                             htmlFor="format"
                             className="block text-base font-semibold mb-2"
                         >
-                            Выберите формат:
+                            {t('selectForma')}
                         </label>
                         <FormatInfo />
                     </div>
@@ -368,7 +372,7 @@ const ChannelDetails = () => {
                         onChange={handleFormatChange} // Обработчик изменения формата
                         className="w-full p-3 bg-background  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                     >
-                        <option value="">Выбрать формат</option>
+                        <option value="">{t('selectOption')}</option>
                         {formatList.map((formatId) => (
                             <option key={formatId} value={formatId}>
                                 {formatNames[formatId] || 'Unknown format'}
@@ -383,7 +387,7 @@ const ChannelDetails = () => {
                         htmlFor="post_time"
                         className="block text-base font-semibold mb-2"
                     >
-                        Выберите время:
+                        {t('selectTime')}
                     </label>
                     <select
                         id="post_time"
@@ -391,7 +395,7 @@ const ChannelDetails = () => {
                         onChange={handlePostTimeChange} // Обработчик изменения времени
                         className="w-full p-3 bg-background rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-accent-green transition ease-in-out duration-200"
                     >
-                        <option value="">Выбрать время</option>
+                        <option value="">{t('selectTimeOption')}</option>
                         {productDetails.post_times.map((time, index) => (
                             <option key={index} value={time}>
                                 {time.slice(0, 5)}{' '}
@@ -404,7 +408,7 @@ const ChannelDetails = () => {
 
             {/* Блок с календарем */}
             <div className="bg-card-white p-2 rounded-xl">
-                <h3 className="text-2xl py-2 px-4">Выберите даты:</h3>
+                <h3 className="text-2xl py-2 px-4">{t('selectDate')}</h3>
                 <Calendar
                     onClickDay={handleDateChange} // Используем onClickDay для обработки кликов по дням
                     value={selectedDates} // Массив выбранных дат
@@ -413,7 +417,7 @@ const ChannelDetails = () => {
                     className="bg-dark-gray bg-white rounded-lg shadow-lg p-4"
                 />
                 <div>
-                    <p className="text-lg py-5">Выбранные даты: </p>
+                    <p className="text-lg py-5">{t('selectedDates')} </p>
                     <ul className="flex gap-3 justify-start flex-wrap items-center">
                         {selectedDates.map((date, index) => (
                             <li

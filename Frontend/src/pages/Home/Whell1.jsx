@@ -7,8 +7,10 @@ import lucky from '../../assets/lucky.svg'
 import bigLogo from '../../assets/bigLogo.svg'
 import Ellipse from '../../assets/Ellipse.svg'
 import Clover from '../../assets/clover.svg'
+import { useTranslation } from 'react-i18next'
 
 const Whell1 = () => {
+    const { t } = useTranslation('Home')
     const icons = [Cat, Clover, Money, BankHome]
 
     return (
@@ -65,13 +67,12 @@ const Whell1 = () => {
                 })}
             </div>
             <h1 className="text-4xl font-bold mt-8 z-10">
-                Carrot — это продвижение в{' '}
+                {t('carrotTitle')}
                 <span className="text-blue">Telegram</span>
             </h1>
 
             <p className="text-gray-600 mt-4 max-md:text-xs">
-                Наше приложение помогает покупать рекламу в Telegram-каналах и
-                автоматизировать процесс её продажи.
+                {t('carrotSubtitle')}
             </p>
         </div>
     )

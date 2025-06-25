@@ -1,0 +1,19 @@
+{
+    "networkMainnet": "MainNet",
+    "networkTestnet": "TestNet",
+    "networkUnknown": "N/A",
+    "enterAmount": "Enter amount",
+    "topUp": "Top Up",
+    "invalidAmount": "Enter a valid amount.",
+    "mainnetError": "Please connect a TestNet wallet.",
+    "withdraw": "Withdraw",
+    "withdrawToWallet": "Withdraw to connected wallet",
+    "enterWalletAddress": "Enter wallet address",
+    "withdrawalSuccess": "Funds withdrawn",
+    "withdrawalError": "Withdrawal failed",
+    "topupSuccess": "Balance topped up",
+    "topupError": "Top-up failed",
+    "selectPaymentMethod": "Select payment method",
+    "wallet": "Wallet",
+    "cryptobot": "CryptoBot"
+}

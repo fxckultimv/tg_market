@@ -12,15 +12,17 @@ import InfoBox from '../../components/InfoBox'
 import { motion, AnimatePresence } from 'framer-motion'
 import DefaultImage from '../../assets/defaultImage.png'
 import EquivalentCourse from '../../components/EquivalentCourse'
+import { useTranslation } from 'react-i18next'
 
 const ChannelsList = () => {
+    const { t } = useTranslation('Channels')
     const { products, page, totalPages, plusPage, minusPage, loading, error } =
         useProductStore()
 
     if (!products || products.length === 0) {
         return (
             <div className="bg-white text-center mt-8">
-                <p>Нет доступных продуктов</p>
+                <p>{t('noProducts')}</p>
             </div>
         )
     }
@@ -46,17 +48,15 @@ const ChannelsList = () => {
                     className="px-3 py-2 rounded bg-gray disabled:opacity-50"
                     disabled={page === 1}
                 >
-                    Назад
+                    {t('prevPage')}
                 </button>
-                <span>
-                    Страница {page} из {totalPages}
-                </span>
+                <span>{t('page', { page, totalPages })}</span>
                 <button
                     onClick={plusPage}
                     disabled={page === totalPages}
                     className="px-3 py-2 rounded bg-gray disabled:opacity-50"
                 >
-                    Вперед
+                    {t('nextPage')}
                 </button>
             </div>
         </>
@@ -64,6 +64,7 @@ const ChannelsList = () => {
 }
 
 const ProductCard = ({ product }) => {
+    const { t } = useTranslation('Channels')
     const [isOpen, setIsOpen] = useState(false)
     const [isOpenFormat, setIsOpenFormat] = useState(false)
     const [isOpenPostTime, setIsOpenPostTime] = useState(false)
@@ -153,7 +154,7 @@ const ProductCard = ({ product }) => {
                     <div className="flex gap-3">
                         {/* Заголовок с кнопкой для открытия/закрытия */}
                         <p className="text-lg max-sm:text-base cursor-pointer">
-                            Статистика
+                            {t('statistic')}
                         </p>
                         <img
                             src={arrowDown}

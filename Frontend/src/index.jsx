@@ -27,10 +27,10 @@ if (isTelegram) {
     mainButton.mount()
 }
 
-telegramAnalytics.init({
-    token: 'eyJhcHBfbmFtZSI6IkNhcnJvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvY2Fycm90X2Fkc19ib3QiLCJhcHBfZG9tYWluIjoiaHR0cHM6Ly9jYXJyb3QtcHJvbW8ucnUvIn0=!MTCHkEaWwOqU1rFAB5UwQfclq2QREUrLMLgyMSwSrfs=',
-    appName: 'Carrot',
-})
+// telegramAnalytics.init({
+//     token: 'eyJhcHBfbmFtZSI6IkNhcnJvdCIsImFwcF91cmwiOiJodHRwczovL3QubWUvY2Fycm90X2Fkc19ib3QiLCJhcHBfZG9tYWluIjoiaHR0cHM6Ly9jYXJyb3QtcHJvbW8ucnUvIn0=!MTCHkEaWwOqU1rFAB5UwQfclq2QREUrLMLgyMSwSrfs=',
+//     appName: 'Carrot',
+// })
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <TonConnectUIProvider

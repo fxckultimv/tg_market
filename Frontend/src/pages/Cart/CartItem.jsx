@@ -13,9 +13,11 @@ import star from '../../assets/star.svg'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import DefaultImage from '../../assets/defaultImage.png'
 import EquivalentCourse from '../../components/EquivalentCourse'
+import { useTranslation } from 'react-i18next'
 
 const CartItem = ({ cart }) => {
     const navigate = useNavigate()
+    const { t } = useTranslation('Cart')
     const { fetchCart, createOrder, deleteCartItem, loading, error } =
         useUserStore()
     const { formatNames } = useProductStore()
@@ -55,11 +57,11 @@ const CartItem = ({ cart }) => {
                         setSelectedProductId(null)
 
                         await fetchCart(initDataRaw())
-                        addToast('Товар заказан!')
+                        addToast(`${t('ordered')}!`)
                         // navigate('/basket')
                     } catch (error) {
-                        addToast('Ошибка при создании заказа!', 'error')
-                        console.error('Ошибка при создании заказа:', error)
+                        addToast(`${t('orderError')}!`, 'error')
+                        console.error(`${t('orderError')}:`, error)
                     }
                 }
 
@@ -101,13 +103,13 @@ const CartItem = ({ cart }) => {
             setSelectedProductId(null)
             // Обновляем корзину
             await fetchCart(initDataRaw())
-            addToast('Товар заказан!')
+            addToast(`$t('ordered')}!`)
 
             // Перенаправляем пользователя на страницу корзины
             // navigate('/basket')
         } catch (err) {
-            addToast('Ошибка при создании заказа!', 'error')
-            console.log('Ошибка при создании заказа:', error)
+            addToast(`${t('orderError')}!`, 'error')
+            console.log(`${t('orderError')}:`, error)
         }
     }
 
@@ -123,7 +125,7 @@ const CartItem = ({ cart }) => {
         })
 
         if (hasExpiredItems) {
-            addToast('Удалите устаревшее время!', 'warning')
+            addToast(`${t('removeExpired')}!`, 'warning')
             return // Прерываем выполнение функции
         }
 
@@ -144,7 +146,7 @@ const CartItem = ({ cart }) => {
         try {
             deleteCartItem(initDataRaw(), productId.slice(0, -2))
             fetchCart(initDataRaw())
-            addToast('Товар удалён!')
+            addToast(`${t('removed')}!`)
         } catch (err) {
             console.error('Ошибка при удалении:', err)
         }
@@ -198,10 +200,11 @@ const CartItem = ({ cart }) => {
                                 <div className="flex justify-between max-md:flex-col">
                                     {' '}
                                     <p className="">
-                                        Формат: {formatNames[product.format_id]}
+                                        {t('format')}:{' '}
+                                        {formatNames[product.format_id]}
                                     </p>
                                     <p className="">
-                                        Время:{' '}
+                                        {t('time')}:{' '}
                                         {new Date(
                                             product.items[0].post_time
                                         ).toLocaleTimeString([], {
@@ -214,7 +217,7 @@ const CartItem = ({ cart }) => {
                                 <div className="bg-gray w-full h-[1px]"></div>
                                 <div className="flex-none">
                                     <div className="">
-                                        <p>Даты публикации: </p>
+                                        <p>{t('publicationDates')} </p>
                                         <div>
                                             <ul className="flex gap-3 justify-start flex-wrap items-center">
                                                 {product.items.map((item) => (
@@ -266,7 +269,7 @@ const CartItem = ({ cart }) => {
             </div>
             <div className="flex-1 min-w-0 max-md:hidden">
                 <div className="bg-dark-blue text-white p-6 rounded-xl">
-                    <h2 className="text-lg mb-4">Оформление заказа</h2>
+                    <h2 className="text-lg mb-4">{t('orderProcessing')}</h2>
                     <div className="">
                         {selectedProductId !== null && (
                             // Отображаем выбранный товар и его цену
@@ -289,14 +292,16 @@ const CartItem = ({ cart }) => {
                     </div>
                     <div className="border-t border-gray my-4"></div>
                     <div className="flex justify-between text-lg ">
-                        <p>Итого:</p>
+                        <p>{t('total')}:</p>
                         <p>{totalPrice} Ton</p>
                     </div>
                     <button
                         className="w-full bg-white py-2 mt-4 rounded-lg  hover:bg-blue"
                         onClick={() => handleButtonClick()}
                     >
-                        <p className="text-black hover:text-white">Заказать</p>
+                        <p className="text-black hover:text-white">
+                            {t('order')}
+                        </p>
                     </button>
                 </div>
             </div>

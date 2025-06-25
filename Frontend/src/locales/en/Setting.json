@@ -1,0 +1,9 @@
+{
+    "title": "Settings",
+    "themeLabel": "Website theme:",
+    "lightTheme": "Light theme",
+    "darkTheme": "Dark theme",
+    "languageLabel": "Website language:",
+    "currencyLabel": "Currency equivalent:",
+    "backToMain": "Back to main"
+}

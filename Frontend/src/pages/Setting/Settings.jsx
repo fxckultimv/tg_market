@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useUserStore } from '../../store'
+import i18n from '../../i18n'
+import { useTranslation } from 'react-i18next'
 
 const Setting = () => {
+    const { t } = useTranslation('Setting')
     const [theme, setTheme] = useState('dark') // Тема по умолчанию - тёмная
     const [language, setLanguage] = useState('ru') // Язык по умолчанию - русский
     const { course, setCourse } = useUserStore()
 
     useEffect(() => {
-        // Получаем тему из localStorage при загрузке компонента
         const savedTheme = localStorage.getItem('theme') || 'dark'
         setTheme(savedTheme)
-        // Устанавливаем класс на элемент <html> для работы с Tailwind
         document.body.classList.add(savedTheme)
+
+        const savedLang = localStorage.getItem('language')
+        if (savedLang) {
+            setLanguage(savedLang)
+            i18n.changeLanguage(savedLang)
+        }
     }, [])
 
     // Переключатель темы с сохранением в localStorage
@@ -26,9 +33,12 @@ const Setting = () => {
 
     // Обработчик изменения языка
     const handleLanguageChange = (e) => {
-        setLanguage(e.target.value)
-        // Здесь можно добавить логику по изменению языка в приложении
+        const selectedLang = e.target.value
+        setLanguage(selectedLang)
+        i18n.changeLanguage(selectedLang)
+        localStorage.setItem('language', selectedLang)
     }
+
     const handleUserCourse = (e) => {
         localStorage.setItem('userCourse', e.target.value)
         setCourse(e.target.value)
@@ -38,11 +48,11 @@ const Setting = () => {
         <div
             className={`flex flex-col items-start min-h-screen px-6 py-4 bg-background text-text`}
         >
-            <h2 className="text-3xl font-bold mb-8">Настройки</h2>
+            <h2 className="text-3xl font-bold mb-8">{t('title')}</h2>
 
             {/* Переключатель темы */}
             <div className="mb-6">
-                <label className="mr-4 font-medium">Тема сайта:</label>
+                <label className="mr-4 font-medium">{t('themeLabel')}</label>
                 <button
                     onClick={toggleTheme}
                     className={`px-4 py-2 rounded-lg font-semibold transition-colors duration-300 text-text ${
@@ -51,13 +61,15 @@ const Setting = () => {
                             : 'bg-gray-200 hover:bg-gray-300'
                     }`}
                 >
-                    {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+                    {theme === 'dark'
+                        ? `${t('lightTheme')}`
+                        : `${t('darkTheme')}`}
                 </button>
             </div>
 
             {/* Выбор языка */}
             <div className=" mb-6">
-                <label className="mr-4 font-medium">Язык сайта:</label>
+                <label className="mr-4 font-medium">{t('languageLabel')}</label>
                 <select
                     value={language}
                     onChange={handleLanguageChange}
@@ -69,7 +81,7 @@ const Setting = () => {
             </div>
 
             <div className=" mb-6">
-                <label className="mr-4 font-medium">Эквивалент валюты:</label>
+                <label className="mr-4 font-medium">{t('currencyLabel')}</label>
                 <select
                     value={course}
                     onChange={handleUserCourse}
@@ -89,7 +101,7 @@ const Setting = () => {
 
             {/* Добавить ссылку для возврата на предыдущую страницу */}
             <Link to="/" className="text-blue hover:underline">
-                Вернуться на главную
+                {t('backToMain')}
             </Link>
         </div>
     )

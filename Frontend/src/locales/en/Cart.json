@@ -1,0 +1,16 @@
+{
+    "empty": "Your cart is empty",
+    "goToProducts": "Go to products",
+    "cartTitle": "Cart",
+    "format": "Format",
+    "time": "Time",
+    "publicationDates": "Publication dates:",
+    "orderProcessing": "Order processing",
+    "total": "Total:",
+    "order": "Order",
+    "ordered": "Product ordered!",
+    "orderError": "Error placing order!",
+    "removeExpired": "Remove outdated time!",
+    "removed": "Product removed!",
+    "dateRemoved": "Date removed!"
+}

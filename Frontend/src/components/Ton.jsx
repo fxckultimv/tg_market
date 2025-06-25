@@ -13,8 +13,10 @@ import { useState } from 'react'
 import { useToast } from '../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
 import TonModal from './TonModal'
+import { useTranslation } from 'react-i18next'
 
 const Ton = () => {
+    const { t } = useTranslation('Ton')
     const {
         initData,
         topUpBalance,
@@ -43,12 +45,17 @@ const Ton = () => {
         console.log('amount', amount)
 
         if (!amount || isNaN(amount) || Number(amount) < 0.01) {
-            addToast('Введите корректную сумму.', 'error')
+            addToast(`${t('invalidAmount')}`, 'error')
+            return
+        }
+
+        if (!wallet) {
+            tonConnectUI.openModal() // открываем модалку для подключения
             return
         }
 
         if (wallet.account.chain === CHAIN.MAINNET) {
-            addToast('Подключите TestNet кошелёк.', 'error')
+            addToast(`${t('mainnetError')}`, 'error')
             return
         }
 
@@ -80,12 +87,12 @@ const Ton = () => {
 
             fetchBalance(initDataRaw())
             setShowModal(false)
-            addToast('Баланс пополнен')
+            addToast(`${t('topupSuccess')}`)
             setAmount('')
         } catch (error) {
             console.error('Ошибка при отправке транзакции:', error)
             setShowModal(false)
-            addToast('Ошибка при пополнении', 'error')
+            addToast(`${t('topupError')}`, 'error')
             setAmount('')
         }
     }
@@ -96,7 +103,7 @@ const Ton = () => {
             isNaN(amountWithdrawal) ||
             Number(amountWithdrawal) < 0.01
         ) {
-            addToast('Введите корректную сумму.', 'error')
+            addToast(`${t('invalidAmount')}`, 'error')
             return
         }
 
@@ -110,7 +117,7 @@ const Ton = () => {
         }
 
         if (wallet.account.chain === CHAIN.MAINNET) {
-            addToast('Подключите TestNet кошелёк.', 'error')
+            addToast(`${t('mainnetError')}`, 'error')
             return
         }
 
@@ -121,19 +128,19 @@ const Ton = () => {
                 addressToUse
             )
             fetchBalance(initDataRaw())
-            addToast('Деньги выведены')
+            addToast(`${t('withdrawalSuccess')}`)
             setAmountWithdrawal('')
             setCustomAddress('')
         } catch (error) {
             console.error('Ошибка при отправке транзакции:', error)
-            addToast('Ошибка при выводе денег', 'error')
+            addToast(`${t('withdrawalError')}`, 'error')
             setAmountWithdrawal('')
         }
     }
 
     const handleCreateInvoice = async () => {
         if (!amount || isNaN(amount) || Number(amount) < 0.01) {
-            addToast('Введите корректную сумму.', 'error')
+            addToast(`${t('invalidAmount')}`, 'error')
             return
         }
         const result = await createInvoice(initDataRaw(), Number(amount)) // получаем ссылку напрямую
@@ -166,53 +173,53 @@ const Ton = () => {
                 <TonConnectButton />
             </div>
 
-            {wallet && wallet.account.chain === CHAIN.TESTNET && (
-                <>
-                    <div className="flex justify-between items-center m-2 gap-1">
-                        {/* Кнопка для отправки транзакции */}
-                        <input
-                            type="number"
-                            min={0.1}
-                            placeholder="Введите сумму"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="border p-2 rounded-lg min-w-10 text-black w-2/3"
-                        />
-                        <button
-                            onClick={() => {
-                                const numericAmount = parseFloat(amount)
-                                if (!numericAmount || numericAmount < 0.01) {
-                                    alert(
-                                        'Введите корректную сумму (минимум 0.1 TON)'
-                                    )
-                                    return
-                                }
-                                openModal()
-                            }}
+            <>
+                <div className="flex justify-between items-center m-2 gap-1">
+                    {/* Кнопка для отправки транзакции */}
+                    <input
+                        type="number"
+                        min={0.1}
+                        placeholder={t('enterAmount')}
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="border p-2 rounded-lg min-w-10 text-black w-2/3"
+                    />
+                    <button
+                        onClick={() => {
+                            const numericAmount = parseFloat(amount)
+                            if (!numericAmount || numericAmount < 0.01) {
+                                alert(`${t('invalidAmount')} минимум 0.1 TON`)
+                                return
+                            }
+                            openModal()
+                        }}
+                        className={`rounded-xl p-2 w-1/3 ${amount > 0 ? 'bg-blue' : 'bg-blue opacity-50'}`}
+                        disabled={amount < 0.01}
+                    >
+                        <p className="text-white">{t('topUp')}</p>
+                    </button>{' '}
+                    {showModal && (
+                        <TonModal
+                            handleTransaction={handleTransaction}
+                            handleCreateInvoice={handleCreateInvoice}
+                            setShowModal={setShowModal}
+                            amount={amount}
                             className="bg-blue rounded-xl p-2 w-1/3"
-                            disabled={amount < 0.01}
-                        >
-                            <p className="text-white">Пополнить</p>
-                        </button>{' '}
-                        {showModal && (
-                            <TonModal
-                                handleTransaction={handleTransaction}
-                                handleCreateInvoice={handleCreateInvoice}
-                                setShowModal={setShowModal}
-                                amount={amount}
-                                className="bg-blue rounded-xl p-2 w-1/3"
-                            ></TonModal>
-                        )}
-                    </div>
+                        ></TonModal>
+                    )}
+                </div>
 
-                    {/* Вывод */}
-                    {balance !== undefined && balance !== null && (
+                {/* Вывод */}
+                {balance !== undefined &&
+                    balance !== null &&
+                    wallet &&
+                    wallet.account.chain === CHAIN.TESTNET && (
                         <div className="m-2 flex flex-col gap-2">
                             <div className="flex gap-2 items-center">
                                 <input
                                     type="number"
                                     min={0.1}
-                                    placeholder="Введите сумму"
+                                    placeholder={t('enterAmount')}
                                     value={amountWithdrawal}
                                     onChange={(e) =>
                                         setAmountWithdrawal(e.target.value)
@@ -223,7 +230,9 @@ const Ton = () => {
                                     onClick={Withdrawal}
                                     className="bg-blue rounded-xl p-2 w-1/3"
                                 >
-                                    <p className="text-white">Вывести</p>
+                                    <p className="text-white">
+                                        {t('withdraw')}
+                                    </p>
                                 </button>
                             </div>
 
@@ -237,13 +246,13 @@ const Ton = () => {
                                         )
                                     }
                                 />
-                                <label>Вывести на привязанный кошелёк</label>
+                                <label>{t('withdrawToWallet')}</label>
                             </div>
 
                             {!useConnectedWallet && (
                                 <input
                                     type="text"
-                                    placeholder="Введите адрес кошелька"
+                                    placeholder={t('enterWalletAddress')}
                                     value={customAddress}
                                     onChange={(e) =>
                                         setCustomAddress(e.target.value)
@@ -253,8 +262,7 @@ const Ton = () => {
                             )}
                         </div>
                     )}
-                </>
-            )}
+            </>
         </>
     )
 }

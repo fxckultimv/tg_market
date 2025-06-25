@@ -1,6 +1,7 @@
 import React from 'react'
 import Ton from '../assets/ton_symbol.svg'
 import CryptoBot from '../assets/CryptoBot.png'
+import { useTranslation } from 'react-i18next'
 
 const TonModal = ({
     handleTransaction,
@@ -8,6 +9,7 @@ const TonModal = ({
     setShowModal,
     amount,
 }) => {
+    const { t } = useTranslation('Ton')
     const closeModal = () => {
         return setShowModal(false)
     }
@@ -21,7 +23,7 @@ const TonModal = ({
                 onClick={(e) => e.stopPropagation()} // <<< критично!
             >
                 <h2 className="items-center text-lg font-bold mb-4">
-                    Выберите способ оплаты
+                    {t('selectPaymentMethod')}
                 </h2>
                 <button
                     onClick={handleTransaction}

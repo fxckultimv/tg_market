@@ -8,8 +8,10 @@ import bigLogo from '../../assets/bigLogo.svg'
 import Ellipse from '../../assets/Ellipse.svg'
 import Clover from '../../assets/clover.svg'
 import tg from '../../assets/tg.svg'
+import { useTranslation } from 'react-i18next'
 
 const Whell2 = () => {
+    const { t } = useTranslation('Home')
     const icons = [Cat, Clover, Money, BankHome]
 
     return (
@@ -17,18 +19,17 @@ const Whell2 = () => {
             <div className=" w-full h-[300px] flex justify-center items-center">
                 <div className="flex flex-col items-center">
                     <h1 className="text-4xl font-bold mt-8 z-10">
-                        Связаться с нами
+                        {t('contactTitle')}
                     </h1>
                     <p className="mt-4 max-w-2xl text-center">
-                        У вас есть вопросы или вы хотите обсудить детали
-                        продвижения? Мы готовы помочь!
+                        {t('contactSubtitle')}
                     </p>
 
                     {/* Кнопка */}
                     <div className="mt-6">
                         <button className="bg-blue text-white py-3 px-6 rounded-xl flex items-center gap-2">
                             <img src={tg} alt="Telegram" className="w-5 h-5" />
-                            <span>Перейти в телеграм</span>
+                            <span>{t('contactButton')}</span>
                         </button>
                     </div>
                 </div>
@@ -71,13 +72,12 @@ const Whell2 = () => {
                 })}
             </div>
             <h1 className="text-4xl font-bold mt-8 z-10">
-                Carrot — это продвижение в{' '}
+                {t('carrotTitle')}
                 <span className="text-blue">Telegram</span>
             </h1>
 
             <p className="text-gray-600 mt-4 max-md:text-xs">
-                Наше приложение помогает покупать рекламу в Telegram-каналах и
-                автоматизировать процесс её продажи.
+                {t('carrotSubtitle')}
             </p>
         </div>
     )

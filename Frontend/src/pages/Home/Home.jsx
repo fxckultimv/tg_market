@@ -33,9 +33,11 @@ import Whell1 from './Whell1'
 import Whell2 from './Whell2'
 import FAQ from './FAQ'
 import MainButtonTest from './MainButtonTest'
+import { useTranslation } from 'react-i18next'
 
 const Home = () => {
     const { loading, error } = useUserStore()
+    const { t } = useTranslation('Home')
 
     if (loading) {
         return <Loading />
@@ -59,10 +61,10 @@ const Home = () => {
             <div className="flex flex-row gap-8 m-6 max-md:flex-col">
                 <div className="basis-2/3 relative bg-gradient-radial from-white to-main-gray p-8 rounded-3xl border-2">
                     <h1 className="text-4xl font-semibold mb-4">
-                        Мы разместили...
+                        {t('wePlacedTitle')}
                     </h1>
                     <p className="text-md mb-8 text-gray-600 z-10">
-                        Мы разместили огромное количество объявлений по рекламе
+                        {t('wePlacedSubtitle')}
                     </p>
                     <img
                         src={banner}
@@ -77,10 +79,10 @@ const Home = () => {
                         className=" mb-4"
                     />
                     <h1 className="text-3xl font-semibold mb-2">
-                        Рекламодатели
+                        {t('advertisersTitle')}
                     </h1>
                     <p className="text-md text-gray-600 text-center">
-                        На нашей платформе огромное количество рекламодателей
+                        {t('advertisersSubtitle')}
                     </p>
                 </div>
             </div>
@@ -94,9 +96,11 @@ const Home = () => {
                             className="mb-4 max-h-[360px] object-contain"
                         />
                     </div>
-                    <h1 className="text-3xl font-semibold mb-2">Каналы</h1>
+                    <h1 className="text-3xl font-semibold mb-2">
+                        {t('channelsTitle')}
+                    </h1>
                     <p className="text-md text-gray-600 text-center">
-                        На нашей платформе огромное количество рекламодателей
+                        {t('channelsSubtitle')}
                     </p>
                 </div>
                 <div className="basis-2/3 bg-gradient-radial border-2 p-8 rounded-3xl flex flex-col items-center">
@@ -108,25 +112,23 @@ const Home = () => {
                         />
                     </div>
                     <h1 className="text-3xl font-semibold mb-2 text-center">
-                        Экономия времени и усилий
+                        {t('saveTimeTitle')}
                     </h1>
                     <p className="break-words whitespace-normal text-sm text-gray-600 text-center">
-                        С нами вам не нужно тратить часы на поиск каналов и
-                        настройку рекламы. Мы подберем подходящие площадки и
-                        организуем эффективное продвижение для вашего бизнеса.
+                        {t('saveTimeText')}
                     </p>
                 </div>
             </div>
 
             <div className="m-6 mt-10">
                 <h2 className="text-5xl font-semibold mb-6">
-                    Популярные категории
+                    {t('popularCategories')}
                 </h2>
                 <div className="flex gap-8 items-center overflow-x-auto max-md:gap-4">
                     <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px] max-w-full">
                         <div className="w-full flex justify-between mb-4">
                             <h2 className="text-white text-3xl max-md:text-lg">
-                                Бизнес
+                                {t('categoryBusiness')}
                             </h2>{' '}
                             <img src={Arrow2} alt="" />
                         </div>
@@ -155,7 +157,7 @@ const Home = () => {
                                     {/* Текстовый блок - занимает всю доступную ширину */}
                                     <div className="flex-1 flex flex-col items-center text-center">
                                         <h2 className="text-base font-bold">
-                                            Интернет магазин
+                                            {t('categoryExample1')}
                                         </h2>
                                         <p className="text-xs">
                                             60 600 подписчиков
@@ -195,7 +197,7 @@ const Home = () => {
                     <div className="flex-grow bg-dark-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px] max-w-full">
                         <div className="w-full flex justify-between mb-4">
                             <h2 className="text-white text-2xl max-md:text-lg">
-                                Развлекательные каналы
+                                {t('categoryEntertainment')}
                             </h2>{' '}
                             <img src={Arrow2} alt="" />
                         </div>
@@ -225,7 +227,7 @@ const Home = () => {
                                     {/* Текстовый блок - занимает всю доступную ширину */}
                                     <div className="flex flex-col items-center text-center">
                                         <h2 className="text-base font-bold">
-                                            Новости
+                                            {t('categoryExample2')}
                                         </h2>
                                         <p className="text-xs text-gray-300">
                                             4 123 432 подписчиков
@@ -265,7 +267,7 @@ const Home = () => {
                     <div className="flex-grow bg-phone-blue rounded-3xl items-center flex flex-col px-[38px] pt-[70px] max-w-full">
                         <div className="w-full flex justify-between mb-4">
                             <h2 className="text-white text-2xl max-md:text-lg">
-                                Новости и медиа
+                                {t('categoryMedia')}
                             </h2>{' '}
                             <img src={Arrow2} alt="" />
                         </div>
@@ -295,10 +297,10 @@ const Home = () => {
                                     {/* Текстовый блок - занимает всю доступную ширину */}
                                     <div className="flex-1 flex flex-col items-center text-center">
                                         <h2 className="text-base font-bold">
-                                            Инвестиции
+                                            {t('categoryExample3')}
                                         </h2>
                                         <p className="text-xs text-gray-300">
-                                            45 839 подписчиков
+                                            45 839 {t('statSubscribers')}
                                         </p>
                                     </div>
                                     <img
@@ -337,11 +339,10 @@ const Home = () => {
             <div className="bg-dark-blue max-md:rounded-2xl">
                 <div className="flex flex-col items-center justify-center pt-20 p-4">
                     <h2 className="text-5xl text-white mb-5 max-md:text-3xl text-center">
-                        Рекомендованные объявления
+                        {t('recommendedTitle')}
                     </h2>{' '}
                     <p className="text-xl text-gray max-md:text-base text-center">
-                        лучшие объявления с короткими описаниями и ссылками для
-                        быстрого перехода.
+                        {t('recommendedSubtitle')}
                     </p>
                 </div>
 
@@ -368,7 +369,9 @@ const Home = () => {
                                 </div>
                             </div>
                             <div className="bg-gray w-full h-[1px] my-8"></div>
-                            <p className="text-white mb-3">Время публикации:</p>
+                            <p className="text-white mb-3">
+                                {t('statPublicationTime')}
+                            </p>
                             <div className="flex justify-between gap-4">
                                 <div className="flex justify-between flex-grow p-3 border-2 rounded-xl border-gray">
                                     <p className="text-white">1/24</p>
@@ -383,7 +386,9 @@ const Home = () => {
 
                             <div className="bg-gray w-full h-[1px] my-8"></div>
                             <div>
-                                <p className="text-white p-2">Статистика</p>
+                                <p className="text-white p-2">
+                                    {t('statStatistics')}
+                                </p>
                                 <div className="flex justify-between gap-3 text-nowrap ">
                                     <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
@@ -425,7 +430,7 @@ const Home = () => {
                             <div className="flex justify-between">
                                 <div>
                                     <p className="text-white text-sm">
-                                        Стоимость
+                                        {t('statCost')}
                                     </p>
                                     <div className="flex items-center gap-2">
                                         <img
@@ -445,7 +450,7 @@ const Home = () => {
                                         className=" p-3 text-xl text-white gap-3 flex max-md:text-base max-md:gap-1 max-md:p-1"
                                     >
                                         <img src={Arrow} alt="" />
-                                        Начать сейчас
+                                        {t('startNow')}
                                     </a>
                                 </div>
                             </div>
@@ -472,7 +477,9 @@ const Home = () => {
                                 </div>
                             </div>
                             <div className="bg-gray w-full h-[1px] my-8"></div>
-                            <p className="text-white mb-3">Время публикации:</p>
+                            <p className="text-white mb-3">
+                                {t('statPublicationTime')}
+                            </p>
                             <div className="flex justify-between gap-4">
                                 <div className="flex justify-between flex-grow p-3 border-2 rounded-xl border-gray">
                                     <p className="text-white">1/24</p>
@@ -487,7 +494,9 @@ const Home = () => {
 
                             <div className="bg-gray w-full h-[1px] my-8"></div>
                             <div>
-                                <p className="text-white p-2">Статистика</p>
+                                <p className="text-white p-2">
+                                    {t('statStatistics')}
+                                </p>
                                 <div className="flex justify-between gap-3 text-nowrap">
                                     <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
@@ -531,7 +540,7 @@ const Home = () => {
                             <div className="flex justify-between">
                                 <div>
                                     <p className="text-white text-sm">
-                                        Стоимость
+                                        {t('statCost')}
                                     </p>
                                     <h2 className="text-white text-3xl">
                                         4500 ₽
@@ -543,7 +552,7 @@ const Home = () => {
                                         className=" p-3 text-xl  text-white gap-3 flex"
                                     >
                                         <img src={Arrow} alt="" />
-                                        Начать сейчас
+                                        {t('startNow')}
                                     </a>
                                 </div>
                             </div>
@@ -569,7 +578,9 @@ const Home = () => {
                                 </div>
                             </div>
                             <div className="bg-gray w-full h-[1px] my-8"></div>
-                            <p className="text-white mb-3">Время публикации:</p>
+                            <p className="text-white mb-3">
+                                {t('statPublicationTime')}
+                            </p>
                             <div className="flex justify-between gap-4">
                                 <div className="flex justify-between flex-grow p-3 border-2 rounded-xl border-gray">
                                     <p className="text-white">1/24</p>
@@ -584,7 +595,9 @@ const Home = () => {
 
                             <div className="bg-gray w-full h-[1px] my-8"></div>
                             <div>
-                                <p className="text-white p-2">Статистика</p>
+                                <p className="text-white p-2">
+                                    {t('statStatistics')}
+                                </p>
                                 <div className="flex justify-between gap-3 text-nowrap">
                                     <div className="bg-dark-blue flex flex-col justify-center items-center px-6 py-2 rounded-xl gap-2 max-md:px-3">
                                         <img
@@ -628,7 +641,7 @@ const Home = () => {
                             <div className="flex justify-between">
                                 <div>
                                     <p className="text-white text-sm">
-                                        Стоимость
+                                        {t('statCost')}
                                     </p>
                                     <h2 className="text-white text-3xl">
                                         10 $
@@ -640,7 +653,7 @@ const Home = () => {
                                         className=" p-3 text-xl  text-white gap-3 flex"
                                     >
                                         <img src={Arrow} alt="" />
-                                        Начать сейчас
+                                        {t('startNow')}
                                     </a>
                                 </div>
                             </div>

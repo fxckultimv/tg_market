@@ -11,9 +11,11 @@ import { initDataRaw } from '@telegram-apps/sdk-react'
 import Feedback from './Feedback'
 import DefaultImage from '../../assets/defaultImage.png'
 import EquivalentCourse from '../../components/EquivalentCourse'
+import { useTranslation } from 'react-i18next'
 
 const SingleHistory = () => {
     const { order_id } = useParams()
+    const { t } = useTranslation('History')
     const { singleHistory, fetchSingleHistory, loading, error } = useUserStore()
 
     useEffect(() => {
@@ -57,14 +59,16 @@ const SingleHistory = () => {
             />
             {singleHistory.status === 'problem' && (
                 <div className="p-2 mt-2 items-center text-center bg-red rounded-xl">
-                    <p className="text-xl text-white">Спорт открыт</p>
+                    <p className="text-xl text-white">
+                        {t('statusBar.conflict')}
+                    </p>
                 </div>
             )}
 
             {/* Данные о товаре */}
             <div className="mt-8 p-4 bg-card-white rounded-xl">
                 <p>
-                    <strong>Ссылка на канал:</strong>{' '}
+                    <strong>{t('single.channel')}:</strong>{' '}
                     <a
                         href={singleHistory.channel_url}
                         target="_blank"
@@ -75,7 +79,7 @@ const SingleHistory = () => {
                     </a>
                 </p>
                 <p>
-                    <strong>Общая стоимость:</strong>{' '}
+                    <strong>{t('single.totalPrice')}:</strong>{' '}
                     {nanoTonToTon(singleHistory.total_price)} ton.{' '}
                     <EquivalentCourse
                         ton={nanoTonToTon(singleHistory.total_price)}
@@ -83,7 +87,7 @@ const SingleHistory = () => {
                 </p>
                 {singleHistory.discounted_price && (
                     <p className="">
-                        <strong>Цена со скидкой:</strong>{' '}
+                        <strong>{t('single.discountedPrice')}:</strong>{' '}
                         {nanoTonToTon(singleHistory.discounted_price)} ton.{' '}
                         <EquivalentCourse
                             ton={nanoTonToTon(singleHistory.discounted_price)}
@@ -91,7 +95,7 @@ const SingleHistory = () => {
                     </p>
                 )}
                 <p>
-                    <strong>Количество реклам:</strong>{' '}
+                    <strong>{t('single.postCount')}:</strong>{' '}
                     {singleHistory.post_times?.length || 0}
                 </p>
             </div>
@@ -100,7 +104,7 @@ const SingleHistory = () => {
                     singleHistory.post_times.map((time, index) => (
                         <div key={index} className="mt-4 p-4 rounded-xl">
                             <p>
-                                <strong>Дата и время поста:</strong>{' '}
+                                <strong>{t('single.postDate')}:</strong>{' '}
                                 {new Date(time).toLocaleDateString('ru-RU', {
                                     day: 'numeric',
                                     month: 'long',
@@ -110,7 +114,7 @@ const SingleHistory = () => {
                                 })}
                             </p>
                             <p>
-                                <strong>Цена:</strong>{' '}
+                                <strong>{t('single.price')}:</strong>{' '}
                                 {nanoTonToTon(singleHistory.price)} ton.
                             </p>
                         </div>

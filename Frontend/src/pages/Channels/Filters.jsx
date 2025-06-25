@@ -5,6 +5,7 @@ import settings from '../../assets/settings.svg'
 import Sort from '../../assets/sort.svg?react'
 import { motion } from 'framer-motion'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { useTranslation } from 'react-i18next'
 
 export const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value)
@@ -23,6 +24,7 @@ export const useDebounce = (value, delay) => {
 }
 
 const Filters = () => {
+    const { t } = useTranslation('Channels')
     const {
         categories,
         filters,
@@ -122,7 +124,7 @@ const Filters = () => {
                     <img src={Document} alt="Документ" className="h-[32px]" />
                 </div>
                 <h1 className="text-text text-5xl max-md:text-3xl">
-                    Объявления
+                    {t('ads')}
                 </h1>
             </div>
             <div className="flex flex-col items-center w-full mt-6 p-3">
@@ -130,7 +132,7 @@ const Filters = () => {
                 <div className="text-black w-full max-w-md mb-4">
                     <input
                         type="search"
-                        placeholder="Поиск объявлений"
+                        placeholder={t('searchPlaceholder')}
                         value={searchQuery}
                         onChange={handleSearch}
                         className="w-full px-4 py-2 border rounded-lg outline-none  placeholder-gray-400 focus:ring-2 focus:ring-blue"
@@ -141,7 +143,7 @@ const Filters = () => {
                     {' '}
                     <div className="flex justify-evenly items-center max-w-md mx-auto gap-2">
                         <div className="flex flex-col px-2 items-center bg-card-white rounded-xl text-sm">
-                            <p>Каналы </p>
+                            <p>{t('channels')} </p>
                             <p>{totalProducts}</p>
                         </div>
                         <div className="">
@@ -154,7 +156,7 @@ const Filters = () => {
                                     alt="Tune icon"
                                     className="w-5 h-5 mr-2"
                                 />
-                                Фильтры
+                                {t('filters')}
                             </button>
                         </div>
                         <div className="flex items-center relative">
@@ -176,7 +178,9 @@ const Filters = () => {
 
                                     {/* Текущий режим сортировки */}
                                     <div className="m-2 text-gray-800 font-medium cursor-pointer">
-                                        {sort === 'asc' ? 'Дешевле' : 'Дороже'}
+                                        {sort === 'asc'
+                                            ? `${t('cheaper')}`
+                                            : `${t('expensive')}`}
                                     </div>
                                 </div>
 
@@ -195,7 +199,7 @@ const Filters = () => {
                                                     : 'hover:bg-background'
                                             }`}
                                         >
-                                            Дешевле
+                                            {t('cheaper')}
                                         </li>
                                         <li
                                             onClick={() => handlerSort('desc')}
@@ -205,7 +209,7 @@ const Filters = () => {
                                                     : 'hover:bg-background'
                                             }`}
                                         >
-                                            Дороже
+                                            {t('expensive')}
                                         </li>
                                     </ul>
                                 </div>
@@ -235,7 +239,7 @@ const Filters = () => {
                             onChange={handleCategoryChange}
                             className="w-full p-2 bg-gray-700 rounded  outline-none bg-gray"
                         >
-                            <option value="">Категория</option>
+                            <option value="">{t('category')}</option>
                             {categories.map((category) => (
                                 <option
                                     key={category.category_id}
@@ -253,7 +257,7 @@ const Filters = () => {
                             value={filters.format || ''}
                             onChange={handleFormat}
                         >
-                            <option value="">Формат</option>
+                            <option value="">{t('format')}</option>
                             <option value="1">
                                 1/24 (1 публикация в течение 24 часов)
                             </option>
@@ -280,7 +284,7 @@ const Filters = () => {
                     <div className="flex items-center justify-between">
                         <div className="w-full mr-2">
                             <label htmlFor="min-price" className="block mb-2">
-                                Мин. цена
+                                {t('minPrice')}
                             </label>
                             <input
                                 id="min-price"
@@ -296,7 +300,7 @@ const Filters = () => {
                         </div>
                         <div className="w-full">
                             <label htmlFor="max-price" className="block mb-2">
-                                Макс. цена
+                                {t('maxPrice')}
                             </label>
                             <input
                                 id="max-price"

@@ -9,8 +9,10 @@ import Loading from '../../Loading'
 import Error from '../../Error'
 import { useToast } from '../../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { useTranslation } from 'react-i18next'
 
 const StatusBar = ({ status, order_id, created_at, post_times }) => {
+    const { t } = useTranslation('History')
     const {
         confirmationOrder,
         fetchSingleHistory,
@@ -70,7 +72,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 <div className="flex gap-2 p-2">
                     <img src={block} alt="created" />
                     <div>
-                        <p>Заказ создан</p>
+                        <p>{t('statusBar.created')}</p>
                         <p className="text-sm">
                             {new Date(created_at).toLocaleDateString('ru-RU', {
                                 day: 'numeric',
@@ -91,7 +93,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 <div className="status-item border-green border-[1px] rounded-xl">
                     <div className="flex gap-2 p-2">
                         <img src={done} alt="pending_payment" />
-                        <p>Заказ одобрен</p>
+                        <p>{t('statusBar.approved')}</p>
                     </div>
                 </div>
             )}
@@ -101,7 +103,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                     {status === 'pending_payment' && (
                         <Link to={`/buy/${order_id}`}>
                             <p className="bg-green rounded-xl p-2 pl-5">
-                                Оплатить
+                                {t('statusBar.payNow')}
                             </p>
                         </Link>
                     )}
@@ -121,7 +123,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 <div className="status-item border-red border-[1px] rounded-xl">
                     <div className="flex gap-2 p-2">
                         <img src={cancel} alt="rejected" />
-                        <p>Заказ отклонен</p>
+                        <p>{t('statusBar.rejected')}</p>
                     </div>
                 </div>
             )}
@@ -131,7 +133,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 <div className="status-item border-green border-[1px] rounded-xl">
                     <div className="flex gap-2 p-2">
                         <img src={paid} alt="paid" />
-                        <p>Заказ оплачен</p>
+                        <p>{t('statusBar.paid')}</p>
                     </div>
                 </div>
             )}
@@ -147,14 +149,14 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                                     className="bg-green px-4 py-2 rounded-md"
                                     onClick={handlerConfirmationOrder}
                                 >
-                                    Подтвердить заказ
+                                    {t('statusBar.confirm')}
                                 </button>
                                 <button
                                     type="submit"
                                     className="bg-red px-4 py-2 rounded-md"
                                     onClick={handlerAddOrderConflict}
                                 >
-                                    Открыть спор
+                                    {t('statusBar.conflict')}
                                 </button>
                             </div>
                         )}
@@ -166,7 +168,7 @@ const StatusBar = ({ status, order_id, created_at, post_times }) => {
                 <div className="status-item border-green border-[1px] rounded-xl">
                     <div className="flex gap-2 p-2">
                         <img src={done} alt="completed" />
-                        <p>Заказ выполнен</p>
+                        <p> {t('statusBar.completed')}</p>
                     </div>
                 </div>
             )}

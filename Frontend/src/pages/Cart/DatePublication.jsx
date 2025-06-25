@@ -3,8 +3,10 @@ import Delete from '../../assets/delete.svg'
 import { useUserStore } from '../../store'
 import { useToast } from '../../components/ToastProvider'
 import { initDataRaw } from '@telegram-apps/sdk-react'
+import { useTranslation } from 'react-i18next'
 
 const DatePublication = ({ item }) => {
+    const { t } = useTranslation('Cart')
     const { fetchCart, deleteDateInCartItem, loading, error } = useUserStore()
     const { addToast } = useToast()
 
@@ -23,7 +25,7 @@ const DatePublication = ({ item }) => {
                 item.cart_item_id
             )
             await fetchCart(initDataRaw())
-            addToast('Дата удалена!')
+            addToast(`${t('dateRemoved')}!`)
         } catch (err) {
             console.log('Ошибка при создании заказа:', error)
         }
